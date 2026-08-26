@@ -84,6 +84,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
 
     def _create_user(self, **kwargs):
         domain = self.operator_cloud.get_domain('default')
+        assert domain is not None
         return self.operator_cloud.create_user(
             domain_id=domain['id'], **kwargs
         )
@@ -96,6 +97,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
     def test_get_role(self):
         role = self.operator_cloud.get_role('admin')
         self.assertIsNotNone(role)
+        assert role is not None
         self.assertIn('id', role)
         self.assertIn('name', role)
         self.assertEqual('admin', role['name'])
@@ -130,7 +132,9 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
 
     def test_list_role_assignments_v2(self):
         user = self.operator_cloud.get_user('demo')
+        assert user is not None
         project = self.operator_cloud.get_project('demo')
+        assert project is not None
         assignments = self.operator_cloud.list_role_assignments(
             filters={'user': user['id'], 'project': project['id']}
         )
@@ -145,6 +149,8 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
         user = self._create_user(
             name=user_name, email=user_email, default_project='demo'
         )
+        demo_project = self.operator_cloud.get_project('demo')
+        assert demo_project is not None
         self.assertTrue(
             self.operator_cloud.grant_role(
                 role_name, user=user['id'], project='demo', wait=True
@@ -154,7 +160,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'user': user['id'],
-                'project': self.operator_cloud.get_project('demo')['id'],
+                'project': demo_project['id'],
             }
         )
         self.assertIsInstance(assignments, list)
@@ -168,7 +174,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'user': user['id'],
-                'project': self.operator_cloud.get_project('demo')['id'],
+                'project': demo_project['id'],
             }
         )
         self.assertIsInstance(assignments, list)
@@ -181,6 +187,8 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
         group = self.operator_cloud.create_group(
             name=group_name, description='test group', domain='default'
         )
+        demo_project = self.operator_cloud.get_project('demo')
+        assert demo_project is not None
         self.assertTrue(
             self.operator_cloud.grant_role(
                 role_name, group=group['id'], project='demo'
@@ -190,7 +198,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'group': group['id'],
-                'project': self.operator_cloud.get_project('demo')['id'],
+                'project': demo_project['id'],
             }
         )
         self.assertIsInstance(assignments, list)
@@ -204,7 +212,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'group': group['id'],
-                'project': self.operator_cloud.get_project('demo')['id'],
+                'project': demo_project['id'],
             }
         )
         self.assertIsInstance(assignments, list)
@@ -218,6 +226,8 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
         user = self._create_user(
             name=user_name, email=user_email, default_project='demo'
         )
+        default_domain = self.operator_cloud.get_domain('default')
+        assert default_domain is not None
         self.assertTrue(
             self.operator_cloud.grant_role(
                 role_name, user=user['id'], domain='default'
@@ -227,7 +237,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'user': user['id'],
-                'domain': self.operator_cloud.get_domain('default')['id'],
+                'domain': default_domain['id'],
             }
         )
         self.assertIsInstance(assignments, list)
@@ -241,7 +251,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'user': user['id'],
-                'domain': self.operator_cloud.get_domain('default')['id'],
+                'domain': default_domain['id'],
             }
         )
         self.assertIsInstance(assignments, list)
@@ -254,6 +264,8 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
         group = self.operator_cloud.create_group(
             name=group_name, description='test group', domain='default'
         )
+        default_domain = self.operator_cloud.get_domain('default')
+        assert default_domain is not None
         self.assertTrue(
             self.operator_cloud.grant_role(
                 role_name, group=group['id'], domain='default'
@@ -263,7 +275,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'group': group['id'],
-                'domain': self.operator_cloud.get_domain('default')['id'],
+                'domain': default_domain['id'],
             }
         )
         self.assertIsInstance(assignments, list)
@@ -277,7 +289,7 @@ class TestRoles(base.KeystoneBaseFunctionalTest):
             {
                 'role': role['id'],
                 'group': group['id'],
-                'domain': self.operator_cloud.get_domain('default')['id'],
+                'domain': default_domain['id'],
             }
         )
         self.assertIsInstance(assignments, list)

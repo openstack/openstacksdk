@@ -51,13 +51,15 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
         project_name = 'auto_allocated_topology_test_project'
         project = self.operator_cloud.get_project(project_name)
         if not project:
+            default_domain = self.operator_cloud.get_domain('default')
+            assert default_domain is not None
             params = {
                 'name': project_name,
                 'description': (
                     'test project used only for the '
                     'TestAutoAllocatedTopology tests class'
                 ),
-                'domain_id': self.operator_cloud.get_domain('default')['id'],
+                'domain_id': default_domain['id'],
             }
 
             project = self.operator_cloud.create_project(**params)

@@ -115,6 +115,7 @@ class TestFlavor(base.BaseComputeTest):
 
         project = self.operator_cloud.get_project('demo')
         self.assertIsNotNone(project)
+        assert project is not None
 
         # give 'demo' access to the flavor
 
