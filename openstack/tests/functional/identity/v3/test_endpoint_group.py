@@ -151,3 +151,37 @@ class TestEndpointGroup(base.BaseIdentityTest):
         )
         endpoint_group_ids = {eg.id for eg in endpoint_groups}
         self.assertIn(endpoint_group.id, endpoint_group_ids)
+
+
+class TestProjectEndpointGroup(base.BaseIdentityTest):
+    def setUp(self):
+        super().setUp()
+
+        self.project = self.admin_identity_client.create_project(
+            name=self.getUniqueString('project')
+        )
+        self.endpoint_group = self.admin_identity_client.create_endpoint_group(
+            name=self.getUniqueString('endpoint_group'),
+            filters={
+                'interface': 'internal',
+            },
+        )
+
+    def test_project_endpoint_group(self):
+        # Associate project and endpoint group
+        self.admin_identity_client.associate_project_with_endpoint_group(
+            self.endpoint_group, self.project
+        )
+
+        # List project endpoint groups
+        project_endpoint_groups = list(
+            self.admin_identity_client.project_endpoint_groups(self.project)
+        )
+        self.assertIsInstance(
+            project_endpoint_groups[0], _endpoint_group.ProjectEndpointGroup
+        )
+
+        # Disassociate project and endpoint group
+        self.admin_identity_client.disassociate_project_from_endpoint_group(
+            self.endpoint_group, self.project
+        )

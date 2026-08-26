@@ -271,7 +271,7 @@ class EndpointProject(Project):
 
 
 class EndpointGroupProject(Project):
-    base_path = '/OS-EP-FILTER/endpoint_groups/%(endpoint_id)s/projects'
+    base_path = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s/projects'
 
     #: The ID for the endpoint group from the URI of the resource
     endpoint_group_id = resource.URI('endpoint_group_id')
