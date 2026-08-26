@@ -498,6 +498,7 @@ class TestCompute(base.BaseFunctionalTest):
             self.server_name, {'key1': 'value1', 'key2': 'value2'}
         )
         updated_server = self.user_cloud.get_server(self.server_name)
+        assert updated_server is not None
         self.assertEqual(
             set(updated_server.metadata.items()),
             set({'key1': 'value1', 'key2': 'value2'}.items()),
@@ -507,6 +508,7 @@ class TestCompute(base.BaseFunctionalTest):
             self.server_name, {'key2': 'value3'}
         )
         updated_server = self.user_cloud.get_server(self.server_name)
+        assert updated_server is not None
         self.assertEqual(
             set(updated_server.metadata.items()),
             set({'key1': 'value1', 'key2': 'value3'}.items()),
@@ -514,6 +516,7 @@ class TestCompute(base.BaseFunctionalTest):
 
         self.user_cloud.delete_server_metadata(self.server_name, ['key2'])
         updated_server = self.user_cloud.get_server(self.server_name)
+        assert updated_server is not None
         self.assertEqual(
             set(updated_server.metadata.items()),
             set({'key1': 'value1'}.items()),
@@ -521,6 +524,7 @@ class TestCompute(base.BaseFunctionalTest):
 
         self.user_cloud.delete_server_metadata(self.server_name, ['key1'])
         updated_server = self.user_cloud.get_server(self.server_name)
+        assert updated_server is not None
         self.assertEqual(set(updated_server.metadata.items()), set())
 
         self.assertRaises(
@@ -541,6 +545,7 @@ class TestCompute(base.BaseFunctionalTest):
         server_updated = self.user_cloud.update_server(
             self.server_name, name='new_name'
         )
+        assert server_updated is not None
         self.assertEqual('new_name', server_updated['name'])
 
     def test_get_compute_usage(self):

@@ -3247,7 +3247,7 @@ class Proxy(proxy.Proxy):
         status: str = 'ACTIVE',
         failures: list[str] | None = None,
         interval: int | float | None = 2,
-        wait: int | None = 120,
+        wait: int | float | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> _server.Server:
         """Wait for a server to be in a particular status.
@@ -3293,7 +3293,7 @@ class Proxy(proxy.Proxy):
         status: str,
         failures: list[str] | None = None,
         interval: int | float | None = 2,
-        wait: int | None = None,
+        wait: int | float | None = None,
         attribute: str = 'status',
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
@@ -3330,7 +3330,7 @@ class Proxy(proxy.Proxy):
         self,
         res: resource.ResourceT,
         interval: int | float | None = 2,
-        wait: int | None = 120,
+        wait: int | float | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
