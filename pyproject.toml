@@ -119,7 +119,6 @@ module = [
     "openstack.cloud._identity",
     "openstack.cloud._network",
     "openstack.cloud._network_common",
-    "openstack.cloud._object_store",
     "openstack.tests.functional.*",
 ]
 disable_error_code = ["func-returns-value"]

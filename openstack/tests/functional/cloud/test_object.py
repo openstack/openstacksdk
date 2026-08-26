@@ -39,6 +39,7 @@ class TestObject(base.BaseFunctionalTest):
         self.addCleanup(self.user_cloud.delete_container, container_name)
         self.user_cloud.create_container(container_name)
         container = self.user_cloud.get_container(container_name)
+        assert container is not None
         self.assertEqual(container_name, container.name)
         self.assertEqual(
             [], self.user_cloud.list_containers(prefix='somethin')
@@ -105,9 +106,9 @@ class TestObject(base.BaseFunctionalTest):
                 self.user_cloud.delete_object(container_name, name)
             )
         self.assertEqual([], self.user_cloud.list_objects(container_name))
-        self.assertEqual(
-            container_name, self.user_cloud.get_container(container_name).name
-        )
+        container = self.user_cloud.get_container(container_name)
+        assert container is not None
+        self.assertEqual(container_name, container.name)
         self.user_cloud.delete_container(container_name)
 
     def test_download_object_to_file(self):

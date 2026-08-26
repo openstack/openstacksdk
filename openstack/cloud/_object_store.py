@@ -10,17 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Iterable
+from collections.abc import Generator, Iterable
 import concurrent.futures
 from typing import Any
 import urllib.parse
 import warnings
 
 import keystoneauth1.exceptions
+import requests
 
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
+from openstack.object_store.v1 import container as _container
+from openstack.object_store.v1 import info as _info
+from openstack.object_store.v1 import obj as _obj
 from openstack import warnings as os_warnings
 
 
@@ -31,7 +35,11 @@ OBJECT_CONTAINER_ACLS = {
 
 
 class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def list_containers(self, full_listing=None, prefix=None):
+    def list_containers(
+        self,
+        full_listing: bool | None = None,
+        prefix: str | None = None,
+    ) -> list[_container.Container]:
         """List containers.
 
         :param full_listing: Ignored. Present for backwards compat
@@ -49,7 +57,11 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
         return list(self.object_store.containers(prefix=prefix))
 
-    def search_containers(self, name=None, filters=None):
+    def search_containers(
+        self,
+        name: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_container.Container]:
         """Search containers.
 
         :param string name: Container name.
@@ -67,7 +79,9 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._filter_list(containers, name, filters)
 
     # TODO(stephenfin): Remove 'skip_cache' as it no longer does anything
-    def get_container(self, name, skip_cache=False):
+    def get_container(
+        self, name: str, skip_cache: bool = False
+    ) -> _container.Container | None:
         """Get metadata about a container.
 
         :param str name:
@@ -78,11 +92,13 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         try:
             return self.object_store.get_container_metadata(name)
         except exceptions.HttpException as ex:
-            if ex.response.status_code == 404:
+            if ex.response is not None and ex.response.status_code == 404:
                 return None
             raise
 
-    def create_container(self, name, public=False):
+    def create_container(
+        self, name: str, public: bool = False
+    ) -> _container.Container | None:
         """Create an object-store container.
 
         :param str name: Name of the container to create.
@@ -99,7 +115,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         container = self.object_store.create_container(**attrs)
         return self.get_container(name, skip_cache=True)
 
-    def delete_container(self, name):
+    def delete_container(self, name: str) -> bool:
         """Delete an object-store container.
 
         :param str name: Name of the container to delete.
@@ -116,7 +132,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
                 f'inside it before deleting the container'
             )
 
-    def update_container(self, name, headers):
+    def update_container(self, name: str, headers: dict[str, Any]) -> None:
         """Update the metadata in a container.
 
         :param str name: Name of the container to update.
@@ -126,7 +142,9 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             name, refresh=False, **headers
         )
 
-    def set_container_access(self, name, access, refresh=False):
+    def set_container_access(
+        self, name: str, access: str, refresh: bool = False
+    ) -> _container.Container:
         """Set the access control list on a container.
 
         :param str name: Name of the container.
@@ -144,7 +162,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             name, read_ACL=OBJECT_CONTAINER_ACLS[access], refresh=refresh
         )
 
-    def get_container_access(self, name):
+    def get_container_access(self, name: str) -> str:
         """Get the control list from a container.
 
         :param str name: Name of the container.
@@ -166,7 +184,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             f"Could not determine container access for ACL: {acl}."
         )
 
-    def get_object_capabilities(self):
+    def get_object_capabilities(self) -> _info.Info:
         """Get infomation about the object-storage service
 
         The object-storage service publishes a set of capabilities that
@@ -176,7 +194,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return self.object_store.get_info()
 
-    def get_object_segment_size(self, segment_size):
+    def get_object_segment_size(self, segment_size: int | None) -> int | float:
         """Get a segment size that will work given capabilities.
 
         :param segment_size:
@@ -185,8 +203,13 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         return self.object_store.get_object_segment_size(segment_size)
 
     def is_object_stale(
-        self, container, name, filename, file_md5=None, file_sha256=None
-    ):
+        self,
+        container: str,
+        name: str,
+        filename: str,
+        file_md5: str | None = None,
+        file_sha256: str | None = None,
+    ) -> bool:
         """Check to see if an object matches the hashes of a file.
 
         :param container: Name of the container.
@@ -205,7 +228,9 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             file_sha256=file_sha256,
         )
 
-    def create_directory_marker_object(self, container, name, **headers):
+    def create_directory_marker_object(
+        self, container: str, name: str, **headers: Any
+    ) -> _obj.Object | None:
         """Create a zero-byte directory marker object
 
         .. note::
@@ -234,18 +259,18 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_object(
         self,
-        container,
-        name,
-        filename=None,
-        md5=None,
-        sha256=None,
-        segment_size=None,
-        use_slo=True,
-        metadata=None,
-        generate_checksums=None,
-        data=None,
-        **headers,
-    ):
+        container: str,
+        name: str,
+        filename: str | None = None,
+        md5: str | None = None,
+        sha256: str | None = None,
+        segment_size: int | None = None,
+        use_slo: bool = True,
+        metadata: dict[str, Any] | None = None,
+        generate_checksums: bool | None = None,
+        data: str | bytes | None = None,
+        **headers: Any,
+    ) -> _obj.Object | None:
         """Create a file object.
 
         Automatically uses large-object segments if needed.
@@ -295,7 +320,13 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             **headers,
         )
 
-    def update_object(self, container, name, metadata=None, **headers):
+    def update_object(
+        self,
+        container: str,
+        name: str,
+        metadata: dict[str, Any] | None = None,
+        **headers: Any,
+    ) -> None:
         """Update the metadata of an object
 
         :param container: The name of the container the object is in
@@ -309,11 +340,16 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        meta = metadata.copy() or {}
+        meta = dict(metadata) if metadata else {}
         meta.update(**headers)
         self.object_store.set_object_metadata(name, container, **meta)
 
-    def list_objects(self, container, full_listing=True, prefix=None):
+    def list_objects(
+        self,
+        container: str,
+        full_listing: bool = True,
+        prefix: str | None = None,
+    ) -> list[_obj.Object]:
         """List objects.
 
         :param container: Name of the container to list objects in.
@@ -329,7 +365,12 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.object_store.objects(container=container, prefix=prefix)
         )
 
-    def search_objects(self, container, name=None, filters=None):
+    def search_objects(
+        self,
+        container: str,
+        name: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_obj.Object]:
         """Search objects.
 
         :param string name: Object name.
@@ -346,7 +387,12 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         objects = self.list_objects(container)
         return _utils._filter_list(objects, name, filters)
 
-    def delete_object(self, container, name, meta=None):
+    def delete_object(
+        self,
+        container: str,
+        name: str,
+        meta: dict[str, Any] | None = None,
+    ) -> bool:
         """Delete an object from a container.
 
         :param string container: Name of the container holding the object.
@@ -370,9 +416,9 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def delete_autocreated_image_objects(
         self,
-        container=None,
-        segment_prefix=None,
-    ):
+        container: str | None = None,
+        segment_prefix: str | None = None,
+    ) -> bool:
         """Delete all objects autocreated for image uploads.
 
         This method should generally not be needed, as shade should clean up
@@ -391,7 +437,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             container, segment_prefix=segment_prefix
         )
 
-    def get_object_metadata(self, container, name):
+    def get_object_metadata(self, container: str, name: str) -> dict[str, Any]:
         """Get object metadata.
 
         :param container:
@@ -400,7 +446,13 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return self.object_store.get_object_metadata(name, container).metadata
 
-    def get_object_raw(self, container, obj, query_string=None, stream=False):
+    def get_object_raw(
+        self,
+        container: str,
+        obj: str,
+        query_string: str | None = None,
+        stream: bool = False,
+    ) -> requests.Response:
         """Get a raw response object for an object.
 
         :param string container: Name of the container.
@@ -416,7 +468,12 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         endpoint = self._get_object_endpoint(container, obj, query_string)
         return self.object_store.get(endpoint, stream=stream)
 
-    def _get_object_endpoint(self, container, obj=None, query_string=None):
+    def _get_object_endpoint(
+        self,
+        container: str,
+        obj: str | None = None,
+        query_string: str | None = None,
+    ) -> str:
         endpoint = urllib.parse.quote(container)
         if obj:
             endpoint = f'{endpoint}/{urllib.parse.quote(obj)}'
@@ -426,11 +483,11 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def stream_object(
         self,
-        container,
-        obj,
-        query_string=None,
-        resp_chunk_size=1024,
-    ):
+        container: str,
+        obj: str,
+        query_string: str | None = None,
+        resp_chunk_size: int = 1024,
+    ) -> Generator[bytes, None, None]:
         """Download the content via a streaming iterator.
 
         :param string container: Name of the container.
@@ -454,13 +511,13 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def get_object(
         self,
-        container,
-        obj,
-        query_string=None,
-        resp_chunk_size=1024,
-        outfile=None,
-        stream=False,
-    ):
+        container: str,
+        obj: str,
+        query_string: str | None = None,
+        resp_chunk_size: int = 1024,
+        outfile: str | None = None,
+        stream: bool = False,
+    ) -> tuple[dict[str, str], Any] | None:
         """Get the headers and body of an object
 
         :param string container: Name of the container.
@@ -481,15 +538,15 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             error.
         """
         try:
-            obj = self.object_store.get_object(
+            obj_data = self.object_store.get_object(
                 obj,
                 container=container,
                 resp_chunk_size=resp_chunk_size,
                 outfile=outfile,
                 remember_content=(outfile is None),
             )
-            headers = {k.lower(): v for k, v in obj._last_headers.items()}
-            return (headers, obj.data)
+            headers = {k.lower(): v for k, v in obj_data._last_headers.items()}
+            return (headers, obj_data.data)
 
         except exceptions.NotFoundException:
             return None

@@ -819,8 +819,11 @@ class Proxy(proxy.Proxy):
         image_kwargs.pop('disk_format', None)
         image_kwargs.pop('container_format', None)
 
-        self._connection.create_container(container)  # type: ignore[no-untyped-call]
-        self._connection.create_object(  # type: ignore[no-untyped-call]
+        self._connection.create_container(container)
+        # NOTE: The header names contain hyphens so they can only be passed via
+        # dict unpacking; mypy cannot verify they land in **headers rather than
+        # the typed keyword parameters, hence the ignore.
+        self._connection.create_object(
             container,
             name,
             filename,
@@ -828,7 +831,7 @@ class Proxy(proxy.Proxy):
             sha256=sha256,
             data=data,
             metadata={self._connection._OBJECT_AUTOCREATE_KEY: 'true'},
-            **{
+            **{  # type: ignore[arg-type]
                 'content-type': 'application/octet-stream',
                 'x-delete-after': str(24 * 60 * 60),
             },
@@ -878,7 +881,7 @@ class Proxy(proxy.Proxy):
             finally:
                 # Clean up after ourselves. The object we created is not
                 # needed after the import is done.
-                self._connection.delete_object(container, name)  # type: ignore[no-untyped-call]
+                self._connection.delete_object(container, name)
             return image
         else:
             return glance_task
