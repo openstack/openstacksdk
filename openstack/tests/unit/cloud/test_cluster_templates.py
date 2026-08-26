@@ -143,9 +143,16 @@ class TestClusterTemplates(base.TestCase):
             [
                 dict(
                     method='GET',
+                    uri=self.get_mock_url(
+                        resource='clustertemplates/fake-cluster-template'
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
                     uri=self.get_mock_url(resource='clustertemplates'),
                     json=dict(clustertemplates=[cluster_template_obj]),
-                )
+                ),
             ]
         )
 
@@ -162,9 +169,16 @@ class TestClusterTemplates(base.TestCase):
             [
                 dict(
                     method='GET',
+                    uri=self.get_mock_url(
+                        resource='clustertemplates/doesNotExist'
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
                     uri=self.get_mock_url(resource='clustertemplates'),
                     json=dict(clustertemplates=[]),
-                )
+                ),
             ]
         )
         r = self.cloud.get_cluster_template('doesNotExist')
@@ -220,8 +234,10 @@ class TestClusterTemplates(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(resource='clustertemplates'),
-                    json=dict(clustertemplates=[cluster_template_obj]),
+                    uri=self.get_mock_url(
+                        resource='clustertemplates/fake-uuid'
+                    ),
+                    json=cluster_template_obj,
                 ),
                 dict(
                     method='DELETE',
@@ -239,8 +255,10 @@ class TestClusterTemplates(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(resource='clustertemplates'),
-                    json=dict(clustertemplates=[cluster_template_obj]),
+                    uri=self.get_mock_url(
+                        resource='clustertemplates/fake-uuid'
+                    ),
+                    json=cluster_template_obj,
                 ),
                 dict(
                     method='PATCH',
@@ -272,9 +290,16 @@ class TestClusterTemplates(base.TestCase):
             [
                 dict(
                     method='GET',
+                    uri=self.get_mock_url(
+                        resource='clustertemplates/fake-cluster-template'
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
                     uri=self.get_mock_url(resource='clustertemplates'),
                     json=dict(clustertemplates=[cluster_template_obj]),
-                )
+                ),
             ]
         )
 

@@ -115,7 +115,6 @@ exclude = "(?x)(doc | examples | releasenotes)"
 module = [
     "openstack._hacking.*",
     "openstack.cloud._block_storage",
-    "openstack.cloud._coe",
     "openstack.cloud._compute",
     "openstack.cloud._identity",
     "openstack.cloud._image",
