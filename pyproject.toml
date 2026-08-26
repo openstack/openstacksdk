@@ -114,7 +114,6 @@ exclude = "(?x)(doc | examples | releasenotes)"
 [[tool.mypy.overrides]]
 module = [
     "openstack._hacking.*",
-    "openstack.cloud._accelerator",
     "openstack.cloud._baremetal",
     "openstack.cloud._block_storage",
     "openstack.cloud._coe",

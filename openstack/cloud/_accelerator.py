@@ -10,11 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Mapping
+from typing import Any
+import warnings
+
+from openstack.accelerator.v2 import accelerator_request as _arq
+from openstack.accelerator.v2 import deployable as _deployable
+from openstack.accelerator.v2 import device as _device
+from openstack.accelerator.v2 import device_profile as _device_profile
 from openstack.cloud import openstackcloud
+from openstack import warnings as os_warnings
 
 
 class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def list_deployables(self, filters=None):
+    def list_deployables(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_deployable.Deployable]:
         """List all available deployables.
 
         :param filters: (optional) dict of filter conditions to push down
@@ -25,7 +36,9 @@ class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
             filters = {}
         return list(self.accelerator.deployables(**filters))
 
-    def list_devices(self, filters=None):
+    def list_devices(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_device.Device]:
         """List all devices.
 
         :param filters: (optional) dict of filter conditions to push down
@@ -36,7 +49,9 @@ class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
             filters = {}
         return list(self.accelerator.devices(**filters))
 
-    def list_device_profiles(self, filters=None):
+    def list_device_profiles(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_device_profile.DeviceProfile]:
         """List all device_profiles.
 
         :param filters: (optional) dict of filter conditions to push down
@@ -47,7 +62,9 @@ class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
             filters = {}
         return list(self.accelerator.device_profiles(**filters))
 
-    def create_device_profile(self, attrs):
+    def create_device_profile(
+        self, attrs: Mapping[str, Any]
+    ) -> _device_profile.DeviceProfile:
         """Create a device_profile.
 
         :param attrs: The info of device_profile to be created.
@@ -55,30 +72,26 @@ class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return self.accelerator.create_device_profile(**attrs)
 
-    def delete_device_profile(self, name_or_id, filters):
+    def delete_device_profile(self, uuid: str, filters: Any = None) -> bool:
         """Delete a device_profile.
 
-        :param name_or_id: The name or uuid of the device profile to be
-            deleted.
+        :param uuid: The UUID of the device profile to be deleted.
         :param filters: dict of filter conditions to push down
         :returns: True if delete succeeded, False otherwise.
         """
-        device_profile = self.accelerator.get_device_profile(
-            name_or_id,
-            filters,
-        )
-        if device_profile is None:
-            self.log.debug(
-                "device_profile %s not found for deleting",
-                name_or_id,
+        if filters is not None:
+            warnings.warn(
+                'The fields argument is a no-op and will be removed in a '
+                'future release',
+                os_warnings.RemovedInSDK50Warning,
             )
-            return False
 
-        self.accelerator.delete_device_profile(device_profile=device_profile)
-
+        self.accelerator.delete_device_profile(uuid)
         return True
 
-    def list_accelerator_requests(self, filters=None):
+    def list_accelerator_requests(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_arq.AcceleratorRequest]:
         """List all accelerator_requests.
 
         :param filters: (optional) dict of filter conditions to push down
@@ -89,32 +102,30 @@ class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
             filters = {}
         return list(self.accelerator.accelerator_requests(**filters))
 
-    def delete_accelerator_request(self, name_or_id, filters):
+    def delete_accelerator_request(
+        self, uuid: str, filters: Any = None
+    ) -> bool:
         """Delete a accelerator_request.
 
-        :param name_or_id: The name or UUID of the accelerator request to
-            be deleted.
+        :param uuid: The UUID of the accelerator request to be deleted.
         :param filters: dict of filter conditions to push down
         :returns: True if delete succeeded, False otherwise.
         """
-        accelerator_request = self.accelerator.get_accelerator_request(
-            name_or_id,
-            filters,
-        )
-        if accelerator_request is None:
-            self.log.debug(
-                "accelerator_request %s not found for deleting",
-                name_or_id,
+        if filters is not None:
+            warnings.warn(
+                'The fields argument is a no-op and will be removed in a '
+                'future release',
+                os_warnings.RemovedInSDK50Warning,
             )
-            return False
 
         self.accelerator.delete_accelerator_request(
-            accelerator_request=accelerator_request,
+            accelerator_request=uuid,
         )
-
         return True
 
-    def create_accelerator_request(self, attrs):
+    def create_accelerator_request(
+        self, attrs: Mapping[str, Any]
+    ) -> _arq.AcceleratorRequest:
         """Create an accelerator_request.
 
         :param attrs: The info of accelerator_request to be created.
@@ -122,34 +133,31 @@ class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return self.accelerator.create_accelerator_request(**attrs)
 
-    def bind_accelerator_request(self, uuid, properties):
-        """Bind an accelerator to VM.
+    def patch_accelerator_request(
+        self, uuid: str, patch: list[dict[str, Any]]
+    ) -> _arq.AcceleratorRequest:
+        """Update an accelerator request.
 
-        :param uuid: The uuid of the accelerator_request to be binded.
-        :param properties: The info of VM that will bind the accelerator.
+        :param uuid: The UUID of the accelerator request to be updated.
+        :param patch: The that will bind the accelerator.
         :returns: True if bind succeeded, False otherwise.
         """
-        accelerator_request = self.accelerator.get_accelerator_request(uuid)
-        if accelerator_request is None:
-            self.log.debug(
-                "accelerator_request %s not found for unbinding", uuid
-            )
-            return False
+        return self.accelerator.patch_accelerator_request(uuid, patch)
 
-        return self.accelerator.update_accelerator_request(uuid, properties)
+    def bind_accelerator_request(
+        self, uuid: str, properties: list[dict[str, Any]]
+    ) -> _arq.AcceleratorRequest:
+        """Bind an accelerator to VM.
 
-    def unbind_accelerator_request(self, uuid, properties):
+        A deprecated alias for `patch_accelerator_request`.
+        """
+        return self.patch_accelerator_request(uuid, properties)
+
+    def unbind_accelerator_request(
+        self, uuid: str, properties: list[dict[str, Any]]
+    ) -> _arq.AcceleratorRequest:
         """Unbind an accelerator from VM.
 
-        :param uuid: The uuid of the accelerator_request to be unbinded.
-        :param properties: The info of VM that will unbind the accelerator.
-        :returns: True if unbind succeeded, False otherwise.
+        A deprecated alias for `patch_accelerator_request`.
         """
-        accelerator_request = self.accelerator.get_accelerator_request(uuid)
-        if accelerator_request is None:
-            self.log.debug(
-                "accelerator_request %s not found for unbinding", uuid
-            )
-            return False
-
-        return self.accelerator.update_accelerator_request(uuid, properties)
+        return self.patch_accelerator_request(uuid, properties)
