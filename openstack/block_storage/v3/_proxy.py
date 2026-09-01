@@ -1095,7 +1095,7 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
-        :param error: Used to indicate if an error has occured that
+        :param error: Used to indicate if an error has occurred that
             requires Cinder to roll back the extend operation.
 
         :returns: None
@@ -1371,7 +1371,7 @@ class Proxy(proxy.Proxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
         :param new_volume: The UUID of the new volume.
-        :param error: Used to indicate if an error has occured elsewhere
+        :param error: Used to indicate if an error has occurred elsewhere
             that requires clean up.
 
         :returns: None

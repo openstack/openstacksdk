@@ -969,7 +969,7 @@ class Proxy(proxy.Proxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
         :param new_volume: The UUID of the new volume.
-        :param error: Used to indicate if an error has occured elsewhere
+        :param error: Used to indicate if an error has occurred elsewhere
             that requires clean up.
 
         :returns: None

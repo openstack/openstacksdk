@@ -53,7 +53,7 @@ class TestCompute(base.BaseFunctionalTest):
                 if volume.status != 'deleting':
                     self.user_cloud.delete_volume(volume.id, wait=True)
         except (exceptions.ResourceTimeout, TimeoutException):
-            # Ups, some timeout occured during process of deletion server
+            # Ups, some timeout occurred during process of deletion server
             # or volumes, so now we will try to call delete each of them
             # once again and we will try to live with it
             self.user_cloud.delete_server(server.name)

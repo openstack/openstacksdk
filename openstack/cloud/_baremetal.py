@@ -341,7 +341,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.baremetal.wait_for_node_reservation(machine, timeout)
         except exceptions.SDKException as e:
             raise exceptions.SDKException(
-                "Error unregistering node '{}': Exception occured while "
+                "Error unregistering node '{}': Exception occurred while "
                 "waiting to be able to proceed: {}".format(machine['uuid'], e)
             )
 
