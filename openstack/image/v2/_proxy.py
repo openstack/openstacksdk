@@ -142,6 +142,17 @@ class Proxy(proxy.Proxy):
         """
         return _cache.Cache.image_nodes(self, image)
 
+    def clean_cache(self) -> None:
+        """Clean invalid and stalled cached images."""
+        _cache.Cache.clean(self)
+
+    def prune_cache(self) -> dict[str, int]:
+        """Prune cached images to reduce cache size.
+
+        :returns: A dict with ``total_files_pruned`` and ``total_bytes_pruned``
+        """
+        return _cache.Cache.prune(self)
+
     # ====== IMAGES ======
 
     def _make_v2_image_params(

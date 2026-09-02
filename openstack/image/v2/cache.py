@@ -36,7 +36,7 @@ class Cache(resource.Resource):
     allow_delete = True
     allow_create = True
 
-    _max_microversion = '2.14'
+    _max_microversion = '2.15'
 
     cached_images = resource.Body(
         'cached_images',
@@ -112,3 +112,41 @@ class Cache(resource.Resource):
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         return cast(list[str], response.json())
+
+    @classmethod
+    def clean(
+        cls,
+        session: adapter.Adapter,
+        *,
+        microversion: str | None = None,
+    ) -> None:
+        """Clean invalid and stalled cached images.
+
+        :param session: The session to use for making this request
+        """
+        if microversion is None:
+            microversion = cls._get_microversion(session)
+        url = utils.urljoin(cls.base_path, 'clean')
+
+        response = session.post(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+
+    @classmethod
+    def prune(
+        cls,
+        session: adapter.Adapter,
+        *,
+        microversion: str | None = None,
+    ) -> dict[str, int]:
+        """Prune cached images to reduce cache size.
+
+        :param session: The session to use for making this request
+        :returns: A dict with ``total_files_pruned`` and ``total_bytes_pruned``
+        """
+        if microversion is None:
+            microversion = cls._get_microversion(session)
+        url = utils.urljoin(cls.base_path, 'prune')
+
+        response = session.post(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+        return cast(dict[str, int], response.json())

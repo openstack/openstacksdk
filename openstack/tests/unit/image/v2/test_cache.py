@@ -109,6 +109,39 @@ class TestCache(base.TestCase):
         )
 
     @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_clean(self):
+        sess = mock.Mock()
+        sess.post = mock.Mock()
+        sess.default_microversion = '2.15'
+
+        cache.Cache.clean(sess)
+
+        sess.post.assert_called_with(
+            'cache/clean',
+            microversion=sess.default_microversion,
+        )
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_prune(self):
+        sess = mock.Mock()
+        expected = {
+            'total_files_pruned': 5,
+            'total_bytes_pruned': 104857600,
+        }
+        fake_response = mock.Mock()
+        fake_response.json.return_value = expected
+        sess.post = mock.Mock(return_value=fake_response)
+        sess.default_microversion = '2.15'
+
+        result = cache.Cache.prune(sess)
+
+        self.assertEqual(expected, result)
+        sess.post.assert_called_with(
+            'cache/prune',
+            microversion=sess.default_microversion,
+        )
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
     def test_image_nodes_empty(self):
         sess = mock.Mock()
         image_id = 'df601a47-7251-4d20-84ae-07de335af424'
