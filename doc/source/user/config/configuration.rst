@@ -216,6 +216,30 @@ result of a chosen plugin need to go into the auth dict. For password auth,
 this includes ``auth_url``, ``username`` and ``password`` as well as anything
 related to domains, projects and trusts.
 
+MFA Support
+~~~~~~~~~~~
+
+MFA support requires a specially prepared configuration file. In this case a
+combination of two different authorization plugins is used with their
+individual requirements to the specified parameters.
+
+.. code-block:: yaml
+
+  clouds:
+    mfa:
+      auth_type: "v3multifactor"
+      auth_methods:
+        - v3password
+        - v3totp
+      auth:
+        auth_url: https://identity.cloud.com
+        username: user
+        user_id: uid
+        password: XXXXXXXXX
+        project_name: project
+        user_domain_name: udn
+        project_domain_name: pdn
+
 
 API Settings
 ------------
@@ -410,31 +434,6 @@ caching is effectively disabled.
    where it is expected that resource will change some of the attributes over
    the time. Forcing complete cache invalidation can be achieved calling
    ``conn._cache.invalidate``
-
-
-MFA Support
------------
-
-MFA support requires a specially prepared configuration file. In this case a
-combination of two different authorization plugins is used with their
-individual requirements to the specified parameters.
-
-.. code-block:: yaml
-
-  clouds:
-    mfa:
-      auth_type: "v3multifactor"
-      auth_methods:
-        - v3password
-        - v3totp
-      auth:
-        auth_url: https://identity.cloud.com
-        username: user
-        user_id: uid
-        password: XXXXXXXXX
-        project_name: project
-        user_domain_name: udn
-        project_domain_name: pdn
 
 
 IPv6
