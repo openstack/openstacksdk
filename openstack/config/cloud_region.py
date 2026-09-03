@@ -267,20 +267,19 @@ def from_conf(
 
 
 class CloudRegion:
-    # TODO(efried): Doc the rest of the kwargs
     """The configuration for a Region of an OpenStack Cloud.
 
     A CloudRegion encapsulates the config information needed for connections
     to all of the services in a Region of a Cloud.
 
-    :param name:
-    :param region_name:
-        The default region name for all services in this CloudRegion. If
-        both ``region_name`` and ``config['region_name']`` are specified, the
-        kwarg takes precedence. May be overridden for a given ${service}
-        via a ${service}_region_name key in the ``config`` dict.
-    :param config:
-        A dict of configuration values for the CloudRegion and its
+    :param name: The name of the CloudRegion. If not provided, it will be
+        derived from the hostname of the authentication URL, falling back to
+        ``app_name`` if the auth plugin is not an identity plugin.
+    :param region_name: The default region name for all services in this
+        CloudRegion. If both ``region_name`` and ``config['region_name']`` are
+        specified, the kwarg takes precedence. May be overridden for a given
+        ${service} via a ${service}_region_name key in the ``config`` dict.
+    :param config: A dict of configuration values for the CloudRegion and its
         services. The key for a ${config_option} for a specific ${service}
         should be ${service}_${config_option}. For example, to configure
         the endpoint_override for the block_storage service, the ``config``
@@ -293,27 +292,53 @@ class CloudRegion:
         key, e.g.::
 
             'interface': 'public'
-    :param force_ipv4:
-    :param auth_plugin:
-    :param openstack_config:
-    :param session_constructor:
-    :param app_name:
-    :param app_version:
-    :param session:
-    :param discovery_cache:
-    :param extra_config:
-    :param cache_expiration_time:
-    :param cache_expirations:
-    :param cache_path:
-    :param cache_class:
-    :param cache_arguments:
-    :param password_callback:
+    :param force_ipv4: If ``True``, force the use of IPv4 addresses when
+        connecting to services.
+    :param auth_plugin: A keystoneauth1 auth plugin used to authenticate with
+        the cloud.
+    :param openstack_config: The
+        :class:`~openstack.config.loader.OpenStackConfig` object that created
+        this CloudRegion, if any.
+    :param session_constructor: A callable used to construct the keystoneauth1
+        :class:`~keystoneauth1.session.Session` for this region. Defaults to
+        :class:`keystoneauth1.session.Session`.
+    :param app_name: The name of the application connecting to the cloud. Used
+        to construct the ``User-Agent`` header.
+    :param app_version: The version of the application connecting to the cloud.
+        Used to construct the ``User-Agent`` header.
+    :param session: An existing authenticated keystoneauth1
+        :class:`~keystoneauth1.session.Session` to use. If not provided, one
+        will be constructed as needed using ``session_constructor``.
+    :param discovery_cache: A dict used to cache API version discovery
+        documents, keyed by URL. Shared across services to avoid duplicate
+        discovery requests.
+    :param extra_config: A dict of additional, arbitrary config sections that
+        do not correspond to a service. Accessible via
+        :meth:`get_client_config`.
+    :param cache_expiration_time: The default time, in seconds, to cache the
+        results of API calls. A value of ``0`` disables caching.
+    :param cache_expirations: A dict mapping resource names to per-resource
+        cache expiration times, in seconds. Overrides ``cache_expiration_time``
+        for the given resources.
+    :param cache_path: The filesystem path to use for the cache, if using a
+        file-based cache backend.
+    :param cache_class: The dogpile.cache backend to use for caching. Defaults
+        to ``'dogpile.cache.null'``, which disables caching.
+    :param cache_arguments: A dict of arguments to pass to the dogpile.cache
+        backend.
+    :param password_callback: A callable invoked to prompt for a password when
+        one is required but not otherwise available.
     :param statsd_host:
     :param statsd_port:
     :param statsd_prefix:
-    :param influxdb_config:
-    :param collector_registry:
-    :param cache_auth:
+    :param influxdb_config: Configuration for reporting API call metrics to
+        InfluxDB. **DEPRECATED**: InfluxDB support relies on a deprecated
+        library and will be removed in a future release.
+    :param collector_registry: A prometheus_client
+        :class:`~prometheus_client.CollectorRegistry` used to report API call
+        metrics to Prometheus.
+    :param cache_auth: If ``True``, cache authentication tokens (using the
+        keyring library) so they can be reused across processes.
     """
 
     def __init__(
