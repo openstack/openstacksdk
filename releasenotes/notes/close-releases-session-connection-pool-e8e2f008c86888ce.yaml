@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    ``Connection.close()`` now also releases the connection pool of the
+    ``requests.Session`` held by the keystoneauth1 session. Previously the
+    pooled (keep-alive) connections were only released when the keystoneauth1
+    session object was garbage collected, which could leave sockets open for
+    the lifetime of the process. Externally supplied sessions are still left
+    untouched.
