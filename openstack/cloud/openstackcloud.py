@@ -54,12 +54,7 @@ _T = TypeVar('_T', bound=Mapping[str, Any])
 def _close_requests_session(session: 'ks_session.Session | None') -> None:
     if session is None:
         return
-    requests_session = getattr(session, '_session', None)
-    if requests_session is not None:
-        try:
-            requests_session.close()
-        except (OSError, requests.exceptions.RequestException):
-            pass
+    session.close()
 
 
 # plain function so nothing keeps ref to connection
@@ -340,22 +335,6 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         _run_close(
             self.config, self._pool_executor_holder, self._session_holder
         )
-
-    def _close_session(self) -> None:
-        """Release the connection pool of the keystoneauth1 session.
-
-        Closes the underlying ``requests.Session`` directly, but only if
-        keystoneauth1 created it itself. A session constructed with an
-        externally supplied ``requests.Session`` is left untouched, as its
-        ownership belongs to the caller (mirroring the ownership rules
-        keystoneauth1 applies in its own cleanup).
-
-        Tearing down idle pooled connections is best-effort: socket and
-        request errors are swallowed so that releasing the pool can never
-        propagate out of ``close()``, which also runs from the finalizer at
-        interpreter shutdown and from the context manager exit.
-        """
-        _close_requests_session(self._session)
 
     def __enter__(self) -> Self:
         return self
