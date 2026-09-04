@@ -483,9 +483,11 @@ class Proxy(adapter.Adapter):
                 'status_code': response.status_code,
             }
             self._prometheus_counter.labels(**labels).inc()
-            self._prometheus_histogram.labels(**labels).observe(
-                response.elapsed.total_seconds() * 1000
-            )
+
+            # NOTE: Seconds, not ms - Prometheus buckets are seconds-based.
+            # Do NOT "unify" the units.
+            duration = response.elapsed.total_seconds()
+            self._prometheus_histogram.labels(**labels).observe(duration)
 
     def _report_stats_influxdb(
         self,

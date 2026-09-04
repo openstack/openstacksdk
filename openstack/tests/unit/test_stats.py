@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import itertools
 import os
 import pprint
@@ -21,6 +22,7 @@ import select
 import socket
 import threading
 import time
+from unittest import mock
 
 import fixtures
 from keystoneauth1 import exceptions
@@ -358,6 +360,45 @@ class TestStats(base.TestCase):
         )
         self.assert_reported_stat(
             'openstack.api.compute.GET.servers.attempted', value='1', kind='c'
+        )
+
+    def test_prometheus_histogram_choose_bucket(self):
+        mock_uri = 'https://compute.example.com/v2.1/servers'
+
+        # Default Prometheus buckets: (.005, .01, .025, .05, .075, .1, .25,
+        #                             .5, .75, 1.0, 2.5, 5.0, 7.5, 10.0, inf)
+        # 0.150s should land in le="0.25"
+        response = mock.Mock()
+        response.request.url = mock_uri
+        response.request.method = 'GET'
+        response.status_code = 200
+        response.elapsed = datetime.timedelta(seconds=0.150)
+
+        self.cloud.compute._report_stats_prometheus(response, mock_uri, 'GET')
+
+        # 0.150s falls in le="0.25"
+        self.assert_prometheus_stat(
+            'openstack_http_response_time_bucket',
+            1.0,
+            dict(
+                service_type='compute',
+                endpoint=mock_uri,
+                method='GET',
+                status_code='200',
+                le='0.25',
+            ),
+        )
+        # 0.150s is above le="0.1" — should be 0
+        self.assert_prometheus_stat(
+            'openstack_http_response_time_bucket',
+            0.0,
+            dict(
+                service_type='compute',
+                endpoint=mock_uri,
+                method='GET',
+                status_code='200',
+                le='0.1',
+            ),
         )
 
 
