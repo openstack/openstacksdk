@@ -304,9 +304,32 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     def close(self) -> None:
         """Release any resources held open."""
         self.config.set_auth_cache()
+        if self._session is not None:
+            self._close_session()
         if self.__pool_executor:
             self.__pool_executor.shutdown()
         atexit.unregister(self.close)
+
+    def _close_session(self) -> None:
+        """Release the connection pool of the keystoneauth1 session.
+
+        Closes the underlying ``requests.Session`` directly, but only if
+        keystoneauth1 created it itself. A session constructed with an
+        externally supplied ``requests.Session`` is left untouched, as its
+        ownership belongs to the caller (mirroring the ownership rules
+        keystoneauth1 applies in its own cleanup).
+
+        Tearing down idle pooled connections is best-effort: socket and
+        request errors are swallowed so that releasing the pool can never
+        propagate out of ``close()``, which also runs from ``atexit`` and
+        the context manager exit.
+        """
+        requests_session = getattr(self._session, '_session', None)
+        if requests_session is not None:
+            try:
+                requests_session.close()
+            except (OSError, requests.exceptions.RequestException):
+                pass
 
     def __enter__(self) -> Self:
         return self
