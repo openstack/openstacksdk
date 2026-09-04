@@ -1144,8 +1144,7 @@ class CloudRegion:
             session=self.get_session(),
             service_type=self.get_service_type(service_type),
             service_name=self.get_service_name(service_type),
-            # https://review.opendev.org/c/openstack/keystoneauth/+/951183
-            interface=self.get_interface(service_type),  # type: ignore
+            interface=self.get_interface(service_type),
             region_name=self.get_region_name(service_type),
         )
         endpoint = adapter.get_endpoint()
@@ -1248,8 +1247,7 @@ class CloudRegion:
             session=self.get_session(),
             service_type=self.get_service_type(service_type),
             service_name=self.get_service_name(service_type),
-            # https://review.opendev.org/c/openstack/keystoneauth/+/951183
-            interface=self.get_interface(service_type),  # type: ignore
+            interface=self.get_interface(service_type),
             version=version,
             min_version=min_api_version,
             max_version=max_api_version,
