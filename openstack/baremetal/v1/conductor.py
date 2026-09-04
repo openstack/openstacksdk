@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.baremetal.v1 import _common
+
 from openstack import resource
 
 
@@ -28,7 +28,7 @@ class Conductor(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'detail',
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
     )
 
     _max_microversion = '1.49'

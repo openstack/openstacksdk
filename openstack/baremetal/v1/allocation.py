@@ -14,7 +14,7 @@ from typing import Self
 
 from keystoneauth1 import adapter
 
-from openstack.baremetal.v1 import _common
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -38,7 +38,7 @@ class Allocation(resource.Resource):
         'resource_class',
         'state',
         'owner',
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
     )
 
     # Allocation update is available since 1.57

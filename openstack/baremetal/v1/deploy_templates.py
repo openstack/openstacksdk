@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.baremetal.v1 import _common
+
 from openstack import resource
 
 
@@ -29,7 +29,7 @@ class DeployTemplate(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'detail',
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
     )
 
     # Deploy Templates is available since 1.55

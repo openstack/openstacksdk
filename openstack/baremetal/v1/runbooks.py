@@ -33,7 +33,7 @@ class Runbook(_common.Resource):
 
     _query_mapping = resource.QueryParameters(
         'detail',
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
     )
 
     # Runbooks is available since 1.92

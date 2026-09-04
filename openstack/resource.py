@@ -265,7 +265,7 @@ class _Request:
 
 class QueryMapping(TypedDict):
     name: NotRequired[str]
-    type: NotRequired[Callable[[Any, type[Resource]], Resource | str | None]]
+    format: NotRequired[Literal['csv']]
 
 
 class QueryParameters:
@@ -358,10 +358,10 @@ class QueryParameters:
         for client_side, server_side in self._mapping.items():
             if isinstance(server_side, dict):
                 name = server_side.get('name', client_side)
-                type_ = server_side.get('type')
+                fmt = server_side.get('format')
             else:
                 name = server_side
-                type_ = None
+                fmt = None
 
             if client_side in query:
                 value = query[client_side]
@@ -370,10 +370,20 @@ class QueryParameters:
             else:
                 continue
 
-            if type_ is not None:
-                result[name] = type_(value, resource_type)
-            else:
-                result[name] = value
+            match fmt:
+                case 'csv':
+                    field_mapping = {
+                        key: val.name
+                        for key, val in resource_type.__dict__.items()
+                        if isinstance(val, fields.Body)
+                    }
+                    result[name] = (
+                        ','.join(field_mapping.get(x, x) for x in value)
+                        if value is not None
+                        else None
+                    )
+                case None:
+                    result[name] = value
         return result
 
 
