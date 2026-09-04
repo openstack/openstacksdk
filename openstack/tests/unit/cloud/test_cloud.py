@@ -13,6 +13,9 @@
 from unittest import mock
 import uuid
 
+import keystoneauth1.session as ks_session
+import requests
+
 from openstack import connection
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -93,6 +96,69 @@ class TestCloud(base.TestCase):
 
         with self.cloud.connect_as(project_name=project_name) as c2:
             self.assertEqual(c2.list_servers(), [])
+        self.assert_calls()
+
+    def test_close_releases_session(self):
+        # Accessing the session property creates the keystoneauth
+        # session. In the SDK-managed flow, keystoneauth creates the
+        # underlying requests session itself, so close() should
+        # release it.
+        ks = self.cloud.session
+        self.assertIs(ks._session, ks.session)
+        with mock.patch.object(
+            ks.session, 'close', wraps=ks.session.close
+        ) as close_mock:
+            self.cloud.close()
+        close_mock.assert_called_once()
+
+    def test_close_keeps_external_session(self):
+        # A requests session supplied externally to the keystoneauth
+        # session is owned by the caller and close() must not close
+        # it.
+        external_session = requests.Session()
+        ks = ks_session.Session(session=external_session)
+        conn = connection.Connection(session=ks)
+        conn.session
+        with mock.patch.object(
+            external_session, 'close', wraps=external_session.close
+        ) as close_mock:
+            conn.close()
+        close_mock.assert_not_called()
+
+    def test_close_swallows_session_close_error(self):
+        # close() also runs from atexit and the context manager exit, so
+        # a failure while tearing down idle pooled connections must not
+        # propagate to the caller.
+        ks = self.cloud.session
+        for exc in (OSError('boom'), requests.exceptions.RequestException):
+            with mock.patch.object(ks.session, 'close', side_effect=exc):
+                self.cloud.close()  # must not raise
+
+    def test_close_keeps_session_usable(self):
+        # close() only releases pooled connections; the session must
+        # remain usable for subsequent requests.
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': []},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': []},
+                ),
+            ]
+        )
+        self.assertEqual(self.cloud.list_servers(), [])
+        self.cloud.close()
+        self.assertEqual(self.cloud.list_servers(), [])
         self.assert_calls()
 
     def test_global_request_id(self):
