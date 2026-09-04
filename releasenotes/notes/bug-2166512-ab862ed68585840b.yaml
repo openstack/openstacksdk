@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Remove incorrect ``TagMixin`` from ``Domain`` resource. The Keystone
+    Identity API does not support tags on domains.
+    [`bug 2166512 <https://bugs.launchpad.net/openstacksdk/+bug/2166512>`_]
