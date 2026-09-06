@@ -78,7 +78,7 @@ To set the metadata for a container, use the
 This method takes a :class:`~openstack.object_store.v1.container.Container`
 object. For example, to grant another user write access to this container,
 you can call `set_container_metadata` passing it the `Container` to update
-and keyward argument key/value pairs representing the metadata name and
+and keyword argument key/value pairs representing the metadata name and
 value to set. ::
 
     >>> acl = "big_project:another_user"

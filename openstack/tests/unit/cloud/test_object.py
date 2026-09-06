@@ -820,7 +820,7 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_get_object_segment_size_below_min(self):
-        # Register directly becuase we make multiple calls. The number
+        # Register directly because we make multiple calls. The number
         # of calls we make isn't interesting - what we do with the return
         # values is. Don't run assert_calls for the same reason.
         self.register_uris(
