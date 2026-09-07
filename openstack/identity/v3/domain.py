@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING
 
 from keystoneauth1 import adapter
 
-from openstack.common import tag
 from openstack import resource
 from openstack import utils
 
@@ -24,7 +23,7 @@ if TYPE_CHECKING:
     from openstack.identity.v3 import user as _user
 
 
-class Domain(resource.Resource, tag.TagMixin):
+class Domain(resource.Resource):
     resource_key = 'domain'
     resources_key = 'domains'
     base_path = '/domains'
@@ -40,7 +39,6 @@ class Domain(resource.Resource, tag.TagMixin):
     _query_mapping = resource.QueryParameters(
         'name',
         is_enabled='enabled',
-        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties
