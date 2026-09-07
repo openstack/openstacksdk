@@ -69,6 +69,51 @@ class TestConfig(base.TestCase):
         configured_clouds = [cloud.name for cloud in clouds]
         self.assertCountEqual(user_clouds, configured_clouds)
 
+    def test_get_all_skips_auth_plugin_exception(self):
+        # Clouds that fail with AuthPluginException (e.g. missing auth_url
+        # when no OS_* env vars are set) should be skipped rather than
+        # causing get_all() to raise.
+        from keystoneauth1 import exceptions as ksa_exceptions
+
+        two_clouds_conf = base._write_yaml(
+            {
+                'clouds': {
+                    'good': {
+                        'auth': {
+                            'auth_url': 'http://example.com/v2',
+                            'username': 'testuser',
+                            'password': 'testpass',
+                            'project_name': 'testproject',
+                        },
+                        'region_name': 'test-region',
+                    },
+                    'broken': {
+                        'auth': {},
+                    },
+                }
+            }
+        )
+        c = config.OpenStackConfig(
+            config_files=[two_clouds_conf],
+            vendor_files=[self.vendor_yaml],
+            secure_files=[self.no_yaml],
+        )
+        orig_get_one = c.get_one
+
+        def _get_one(cloud=None, **kwargs):
+            if cloud == 'broken':
+                raise ksa_exceptions.AuthPluginException(
+                    'Auth plugin requires parameters which were not given: '
+                    'auth_url'
+                )
+            return orig_get_one(cloud, **kwargs)
+
+        with mock.patch.object(c, 'get_one', side_effect=_get_one):
+            clouds = c.get_all()
+
+        self.assertEqual(1, len(clouds))
+        self.assertEqual('good', clouds[0].name)
+
     def test_get_one(self):
         c = config.OpenStackConfig(
             config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
