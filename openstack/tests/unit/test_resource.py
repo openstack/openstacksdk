@@ -162,11 +162,14 @@ class Test_Request(base.TestCase):
 
 class TestQueryParameters(base.TestCase):
     def test_create(self):
+        def _type(value, rtype):
+            return value
+
         location = "location"
         mapping: dict[str, Any] = {
             "first_name": "first-name",
             "second_name": {"name": "second-name"},
-            "third_name": {"name": "third", "type": int},
+            "third_name": {"name": "third", "type": _type},
         }
 
         sot = resource.QueryParameters(location, **mapping)
@@ -176,7 +179,7 @@ class TestQueryParameters(base.TestCase):
                 "location": "location",
                 "first_name": "first-name",
                 "second_name": {"name": "second-name"},
-                "third_name": {"name": "third", "type": int},
+                "third_name": {"name": "third", "type": _type},
                 "limit": "limit",
                 "marker": "marker",
             },
@@ -192,7 +195,6 @@ class TestQueryParameters(base.TestCase):
         mapping: dict[str, Any] = {
             "first_name": "first-name",
             "pet_name": {"name": "pet"},
-            "answer": {"name": "answer", "type": int},
             "complex": {"type": _type},
         }
 
@@ -202,7 +204,6 @@ class TestQueryParameters(base.TestCase):
                 "location": "Brooklyn",
                 "first_name": "Brian",
                 "pet_name": "Meow",
-                "answer": "42",
                 "last_name": "Curtin",
                 "complex": 1,
             },
@@ -215,7 +216,6 @@ class TestQueryParameters(base.TestCase):
                 "location": "Brooklyn",
                 "first-name": "Brian",
                 "pet": "Meow",
-                "answer": 42,
                 "complex": 10,
             },
             result,
@@ -226,7 +226,6 @@ class TestQueryParameters(base.TestCase):
         mapping: dict[str, Any] = {
             "first_name": "first-name",
             "pet_name": {"name": "pet"},
-            "answer": {"name": "answer", "type": int},
         }
 
         sot = resource.QueryParameters(location, **mapping)

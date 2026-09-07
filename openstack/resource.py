@@ -45,7 +45,6 @@ from collections.abc import (
     MutableMapping,
 )
 import dataclasses
-import inspect
 import itertools
 import operator
 from typing import (
@@ -266,7 +265,7 @@ class _Request:
 
 class QueryMapping(TypedDict):
     name: NotRequired[str]
-    type: NotRequired[Callable[[Any, type[ResourceT]], ResourceT | str | None]]
+    type: NotRequired[Callable[[Any, type[Resource]], Resource | str | None]]
 
 
 class QueryParameters:
@@ -364,15 +363,6 @@ class QueryParameters:
                 name = server_side
                 type_ = None
 
-            # NOTE(dtantsur): a small hack to be compatible with both
-            # single-argument (like int) and double-argument type functions.
-            try:
-                provide_resource_type = (
-                    len(inspect.getfullargspec(type_).args) > 1
-                )
-            except TypeError:
-                provide_resource_type = False
-
             if client_side in query:
                 value = query[client_side]
             elif name in query:
@@ -381,10 +371,7 @@ class QueryParameters:
                 continue
 
             if type_ is not None:
-                if provide_resource_type:
-                    result[name] = type_(value, resource_type)
-                else:
-                    result[name] = type_(value)  # type: ignore
+                result[name] = type_(value, resource_type)
             else:
                 result[name] = value
         return result
