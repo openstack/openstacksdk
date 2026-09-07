@@ -1,0 +1,18 @@
+---
+upgrade:
+  - |
+    The precedence used when resolving statsd metrics configuration has
+    changed. Values are now resolved in the following order, from highest
+    to lowest priority: values passed explicitly (e.g. via the ``statsd_config``
+    argument), environment variables (``STATSD_HOST``, ``STATSD_PORT``,
+    ``STATSD_PREFIX``) and finally the ``metrics.statsd`` section of
+    ``clouds.yaml``. Previously the configuration file took precedence over
+    environment variables, which was inconsistent with how configuration is
+    resolved elsewhere.
+deprecations:
+  - |
+    The ``statsd_host``, ``statsd_port`` and ``statsd_prefix`` arguments of
+    ``openstack.config.cloud_region.CloudRegion`` have been deprecated in
+    favour of the new ``statsd_config`` argument, which accepts a single
+    dict of statsd configuration. The legacy arguments continue to work but
+    cannot be combined with ``statsd_config``.

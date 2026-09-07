@@ -87,7 +87,9 @@ class TestStats(base.TestCase):
         super().setUp()
 
         self._registry = prometheus_client.CollectorRegistry()
-        self.cloud.config._collector_registry = self._registry
+        self.cloud.config._prometheus_config = {
+            'collector_registry': self._registry,
+        }
         self.addOnException(self._add_prometheus_samples)
 
     def _add_prometheus_samples(self, exc_info):
