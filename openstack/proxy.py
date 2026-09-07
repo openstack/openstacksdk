@@ -104,7 +104,7 @@ class Proxy(adapter.Adapter):
         *,
         service_type: str | None = None,
         service_name: str | None = None,
-        interface: str | None = None,
+        interface: list[str] | str | None = None,
         region_name: str | None = None,
         endpoint_override: str | None = None,
         version: str | None = None,
