@@ -34,6 +34,7 @@ from openstack import _log
 from openstack.config import _util
 from openstack.config import cloud_region
 from openstack.config import defaults
+from openstack.config import types
 from openstack.config import vendors
 from openstack import exceptions
 from openstack import warnings as os_warnings
@@ -253,36 +254,10 @@ class OpenStackConfig:
         self.extra_config = copy.deepcopy(self.cloud_config)
         self.extra_config.pop('clouds', None)
 
-        # Grab ipv6 preference settings from env
-        client_config = self.cloud_config.get('client', {})
-
-        if force_ipv4 is not None:
-            # If it's passed in to the constructor, honor it.
-            self.force_ipv4 = force_ipv4
-        else:
-            # Get the backwards compat value
-            prefer_ipv6 = get_boolean(
-                self._get_envvar(
-                    'OS_PREFER_IPV6',
-                    client_config.get(
-                        'prefer_ipv6', client_config.get('prefer-ipv6', True)
-                    ),
-                )
-            )
-            force_ipv4 = get_boolean(
-                self._get_envvar(
-                    'OS_FORCE_IPV4',
-                    client_config.get(
-                        'force_ipv4', client_config.get('broken-ipv6', False)
-                    ),
-                )
-            )
-
-            self.force_ipv4 = force_ipv4
-            if not prefer_ipv6:
-                # this will only be false if someone set it explicitly
-                # honor their wishes
-                self.force_ipv4 = True
+        client_config = self._parse_section__client(
+            load_yaml_config, load_envvars, force_ipv4=force_ipv4
+        )
+        self.force_ipv4 = client_config['force_ipv4']
 
         # Next, process environment variables and add them to the mix
         self.envvar_key = self._get_envvar('OS_CLOUD_NAME', 'envvars')
@@ -428,6 +403,57 @@ class OpenStackConfig:
         # Save the password callback
         # password = self._pw_callback(prompt="Password: ")
         self._pw_callback = pw_func
+
+    # FIXME(stephenfin): Respect the load_envvars, load_config options
+    def _parse_section__client(
+        self,
+        load_config: bool,
+        load_envvars: bool,
+        *,
+        force_ipv4: bool | None,
+    ) -> types.ClientConfig:
+        """Parse the '.client' section of the config file.
+
+        :param load_config: Whether to load configuration from the config file.
+        :param load_envvars: Whether to load configuration from environment
+            variables.
+        :param force_ipv4: Whether to force/not force IPv4 and ignore
+            configuration.
+        :returns: The parsed client configuration.
+        """
+        client: types.ClientConfig = {'force_ipv4': False}
+        client_config = self.cloud_config.get('client', {})
+
+        if force_ipv4 is not None:
+            # If it's passed in to the constructor, honor it.
+            client['force_ipv4'] = force_ipv4
+            return client
+
+        # Get the backwards compat value
+        prefer_ipv6 = get_boolean(
+            self._get_envvar(
+                'OS_PREFER_IPV6',
+                client_config.get(
+                    'prefer_ipv6', client_config.get('prefer-ipv6', True)
+                ),
+            )
+        )
+        force_ipv4 = get_boolean(
+            self._get_envvar(
+                'OS_FORCE_IPV4',
+                client_config.get(
+                    'force_ipv4', client_config.get('broken-ipv6', False)
+                ),
+            )
+        )
+
+        if prefer_ipv6 is False:
+            # this will only be false if someone set it explicitly
+            # honor their wishes
+            force_ipv4 = True
+
+        client['force_ipv4'] = force_ipv4
+        return client
 
     def _get_os_environ(
         self, envvar_prefix: str | None = None
