@@ -1325,3 +1325,22 @@ class TestCache(TestImageProxy):
             method_args=['image-id'],
             expected_args=[self.proxy, 'image-id'],
         )
+
+    def test_clean_cache(self):
+        self._verify(
+            "openstack.image.v2.cache.Cache.clean",
+            self.proxy.clean_cache,
+            expected_args=[self.proxy],
+        )
+
+    def test_prune_cache(self):
+        expected = {
+            'total_files_pruned': 2,
+            'total_bytes_pruned': 1024,
+        }
+        self._verify(
+            "openstack.image.v2.cache.Cache.prune",
+            self.proxy.prune_cache,
+            expected_args=[self.proxy],
+            expected_result=expected,
+        )

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add support for the Glance image-cache API ``POST /v2/cache/clean`` and
+    ``POST /v2/cache/prune`` (clean invalid cache entries and prune cache
+    size). This adds the ``clean_cache`` and ``prune_cache`` methods on the
+    image v2 proxy and cache resource.
