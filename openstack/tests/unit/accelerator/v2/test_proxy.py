@@ -14,6 +14,7 @@ from openstack.accelerator.v2 import _proxy
 from openstack.accelerator.v2 import accelerator_request
 from openstack.accelerator.v2 import attribute
 from openstack.accelerator.v2 import deployable
+from openstack.accelerator.v2 import device
 from openstack.accelerator.v2 import device_profile
 from openstack.tests.unit import test_proxy_base as test_proxy_base
 
@@ -30,6 +31,28 @@ class TestAcceleratorDeployable(TestAcceleratorProxy):
 
 
 class TestAcceleratorDevice(TestAcceleratorProxy):
+    def test_list_device(self):
+        self.verify_list(self.proxy.devices, device.Device)
+
+    def test_get_device(self):
+        self.verify_get(self.proxy.get_device, device.Device)
+
+    def test_enable_device(self):
+        self._verify(
+            'openstack.accelerator.v2.device.Device.enable',
+            self.proxy.enable_device,
+            method_args=['value'],
+            expected_args=[self.proxy],
+        )
+
+    def test_disable_device(self):
+        self._verify(
+            'openstack.accelerator.v2.device.Device.disable',
+            self.proxy.disable_device,
+            method_args=['value'],
+            expected_args=[self.proxy],
+        )
+
     def test_list_device_profile(self):
         self.verify_list(
             self.proxy.device_profiles, device_profile.DeviceProfile

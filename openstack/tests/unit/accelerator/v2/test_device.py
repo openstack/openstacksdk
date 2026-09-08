@@ -11,6 +11,7 @@
 # under the License.
 
 from typing import Any
+from unittest import mock
 import uuid
 
 from openstack.accelerator.v2 import device
@@ -25,6 +26,7 @@ EXAMPLE: dict[str, Any] = {
     'type': 'test_type',
     'vendor': '0x8086',
     'model': 'test_model',
+    'status': 'enabled',
     'std_board_info': '{"product_id": "0x09c4"}',
     'vendor_board_info': 'test_vb_info',
 }
@@ -49,7 +51,22 @@ class TestDevice(base.TestCase):
         self.assertEqual(EXAMPLE['type'], sot.type)
         self.assertEqual(EXAMPLE['vendor'], sot.vendor)
         self.assertEqual(EXAMPLE['model'], sot.model)
+        self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['std_board_info'], sot.std_board_info)
         self.assertEqual(EXAMPLE['vendor_board_info'], sot.vendor_board_info)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+
+    def test_enable(self):
+        sess = mock.Mock()
+        sot = device.Device(uuid='device-uuid')
+
+        self.assertIs(sot, sot.enable(sess))
+        sess.post.assert_called_once_with('devices/device-uuid/enable')
+
+    def test_disable(self):
+        sess = mock.Mock()
+        sot = device.Device(uuid='device-uuid')
+
+        self.assertIs(sot, sot.disable(sess))
+        sess.post.assert_called_once_with('devices/device-uuid/disable')

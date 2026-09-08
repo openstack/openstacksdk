@@ -9,7 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from typing import Self
+
+from keystoneauth1 import adapter
+
 from openstack import resource
+from openstack import utils
 
 
 class Device(resource.Resource):
@@ -30,6 +35,8 @@ class Device(resource.Resource):
     id = resource.Body('id')
     #: The model of the device.
     model = resource.Body('model')
+    #: The status of the device.
+    status = resource.Body('status')
     #: The std board information of the device.
     std_board_info = resource.Body('std_board_info')
     #: The type of the device.
@@ -42,3 +49,15 @@ class Device(resource.Resource):
     vendor = resource.Body('vendor')
     #: The vendor board information of the device.
     vendor_board_info = resource.Body('vendor_board_info')
+
+    def enable(self, session: adapter.Adapter) -> Self:
+        """Enable the device."""
+        url = utils.urljoin(Device.base_path, self.id, 'enable')
+        session.post(url)
+        return self
+
+    def disable(self, session: adapter.Adapter) -> Self:
+        """Disable the device."""
+        url = utils.urljoin(Device.base_path, self.id, 'disable')
+        session.post(url)
+        return self

@@ -12,6 +12,7 @@
 
 from openstack.accelerator.v2 import device as _device
 from openstack.tests.functional import base
+from openstack import utils
 
 
 class TestDevice(base.BaseFunctionalTest):
@@ -24,7 +25,20 @@ class TestDevice(base.BaseFunctionalTest):
 
     def setUp(self):
         super().setUp()
-        self.require_service('accelerator')
+        self.require_service('accelerator', min_microversion='2.3')
+        self._set_operator_cloud(accelerator_default_microversion='2.3')
+
+    def _wait_for_device_status(self, device_id, expected_status):
+        for _ in utils.iterate_timeout(
+            30,
+            (
+                f'Timeout waiting for device {device_id} '
+                f'to become {expected_status}'
+            ),
+        ):
+            device = self.operator_cloud.accelerator.get_device(device_id)
+            if device.status == expected_status:
+                return device
 
     def test_device(self):
         # List
@@ -40,3 +54,18 @@ class TestDevice(base.BaseFunctionalTest):
         device = self.operator_cloud.accelerator.get_device(devices[0].uuid)
         self.assertIsInstance(device, _device.Device)
         self.assertEqual(devices[0].uuid, device.uuid)
+        self.assertIsNotNone(device.status)
+
+        # Disable
+        self.addCleanup(
+            self.operator_cloud.accelerator.enable_device,
+            device.id,
+        )
+        self.operator_cloud.accelerator.disable_device(device.id)
+        disabled = self._wait_for_device_status(device.id, 'maintaining')
+        self.assertEqual('maintaining', disabled.status)
+
+        # Enable
+        self.operator_cloud.accelerator.enable_device(device.id)
+        enabled = self._wait_for_device_status(device.id, 'enabled')
+        self.assertEqual('enabled', enabled.status)
