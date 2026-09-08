@@ -15,10 +15,6 @@ from openstack.identity.v3 import _proxy as _identity_v3
 from openstack.key_manager.v1 import project_quota as _project_quota
 from openstack.tests.functional import base
 
-# NOTE(jbeen): Barbican policy may require 'key-manager:service-admin' for
-# project quotas. Create and assign it per test project to avoid 403 errors.
-ADMIN_ROLE_NAME = 'key-manager:service-admin'
-
 
 class TestProjectQuota(base.BaseFunctionalTest):
     _identity: _identity_v3.Proxy
@@ -37,19 +33,20 @@ class TestProjectQuota(base.BaseFunctionalTest):
         )
         self.addCleanup(self._identity.delete_project, self.project)
 
-        self.role = self._identity.create_role(name=ADMIN_ROLE_NAME)
-        self.addCleanup(self._identity.delete_role, self.role.id)
-
+        # Barbican's project_quotas:put policy requires role:admin in the
+        # project scope. Assign the admin role to the operator user so
+        # quota operations succeed against the test project.
+        admin_role = self._identity.find_role('admin', ignore_missing=False)
         self.user_id = self.system_admin_cloud.current_user_id
         assert self.user_id is not None
         self._identity.assign_project_role_to_user(
-            project=self.project, user=self.user_id, role=self.role
+            project=self.project, user=self.user_id, role=admin_role
         )
         self.addCleanup(
             self._identity.unassign_project_role_from_user,
             project=self.project,
             user=self.user_id,
-            role=self.role,
+            role=admin_role,
         )
 
         self._set_operator_cloud(project_id=self.project.id)

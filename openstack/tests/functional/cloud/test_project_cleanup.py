@@ -549,8 +549,9 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         resource_ids = list(obj.id for obj in objects)
         self.assertIn(s.id, resource_ids)
 
-        # Ensure secret still exists
-        s_check = self.user_cloud_alt.key_manager.get_secret(s.id)
+        # Ensure secret still exists. Use secret_id (UUID) rather than id
+        # (full secret_ref URL) which would produce a malformed request.
+        s_check = self.user_cloud_alt.key_manager.get_secret(s.secret_id)
         self.assertEqual(s_check.name, secret_name)
 
         # Last round - do a real cleanup
