@@ -94,6 +94,7 @@
       networking services enabled.
     required-projects:
       - openstack/designate
+      - openstack/neutron
       - openstack/octavia
     vars:
       configure_swap_size: 8192
@@ -137,10 +138,12 @@
     name: openstacksdk-functional-devstack-networking-ext
     parent: openstacksdk-functional-devstack-networking
     description: |
-      Run openstacksdk functional tests against a devstack with super advanced
+      Run openstacksdk functional tests against a devstack with advanced
       networking services enabled (VPNaas, FWaas) which still require ovs.
     required-projects:
+      - openstack/neutron
       - openstack/neutron-fwaas
+      - openstack/neutron-lib
       - openstack/neutron-vpnaas
       - openstack/tap-as-a-service
     vars:
