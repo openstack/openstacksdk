@@ -31,6 +31,7 @@ from openstack.baremetal.v1 import runbooks as _runbooks
 from openstack.baremetal.v1 import volume_connector as _volumeconnector
 from openstack.baremetal.v1 import volume_target as _volumetarget
 from openstack import exceptions
+from openstack import fields as _fields
 from openstack import proxy
 from openstack import resource
 from openstack import utils
@@ -76,10 +77,15 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(resource_type, value)
         err_msg = f"No {resource_type.__name__} found for {value}"
         if fields:
+            field_mapping = {
+                key: val.name
+                for key, val in resource_type.__dict__.items()
+                if isinstance(val, _fields.Body)
+            }
             return res.fetch(
                 self,
                 error_message=err_msg,
-                fields=_common.fields_type(fields, resource_type),
+                fields=','.join(field_mapping.get(x, x) for x in fields),
             )
         return res.fetch(self, error_message=err_msg)
 

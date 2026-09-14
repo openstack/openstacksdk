@@ -101,7 +101,7 @@ class Node(_common.Resource):
         'provision_state',
         'resource_class',
         'shard',
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
         instance_id='instance_uuid',
         is_maintenance='maintenance',
     )

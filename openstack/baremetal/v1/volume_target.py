@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.baremetal.v1 import _common
+
 from openstack import resource
 
 
@@ -30,7 +30,7 @@ class VolumeTarget(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'node',
         'detail',
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
     )
 
     # Volume Targets is available since 1.32

@@ -31,7 +31,7 @@ class Chassis(_common.Resource):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
     )
 
     #: Timestamp at which the chassis was created.

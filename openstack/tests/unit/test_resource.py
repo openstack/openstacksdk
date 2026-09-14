@@ -162,14 +162,11 @@ class Test_Request(base.TestCase):
 
 class TestQueryParameters(base.TestCase):
     def test_create(self):
-        def _type(value, rtype):
-            return value
-
         location = "location"
         mapping: dict[str, Any] = {
             "first_name": "first-name",
             "second_name": {"name": "second-name"},
-            "third_name": {"name": "third", "type": _type},
+            "third_name": {"name": "third", "format": "csv"},
         }
 
         sot = resource.QueryParameters(location, **mapping)
@@ -179,7 +176,7 @@ class TestQueryParameters(base.TestCase):
                 "location": "location",
                 "first_name": "first-name",
                 "second_name": {"name": "second-name"},
-                "third_name": {"name": "third", "type": _type},
+                "third_name": {"name": "third", "format": "csv"},
                 "limit": "limit",
                 "marker": "marker",
             },
@@ -187,15 +184,11 @@ class TestQueryParameters(base.TestCase):
         )
 
     def test_transpose_unmapped(self):
-        def _type(value, rtype):
-            self.assertIs(rtype, mock.sentinel.resource_type)
-            return value * 10
-
         location = "location"
         mapping: dict[str, Any] = {
             "first_name": "first-name",
             "pet_name": {"name": "pet"},
-            "complex": {"type": _type},
+            "complex": {"format": "csv"},
         }
 
         sot = resource.QueryParameters(location, **mapping)
@@ -205,7 +198,7 @@ class TestQueryParameters(base.TestCase):
                 "first_name": "Brian",
                 "pet_name": "Meow",
                 "last_name": "Curtin",
-                "complex": 1,
+                "complex": ["a", "b"],
             },
             mock.sentinel.resource_type,
         )
@@ -216,7 +209,7 @@ class TestQueryParameters(base.TestCase):
                 "location": "Brooklyn",
                 "first-name": "Brian",
                 "pet": "Meow",
-                "complex": 10,
+                "complex": "a,b",
             },
             result,
         )

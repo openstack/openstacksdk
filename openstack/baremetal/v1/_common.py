@@ -15,7 +15,6 @@ from typing import Any, Literal, Self, overload
 
 from keystoneauth1 import adapter
 
-from openstack import fields
 from openstack import resource
 
 
@@ -285,19 +284,3 @@ def comma_separated_list(value: Iterable[str] | None) -> str | None:
         return None
     else:
         return ','.join(value)
-
-
-def fields_type(
-    value: Iterable[str] | None,
-    resource_type: type[resource.Resource],
-) -> str | None:
-    if value is None:
-        return None
-
-    resource_mapping = {
-        key: value.name
-        for key, value in resource_type.__dict__.items()
-        if isinstance(value, fields.Body)
-    }
-
-    return comma_separated_list(resource_mapping.get(x, x) for x in value)

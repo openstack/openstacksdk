@@ -30,7 +30,7 @@ class PortGroup(_common.Resource):
     _query_mapping = resource.QueryParameters(
         'node',
         'address',
-        fields={'type': _common.fields_type},
+        fields={'format': 'csv'},
     )
 
     # The mode and properties field introduced in 1.26.
