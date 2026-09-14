@@ -2,23 +2,23 @@
 Statistics reporting
 ====================
 
-`openstacksdk` can report statistics on individual API
-requests/responses in several different formats.
+*openstacksdk* can report statistics on individual API requests/responses in
+several different formats.
 
-Note that metrics will be reported only when corresponding client
-libraries (`statsd` for 'statsd' reporting, `influxdb` for influxdb,
-etc.).  If libraries are not available reporting will be silently
+Note that metrics will be reported only when corresponding client libraries
+(``statsd`` for 'statsd' reporting, ``influxdb`` for influxdb, etc.) are
+installed. If libraries are not available then reporting will be silently
 ignored.
 
 statsd
 ------
 
-`statsd` can be configured via configuration entries or environment
-variables.
+`statsd <https://github.com/statsd/statsd>`__ reporting can be configured via
+configuration entries or environment variables.
 
-A global `metrics` entry defines defaults for all clouds.  Each cloud
-can specify a `metrics` section to override variables; this may be
-useful to separate results reported for each cloud.
+A global ``metrics`` entry defines defaults for all clouds. Each cloud can
+specify a ``metrics`` section to override variables; this may be useful to
+separate results reported for each cloud.
 
 .. code-block:: yaml
 
@@ -35,17 +35,42 @@ useful to separate results reported for each cloud.
          statsd:
            prefix: 'openstack.api.a-cloud'
 
-If the `STATSD_HOST` or `STATSD_PORT` environment variables are set,
-they will be taken as the default values (and enable `statsd`
-reporting if no other configuration is specified).
+If the ``STATSD_HOST``, ``STATSD_PORT``, or ``STATSD_PREFIX`` environment
+variables are set, they will be taken as the default values (and enable
+*statsd* reporting if no other configuration is specified).
+
+Alternatively, *statsd* can be configured programmatically by passing a
+``statsd_config`` dict to
+:class:`~openstack.config.cloud_region.CloudRegion`:
+
+.. code-block:: python
+
+   import openstack.config
+
+   config = openstack.config.OpenStackConfig()
+   cloud = config.get_one_cloud(
+       cloud='my-cloud',
+       statsd_config={
+           'host': 'statsd.example.com',
+           'port': 8125,
+           'prefix': 'openstack.api.my-cloud',
+       },
+   )
 
 InfluxDB
 --------
 
-`InfluxDB <https://www.influxdata.com/>`__ is supported via
-configuration in the `metrics` field.  Similar to `statsd`, each cloud
-can provide it's own `metrics` section to override any global
-defaults.
+.. deprecated:: 4.11.0
+
+   InfluxDB support requires the ``influxdb`` library, which only supports
+   InfluxDB 1.x and is itself deprecated. InfluxDB support in *openstacksdk*
+   is therefore also deprecated and will be removed in a future release.
+
+`InfluxDB <https://www.influxdata.com/>`__ reporting can be configured via
+configuration entries.
+
+As with *statsd*, each cloud can provide its own ``metrics`` section to
+override any global defaults.
 
 .. code-block:: yaml
 
@@ -62,8 +87,8 @@ defaults.
    clouds:
      ..
 
-InfluxDB reporting allows setting additional tags into the metrics based on the
-selected cloud.
+*InfluxDB* reporting allows setting additional tags into the metrics based on
+the selected cloud.
 
 .. code-block:: yaml
 
@@ -74,15 +99,33 @@ selected cloud.
       additional_metric_tags:
         environment: production
 
-prometheus
+Prometheus
 ----------
-..
-   NOTE(ianw) 2021-04-19 : examples here would be great; this is just terse
-   description taken from
-   https://review.opendev.org/c/openstack/openstacksdk/+/614834
 
-The prometheus support does not read from config, and does not run an
-http service since OpenstackSDK is a library. It is expected that an
-application that uses OpenstackSDK and wants request stats be
-collected will pass a `prometheus_client.CollectorRegistry` to
-`collector_registry`.
+`Prometheus <https://prometheus.io/>`__ reporting is not configured via
+configuration entries. Unlike *statsd* and *InfluxDB*, Prometheus works on a
+pull basis. *openstacksdk* does not run the necessary HTTP service since it is
+a library. Instead, an application that uses *openstacksdk* and wants request
+stats collected should create a :class:`~prometheus_client.CollectorRegistry`
+and pass it via the ``prometheus_config`` argument to
+:class:`~openstack.config.cloud_region.CloudRegion`. The application is then
+responsible for exposing the registry over HTTP.
+
+.. code-block:: python
+
+   import prometheus_client
+   import openstack.config
+
+   registry = prometheus_client.CollectorRegistry()
+
+   config = openstack.config.OpenStackConfig()
+   cloud = config.get_one_cloud(
+       cloud='my-cloud',
+       prometheus_config={
+           'collector_registry': registry,
+       },
+   )
+
+   # Use the cloud object; metrics will be recorded in the registry.
+   # Start the HTTP server to expose metrics to Prometheus.
+   prometheus_client.start_http_server(8000, registry=registry)
