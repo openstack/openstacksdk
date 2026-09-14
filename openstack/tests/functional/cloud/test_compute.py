@@ -10,17 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-test_compute
-----------------------------------
-
-Functional tests for compute methods.
-"""
-
 import datetime
 
 from fixtures import TimeoutException
 
+from openstack.compute.v2 import limits as _limits
 from openstack import exceptions
 from openstack.tests.functional import base
 from openstack import utils
@@ -569,3 +563,460 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertIn('start', usage)
         self.assertEqual(start.isoformat(), usage['start'])
         self.assertIn('location', usage)
+
+
+class TestAggregate(base.BaseFunctionalTest):
+    def test_aggregates(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+        aggregate_name = self.getUniqueString()
+        availability_zone = self.getUniqueString()
+        self.addCleanup(self.cleanup, aggregate_name)
+        aggregate = self.operator_cloud.create_aggregate(aggregate_name)
+
+        aggregate_ids = [
+            v['id'] for v in self.operator_cloud.list_aggregates()
+        ]
+        self.assertIn(aggregate['id'], aggregate_ids)
+
+        aggregate = self.operator_cloud.update_aggregate(
+            aggregate_name, availability_zone=availability_zone
+        )
+        self.assertEqual(availability_zone, aggregate['availability_zone'])
+
+        aggregate = self.operator_cloud.set_aggregate_metadata(
+            aggregate_name, {'key': 'value'}
+        )
+        self.assertIn('key', aggregate['metadata'])
+
+        aggregate = self.operator_cloud.set_aggregate_metadata(
+            aggregate_name, {'key': None}
+        )
+        self.assertNotIn('key', aggregate['metadata'])
+
+        # Validate that we can delete by name
+        self.assertTrue(self.operator_cloud.delete_aggregate(aggregate_name))
+
+    def cleanup(self, aggregate_name):
+        aggregate = self.operator_cloud.get_aggregate(aggregate_name)
+        if aggregate:
+            self.operator_cloud.delete_aggregate(aggregate['id'])
+
+
+class TestFlavor(base.BaseFunctionalTest):
+    def setUp(self):
+        super().setUp()
+
+        # Generate a random name for flavors in this test
+        self.new_item_name = self.getUniqueString('flavor')
+
+        self.addCleanup(self._cleanup_flavors)
+
+    def _cleanup_flavors(self):
+        exception_list = list()
+        if self.operator_cloud:
+            for f in self.operator_cloud.list_flavors(get_extra=False):
+                if f['name'].startswith(self.new_item_name):
+                    try:
+                        self.operator_cloud.delete_flavor(f['id'])
+                    except Exception as e:
+                        # We were unable to delete a flavor, let's try with
+                        # next
+                        exception_list.append(str(e))
+                    continue
+        if exception_list:
+            # Raise an error: we must make users aware that something went
+            # wrong
+            raise exceptions.SDKException('\n'.join(exception_list))
+
+    def test_create_flavor(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
+        flavor_name = self.new_item_name + '_create'
+        flavor_kwargs = dict(
+            name=flavor_name,
+            ram=1024,
+            vcpus=2,
+            disk=10,
+            ephemeral=5,
+            swap=100,
+            rxtx_factor=1.5,
+            is_public=True,
+        )
+
+        flavor = self.operator_cloud.create_flavor(**flavor_kwargs)
+
+        self.assertIsNotNone(flavor['id'])
+
+        # When properly normalized, we should always get an extra_specs
+        # and expect empty dict on create.
+        self.assertIn('extra_specs', flavor)
+        self.assertEqual({}, flavor['extra_specs'])
+
+        # We should also always have ephemeral and public attributes
+        self.assertIn('ephemeral', flavor)
+        self.assertEqual(5, flavor['ephemeral'])
+        self.assertIn('is_public', flavor)
+        self.assertTrue(flavor['is_public'])
+
+        for key in flavor_kwargs.keys():
+            self.assertIn(key, flavor)
+        for key, value in flavor_kwargs.items():
+            self.assertEqual(value, flavor[key])
+
+    def test_list_flavors(self):
+        pub_flavor_name = self.new_item_name + '_public'
+        priv_flavor_name = self.new_item_name + '_private'
+        public_kwargs = dict(
+            name=pub_flavor_name, ram=1024, vcpus=2, disk=10, is_public=True
+        )
+        private_kwargs = dict(
+            name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=False
+        )
+
+        if self.operator_cloud:
+            # Create a public and private flavor. We expect both to be listed
+            # for an operator.
+            self.operator_cloud.create_flavor(**public_kwargs)
+            self.operator_cloud.create_flavor(**private_kwargs)
+
+            flavors = self.operator_cloud.list_flavors(get_extra=False)
+
+            # Flavor list will include the standard devstack flavors. We just
+            # want to make sure both of the flavors we just created are
+            # present.
+            found = []
+            for f in flavors:
+                # extra_specs should be added within list_flavors()
+                self.assertIn('extra_specs', f)
+                if f['name'] in (pub_flavor_name, priv_flavor_name):
+                    found.append(f)
+            self.assertEqual(2, len(found))
+        else:
+            self.user_cloud.list_flavors()
+
+    def test_flavor_access(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
+        priv_flavor_name = self.new_item_name + '_private'
+        private_kwargs = dict(
+            name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=False
+        )
+        new_flavor = self.operator_cloud.create_flavor(**private_kwargs)
+
+        # Validate the 'demo' user cannot see the new flavor
+        flavors = self.user_cloud.search_flavors(priv_flavor_name)
+        self.assertEqual(0, len(flavors))
+
+        # We need the tenant ID for the 'demo' user
+        project = self.operator_cloud.get_project('demo')
+        self.assertIsNotNone(project)
+        assert project is not None
+
+        # Now give 'demo' access
+        self.operator_cloud.add_flavor_access(new_flavor['id'], project['id'])
+
+        # Now see if the 'demo' user has access to it
+        flavors = self.user_cloud.search_flavors(priv_flavor_name)
+        self.assertEqual(1, len(flavors))
+        self.assertEqual(priv_flavor_name, flavors[0]['name'])
+
+        # Now see if the 'demo' user has access to it without needing
+        #  the demo_cloud access.
+        acls = self.operator_cloud.list_flavor_access(new_flavor['id'])
+        self.assertEqual(1, len(acls))
+        self.assertEqual(project['id'], acls[0]['tenant_id'])
+
+        # Now revoke the access and make sure we can't find it
+        self.operator_cloud.remove_flavor_access(
+            new_flavor['id'], project['id']
+        )
+        flavors = self.user_cloud.search_flavors(priv_flavor_name)
+        self.assertEqual(0, len(flavors))
+
+    def test_set_unset_flavor_specs(self):
+        """
+        Test setting and unsetting flavor extra specs
+        """
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
+        flavor_name = self.new_item_name + '_spec_test'
+        kwargs = dict(name=flavor_name, ram=1024, vcpus=2, disk=10)
+        new_flavor = self.operator_cloud.create_flavor(**kwargs)
+
+        # Expect no extra_specs
+        self.assertEqual({}, new_flavor['extra_specs'])
+
+        # Now set them
+        extra_specs = {'foo': 'aaa', 'bar': 'bbb'}
+        self.operator_cloud.set_flavor_specs(new_flavor['id'], extra_specs)
+        mod_flavor = self.operator_cloud.get_flavor(
+            new_flavor['id'], get_extra=True
+        )
+        assert mod_flavor is not None
+
+        # Verify extra_specs were set
+        self.assertIn('extra_specs', mod_flavor)
+        self.assertEqual(extra_specs, mod_flavor['extra_specs'])
+
+        # Unset the 'foo' value
+        self.operator_cloud.unset_flavor_specs(mod_flavor['id'], ['foo'])
+        mod_flavor = self.operator_cloud.get_flavor_by_id(
+            new_flavor['id'], get_extra=True
+        )
+
+        # Verify 'foo' is unset and 'bar' is still set
+        self.assertEqual({'bar': 'bbb'}, mod_flavor['extra_specs'])
+
+
+FAKE_PUBLIC_KEY = (
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkF3MX59OrlBs3dH5CU7lNmvpbrgZxSpyGj"
+    "lnE8Flkirnc/Up22lpjznoxqeoTAwTW034k7Dz6aYIrZGmQwe2TkE084yqvlj45Dkyoj95fW/"
+    "sZacm0cZNuL69EObEGHdprfGJQajrpz22NQoCD8TFB8Wv+8om9NH9Le6s+WPe98WC77KLw8qg"
+    "fQsbIey+JawPWl4O67ZdL5xrypuRjfIPWjgy/VH85IXg/Z/GONZ2nxHgSShMkwqSFECAC5L3P"
+    "HB+0+/12M/iikdatFSVGjpuHvkLOs3oe7m6HlOfluSJ85BzLWBbvva93qkGmLg4ZAc8rPh2O+"
+    "YIsBUHNLLMM/oQp Generated-by-Nova\n"
+)
+
+
+class TestKeypairs(base.BaseFunctionalTest):
+    def test_create_and_delete(self):
+        '''Test creating and deleting keypairs functionality'''
+        name = self.getUniqueString('keypair')
+        self.addCleanup(self.user_cloud.delete_keypair, name)
+        keypair = self.user_cloud.create_keypair(name=name)
+        self.assertEqual(keypair['name'], name)
+        self.assertIsNotNone(keypair['public_key'])
+        self.assertIsNotNone(keypair['private_key'])
+        self.assertIsNotNone(keypair['fingerprint'])
+        self.assertEqual(keypair['type'], 'ssh')
+
+        keypairs = self.user_cloud.list_keypairs()
+        self.assertIn(name, [k['name'] for k in keypairs])
+
+        self.user_cloud.delete_keypair(name)
+
+        keypairs = self.user_cloud.list_keypairs()
+        self.assertNotIn(name, [k['name'] for k in keypairs])
+
+    def test_create_and_delete_with_key(self):
+        '''Test creating and deleting keypairs functionality'''
+        name = self.getUniqueString('keypair')
+        self.addCleanup(self.user_cloud.delete_keypair, name)
+        keypair = self.user_cloud.create_keypair(
+            name=name, public_key=FAKE_PUBLIC_KEY
+        )
+        self.assertEqual(keypair['name'], name)
+        self.assertIsNotNone(keypair['public_key'])
+        self.assertIsNone(keypair['private_key'])
+        self.assertIsNotNone(keypair['fingerprint'])
+        self.assertEqual(keypair['type'], 'ssh')
+
+        keypairs = self.user_cloud.list_keypairs()
+        self.assertIn(name, [k['name'] for k in keypairs])
+
+        self.user_cloud.delete_keypair(name)
+
+        keypairs = self.user_cloud.list_keypairs()
+        self.assertNotIn(name, [k['name'] for k in keypairs])
+
+
+class TestServerGroup(base.BaseFunctionalTest):
+    def test_server_group(self):
+        server_group_name = self.getUniqueString()
+        self.addCleanup(self.cleanup, server_group_name)
+        server_group = self.user_cloud.create_server_group(
+            server_group_name, ['affinity']
+        )
+
+        server_group_ids = [
+            v['id'] for v in self.user_cloud.list_server_groups()
+        ]
+        self.assertIn(server_group['id'], server_group_ids)
+
+        self.user_cloud.delete_server_group(server_group_name)
+
+    def cleanup(self, server_group_name):
+        server_group = self.user_cloud.get_server_group(server_group_name)
+        if server_group:
+            self.user_cloud.delete_server_group(server_group['id'])
+
+
+class TestComputeLimits(base.BaseFunctionalTest):
+    def test_get_our_compute_limits(self):
+        """Test limits functionality"""
+        limits = self.user_cloud.get_compute_limits()
+        self.assertIsNotNone(limits)
+
+        self.assertIsInstance(limits, _limits.AbsoluteLimits)
+        self.assertIsNotNone(limits.server_meta)
+        self.assertIsNotNone(limits.image_meta)
+
+    def test_get_other_compute_limits(self):
+        """Test limits functionality"""
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
+        limits = self.operator_cloud.get_compute_limits('demo')
+        self.assertIsNotNone(limits)
+        self.assertTrue(hasattr(limits, 'server_meta'))
+
+        # Test normalize limits
+        self.assertFalse(hasattr(limits, 'maxImageMeta'))
+
+
+class TestComputeQuotas(base.BaseFunctionalTest):
+    def test_get_quotas(self):
+        '''Test quotas functionality'''
+        project_id = self.user_cloud.current_project_id
+        assert project_id is not None
+        self.user_cloud.get_compute_quotas(project_id)
+
+    def test_set_quotas(self):
+        '''Test quotas functionality'''
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
+        quotas = self.operator_cloud.get_compute_quotas('demo')
+        cores = quotas['cores']
+        self.operator_cloud.set_compute_quotas('demo', cores=cores + 1)
+        self.assertEqual(
+            cores + 1, self.operator_cloud.get_compute_quotas('demo')['cores']
+        )
+        self.operator_cloud.delete_compute_quotas('demo')
+        self.assertEqual(
+            cores, self.operator_cloud.get_compute_quotas('demo')['cores']
+        )
+
+
+class TestRangeSearch(base.BaseFunctionalTest):
+    def _filter_m1_flavors(self, results):
+        """The m1 flavors are the original devstack flavors"""
+        new_results = []
+        for flavor in results:
+            if flavor['name'].startswith("m1."):
+                new_results.append(flavor)
+        return new_results
+
+    def test_range_search_bad_range(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        self.assertRaises(
+            exceptions.SDKException,
+            self.user_cloud.range_search,
+            flavors,
+            {"ram": "<1a0"},
+        )
+
+    def test_range_search_exact(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(flavors, {"ram": "4096"})
+        self.assertIsInstance(result, list)
+        # should only be 1 m1 flavor with 4096 ram
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(1, len(result))
+        self.assertEqual("m1.medium", result[0]['name'])
+
+    def test_range_search_min(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(flavors, {"ram": "MIN"})
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+        # older devstack does not have cirros256
+        self.assertIn(result[0]['name'], ('cirros256', 'm1.tiny'))
+
+    def test_range_search_max(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(flavors, {"ram": "MAX"})
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+        self.assertEqual("m1.xlarge", result[0]['name'])
+
+    def test_range_search_lt(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(flavors, {"ram": "<1024"})
+        self.assertIsInstance(result, list)
+        # should only be 1 m1 flavor with <1024 ram
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(1, len(result))
+        self.assertEqual("m1.tiny", result[0]['name'])
+
+    def test_range_search_gt(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(flavors, {"ram": ">4096"})
+        self.assertIsInstance(result, list)
+        # should only be 2 m1 flavors with >4096 ram
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(2, len(result))
+        flavor_names = [r['name'] for r in result]
+        self.assertIn("m1.large", flavor_names)
+        self.assertIn("m1.xlarge", flavor_names)
+
+    def test_range_search_le(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(flavors, {"ram": "<=4096"})
+        self.assertIsInstance(result, list)
+        # should only be 3 m1 flavors with <=4096 ram
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(3, len(result))
+        flavor_names = [r['name'] for r in result]
+        self.assertIn("m1.tiny", flavor_names)
+        self.assertIn("m1.small", flavor_names)
+        self.assertIn("m1.medium", flavor_names)
+
+    def test_range_search_ge(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(flavors, {"ram": ">=4096"})
+        self.assertIsInstance(result, list)
+        # should only be 3 m1 flavors with >=4096 ram
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(3, len(result))
+        flavor_names = [r['name'] for r in result]
+        self.assertIn("m1.medium", flavor_names)
+        self.assertIn("m1.large", flavor_names)
+        self.assertIn("m1.xlarge", flavor_names)
+
+    def test_range_search_multi_1(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(
+            flavors, {"ram": "MIN", "vcpus": "MIN"}
+        )
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+        # older devstack does not have cirros256
+        self.assertIn(result[0]['name'], ('cirros256', 'm1.tiny'))
+
+    def test_range_search_multi_2(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(
+            flavors, {"ram": "<1024", "vcpus": "MIN"}
+        )
+        self.assertIsInstance(result, list)
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(1, len(result))
+        flavor_names = [r['name'] for r in result]
+        self.assertIn("m1.tiny", flavor_names)
+
+    def test_range_search_multi_3(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(
+            flavors, {"ram": ">=4096", "vcpus": "<6"}
+        )
+        self.assertIsInstance(result, list)
+        result = self._filter_m1_flavors(result)
+        self.assertEqual(2, len(result))
+        flavor_names = [r['name'] for r in result]
+        self.assertIn("m1.medium", flavor_names)
+        self.assertIn("m1.large", flavor_names)
+
+    def test_range_search_multi_4(self):
+        flavors = self.user_cloud.list_flavors(get_extra=False)
+        result = self.user_cloud.range_search(
+            flavors, {"ram": ">=4096", "vcpus": "MAX"}
+        )
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+        # This is the only result that should have max vcpu
+        self.assertEqual("m1.xlarge", result[0]['name'])

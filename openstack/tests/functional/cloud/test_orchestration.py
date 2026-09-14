@@ -10,13 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-test_stack
-----------------------------------
-
-Functional tests for stack methods.
-"""
-
 import tempfile
 
 from openstack import exceptions

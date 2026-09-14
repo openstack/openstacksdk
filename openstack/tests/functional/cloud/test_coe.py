@@ -10,13 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-test_cluster_templates
-----------------------------------
-
-Functional tests for `openstack.cloud` cluster_template methods.
-"""
-
 import subprocess
 
 import fixtures
@@ -120,3 +113,32 @@ class TestClusterTemplate(base.BaseFunctionalTest):
 
         # delete keypair
         self.user_cloud.delete_keypair('testkey')
+
+
+class TestCOEClusters(base.BaseFunctionalTest):
+    # NOTE(flwang): Currently, running Magnum on a cloud which doesn't support
+    # nested virtualization will lead to timeout. So this test file is mostly
+    # like a note to document why we can't have function testing for Magnum
+    # clusters CRUD.
+    pass
+
+
+class TestMagnumServices(base.BaseFunctionalTest):
+    def setUp(self):
+        super().setUp()
+        if not self.user_cloud.has_service(
+            'container-infrastructure-management'
+        ):
+            self.skipTest('Container service not supported by cloud')
+
+    def test_magnum_services(self):
+        '''Test magnum services functionality'''
+
+        # Test that we can list services
+        services = self.operator_cloud.list_magnum_services()
+
+        self.assertEqual(1, len(services))
+        self.assertEqual(services[0]['id'], 1)
+        self.assertEqual('up', services[0]['state'])
+        self.assertEqual('magnum-conductor', services[0]['binary'])
+        self.assertGreater(services[0]['report_count'], 0)

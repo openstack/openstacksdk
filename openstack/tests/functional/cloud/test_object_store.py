@@ -10,13 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-test_object
-----------------------------------
-
-Functional tests for object methods.
-"""
-
 import random
 import string
 import tempfile
