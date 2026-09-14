@@ -762,6 +762,27 @@ class TestResource(base.TestCase):
         actual = json.dumps(res, sort_keys=True)
         self.assertEqual(expected, actual)
 
+    def test_json_dumps_reentrant_alias_get(self):
+        """Test that re-entrant alias resolution does not fail.
+
+        Mutually aliased fields can re-enter the same descriptor while its
+        ``_seen`` flag is set. The nested lookup may remove the flag before
+        the outer lookup does, leaving the outer lookup unable to clean it up.
+        """
+
+        class Test(resource.Resource):
+            owner = resource.Body('owner', alias='owner_id')
+            owner_id = resource.Body('owner', alias='owner')
+
+        res = Test()
+
+        actual = json.dumps(res, sort_keys=True)
+        expected = (
+            '{"id": null, "location": null, "name": null, '
+            '"owner": null, "owner_id": null}'
+        )
+        self.assertEqual(expected, actual)
+
     def test_items(self):
         class Test(resource.Resource):
             foo = resource.Body('foo')

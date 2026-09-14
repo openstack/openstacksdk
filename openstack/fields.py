@@ -234,10 +234,11 @@ class _BaseComponent(abc.ABC):
                 alias_flag = _SEEN_FORMAT.format(name=self.alias)
                 if not getattr(instance, alias_flag, False):
                     seen_flag = _SEEN_FORMAT.format(name=self.name)
-                    # Prevent infinite recursion
-                    setattr(instance, seen_flag, True)
-                    value = getattr(instance, self.alias)
-                    delattr(instance, seen_flag)
+                    if not getattr(instance, seen_flag, False):
+                        # Prevent infinite recursion
+                        setattr(instance, seen_flag, True)
+                        value = getattr(instance, self.alias)
+                        delattr(instance, seen_flag)
             self.warn_if_deprecated_property(value)
             return value
 
