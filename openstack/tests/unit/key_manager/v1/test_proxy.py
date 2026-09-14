@@ -156,7 +156,7 @@ class TestKeyManagerSecretACL(test_proxy_base.TestProxyBase):
             expected_args=[None],
             expected_kwargs={
                 "requires_id": False,
-                "path_args": {"secret_id": "resource_id"},
+                "secret_id": "resource_id",
             },
         )
 
@@ -166,9 +166,7 @@ class TestKeyManagerSecretACL(test_proxy_base.TestProxyBase):
             secret_acl.SecretACL,
             expected_args=[None],
             expected_kwargs={
-                "requires_id": False,
-                "path_args": {"secret_id": "resource_id"},
-                "method": "PUT",
+                "secret_id": "resource_id",
                 "x": 1,
                 "y": 2,
                 "z": 3,
@@ -181,9 +179,7 @@ class TestKeyManagerSecretACL(test_proxy_base.TestProxyBase):
             secret_acl.SecretACL,
             expected_args=[None],
             expected_kwargs={
-                "requires_id": False,
-                "path_args": {"secret_id": "resource_id"},
-                "method": "PATCH",
+                "secret_id": "resource_id",
                 "x": 1,
                 "y": 2,
                 "z": 3,
@@ -197,8 +193,7 @@ class TestKeyManagerSecretACL(test_proxy_base.TestProxyBase):
             False,
             expected_args=[None],
             expected_kwargs={
-                "requires_id": False,
-                "path_args": {"secret_id": "resource_id"},
+                "secret_id": "resource_id",
             },
         )
 

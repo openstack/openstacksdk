@@ -474,7 +474,7 @@ class Proxy(proxy.Proxy):
             _secret_acl.SecretACL,
             None,
             requires_id=False,
-            path_args={"secret_id": sid},
+            secret_id=sid,
         )
 
     def set_secret_acl(
@@ -491,9 +491,7 @@ class Proxy(proxy.Proxy):
         return self._update(
             _secret_acl.SecretACL,
             None,
-            requires_id=False,
-            path_args={"secret_id": sid},
-            method="PUT",
+            secret_id=sid,
             **attrs,
         )
 
@@ -511,9 +509,7 @@ class Proxy(proxy.Proxy):
         return self._update(
             _secret_acl.SecretACL,
             None,
-            requires_id=False,
-            path_args={"secret_id": sid},
-            method="PATCH",
+            secret_id=sid,
             **attrs,
         )
 
@@ -531,8 +527,7 @@ class Proxy(proxy.Proxy):
         return self._delete(
             _secret_acl.SecretACL,
             None,
-            requires_id=False,
-            path_args={"secret_id": sid},
+            secret_id=sid,
             ignore_missing=ignore_missing,
         )
 

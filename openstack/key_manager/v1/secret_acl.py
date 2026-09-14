@@ -19,9 +19,13 @@ class SecretACL(resource.Resource):
     # capabilities
     allow_create = False
     allow_fetch = True  # GET
-    allow_commit = True  # PUT, PATCH
+    allow_commit = True  # PUT
     allow_delete = True  # DELETE
     allow_list = False
+
+    # ACL endpoint has no separate resource ID; the secret_id in the URL is all
+    # that identifies the resource.
+    requires_id = False
 
     # Properties
     #: The UUID of the parent secret used in the URL.
