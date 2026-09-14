@@ -23,8 +23,7 @@
         # https://review.opendev.org/c/openstack/neutron-lib/+/987372
         - openstacksdk-functional-devstack-networking-ext:
             voting: false
-        - openstacksdk-functional-devstack-magnum:
-            voting: false
+        - openstacksdk-functional-devstack-magnum
         - openstacksdk-functional-devstack-manila
         - openstacksdk-functional-devstack-compute-manila
         - openstacksdk-functional-devstack-cyborg

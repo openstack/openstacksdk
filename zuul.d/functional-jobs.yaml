@@ -227,26 +227,56 @@
 
 - job:
     name: openstacksdk-functional-devstack-magnum
-    parent: openstacksdk-functional-devstack
+    parent: openstacksdk-functional-devstack-base
     description: |
       Run openstacksdk functional tests against a master devstack with magnum
     required-projects:
+      - openstack/barbican
       - openstack/magnum
+      - openstack/manila
+      - openstack/octavia
+      - openstack/ovn-octavia-provider
       - openstack/python-magnumclient
+      - name: github.com/vexxhost/magnum-cluster-api
+        override-checkout: main
     vars:
       devstack_plugins:
+        barbican: https://opendev.org/openstack/barbican
         magnum: https://opendev.org/openstack/magnum
+        manila: https://opendev.org/openstack/manila
+        octavia: https://opendev.org/openstack/octavia
+        ovn-octavia-provider: https://opendev.org/openstack/ovn-octavia-provider
+        magnum-cluster-api: https://github.com/vexxhost/magnum-cluster-api
       devstack_localrc:
-        MAGNUM_GUEST_IMAGE_URL: https://tarballs.openstack.org/magnum/images/fedora-atomic-f23-dib.qcow2
-        MAGNUM_IMAGE_NAME: fedora-atomic-f23-dib
+        DISABLE_AMP_IMAGE_BUILD: true
+        GIT_BASE: https://github.com
+        GLANCE_LIMIT_IMAGE_SIZE_TOTAL: 5000
+        MAGNUM_GUEST_IMAGE_URL: https://github.com/vexxhost/capo-image-elements/releases/download/2026.05-1/ubuntu-24.04-v1.35.4.qcow2
+        OCTAVIA_NODE: api
+      devstack_local_conf:
+        post-config:
+          /etc/barbican/barbican.conf:
+            secretstore:
+              enable_multiple_secret_stores: true
+              stores_lookup_suffix: software
+            "secretstore:software":
+              secret_store_plugin: store_crypto
+              crypto_plugin: simple_crypto
+              global_default: true
+          /etc/magnum/magnum.conf:
+            cluster_template:
+              kubernetes_allowed_network_drivers: calico,cilium
+              kubernetes_default_network_driver: calico
       devstack_services:
         s-account: false
         s-container: false
         s-object: false
         s-proxy: false
+        c-bak: false
       tox_environment:
         OPENSTACKSDK_HAS_SWIFT: 0
         OPENSTACKSDK_HAS_MAGNUM: 1
+      tox_extra_args: "-vv --skip-missing-interpreters=false -- openstack.tests.functional.cloud.test_coe"
 
 - job:
     name: openstacksdk-functional-devstack-ironic
