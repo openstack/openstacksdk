@@ -15,7 +15,7 @@ from collections.abc import Generator
 import datetime
 import operator
 import time
-from typing import Any, TYPE_CHECKING, cast
+from typing import Any, TYPE_CHECKING, cast, overload
 import warnings
 
 import iso8601
@@ -441,18 +441,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         if not filters:
             filters = {}
 
-        # servers() always yields non-None servers, so _expand_server never
-        # returns None here
-        return cast(
-            'list[_server.Server]',
-            [
-                self._expand_server(server, detailed, bare)
-                for server in self.compute.servers(
-                    all_projects=all_projects,
-                    **filters,
-                )
-            ],
-        )
+        return [
+            self._expand_server(server, detailed, bare)
+            for server in self.compute.servers(
+                all_projects=all_projects,
+                **filters,
+            )
+        ]
 
     def list_server_groups(self) -> list[_server_group.ServerGroup]:
         """List all available server groups.
@@ -684,6 +679,22 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         return self._expand_server(server, detailed, bare)
 
+    @overload
+    def _expand_server(
+        self,
+        server: _server.Server,
+        detailed: bool,
+        bare: bool,
+    ) -> _server.Server: ...
+
+    @overload
+    def _expand_server(
+        self,
+        server: None,
+        detailed: bool,
+        bare: bool,
+    ) -> None: ...
+
     def _expand_server(
         self,
         server: _server.Server | None,
@@ -692,13 +703,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _server.Server | None:
         if bare or not server:
             return server
-        elif detailed:
+
+        if detailed:
             return cast(
                 '_server.Server',
                 meta.get_hostvars_from_server(self, server),  # type: ignore[arg-type]
             )
-        else:
-            return meta.add_server_interfaces(self, server)  # type: ignore[arg-type]
+
+        return meta.add_server_interfaces(self, server)  # type: ignore[arg-type]
 
     def get_server_by_id(self, id: str) -> _server.Server | None:
         """Get a server by ID.
