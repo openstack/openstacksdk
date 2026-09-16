@@ -15,6 +15,9 @@ from typing import Any, ClassVar, Literal, overload
 import warnings
 
 from openstack.placement.v1 import allocation as _allocation
+from openstack.placement.v1 import (
+    allocation_candidate as _allocation_candidate,
+)
 from openstack.placement.v1 import resource_class as _resource_class
 from openstack.placement.v1 import resource_provider as _resource_provider
 from openstack.placement.v1 import (
@@ -39,6 +42,46 @@ class Proxy(proxy.Proxy):
     }
 
     # ====== Allocations ======
+
+    def allocation_candidates(
+        self,
+        **query: Any,
+    ) -> Generator[_allocation_candidate.AllocationCandidate, None, None]:
+        """Retrieve a generator of allocation candidates.
+
+        Each yielded
+        :class:`~openstack.placement.v1.allocation_candidate.AllocationCandidate`
+        represents one candidate set of allocations and contains:
+
+        - ``allocations`` — a dict mapping resource provider UUID to the
+          resources to request from that provider.
+        - ``mappings`` — a dict mapping request-group suffixes to provider
+          UUIDs (available from microversion 1.34).
+        - ``provider_summaries`` — a dict keyed by resource provider UUID with
+          capacity and trait information for providers in this candidate.
+
+        :param query: Query parameters forwarded directly to placement.
+            Common parameters include:
+
+            - ``resources`` — a comma-separated ``CLASS:AMOUNT`` string,
+              e.g. ``VCPU:1,DISK_GB:10,MEMORY_MB:512``
+            - ``required`` — comma-separated required (or ``!``-prefixed
+              forbidden) traits
+            - ``member_of`` — aggregate UUID filter
+            - ``in_tree`` — restrict to a resource provider subtree
+            - ``limit`` — maximum number of candidates to return
+            - ``group_policy`` — ``isolate`` or ``none``
+            - ``root_required`` — traits required on the root provider
+            - ``same_subtree`` — request-group suffixes that must share a tree
+
+            Numbered variants (``resources1``, ``required1``, ``member_of1``,
+            ``in_tree1``, …) are accepted for granular request groups.
+
+        :returns: A generator of
+            :class:`~openstack.placement.v1.allocation_candidate.AllocationCandidate`
+            instances.
+        """
+        return self._list(_allocation_candidate.AllocationCandidate, **query)
 
     def get_allocation(
         self,
