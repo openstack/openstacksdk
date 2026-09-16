@@ -78,3 +78,4 @@ Resource Provider Trait
    :noindex:
    :members: get_resource_provider_trait,
              set_resource_provider_trait,
+             delete_resource_provider_trait,

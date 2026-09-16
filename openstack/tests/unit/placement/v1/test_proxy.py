@@ -272,3 +272,18 @@ class TestPlacementResourceProviderTrait(TestPlacementProxy):
                 'traits': ['TEST_TRIAT', 'TEST_TRAIT2'],
             },
         )
+
+    def test_delete_resource_provider_trait(self):
+        self._verify(
+            'openstack.proxy.Proxy._delete',
+            self.proxy.delete_resource_provider_trait,
+            method_args=['test_id'],
+            expected_args=[
+                resource_provider_trait.ResourceProviderTrait,
+                None,
+            ],
+            expected_kwargs={
+                'resource_provider_id': 'test_id',
+                'ignore_missing': True,
+            },
+        )
