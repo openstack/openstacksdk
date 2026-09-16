@@ -51,12 +51,16 @@ class Proxy(proxy.Proxy):
         "service": _service.Service,
     }
 
+    # ====== Build Info ======
+
     def get_build_info(self) -> build_info.BuildInfo:
         """Get build info for service engine and API
 
         :returns: A dictionary containing the API and engine revision string.
         """
         return self._get(build_info.BuildInfo, requires_id=False)
+
+    # ====== Profile Types ======
 
     def profile_types(
         self,
@@ -85,6 +89,8 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_profile_type.ProfileType, profile_type)
 
+    # ====== Policy Types ======
+
     def policy_types(
         self,
         **query: Any,
@@ -110,6 +116,8 @@ class Proxy(proxy.Proxy):
             policy_type matching the name could be found.
         """
         return self._get(_policy_type.PolicyType, policy_type)
+
+    # ====== Profiles ======
 
     def create_profile(self, **attrs: Any) -> _profile.Profile:
         """Create a new profile from attributes.
@@ -242,7 +250,8 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_profile.ProfileValidate, **attrs)
 
-    # ====== CLUSTERS ======
+    # ====== Clusters ======
+
     def create_cluster(self, **attrs: Any) -> _cluster.Cluster:
         """Create a new cluster from attributes.
 
@@ -691,6 +700,8 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_cluster.Cluster, cluster)
         return obj.op(self, operation, **params)
 
+    # ====== Nodes ======
+
     def create_node(self, **attrs: Any) -> _node.Node:
         """Create a new node from attributes.
 
@@ -916,6 +927,8 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_node.Node, node)
         return obj.op(self, operation, **params)
 
+    # ====== Policies ======
+
     def create_policy(self, **attrs: Any) -> _policy.Policy:
         """Create a new policy from attributes.
 
@@ -1041,6 +1054,8 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_policy.PolicyValidate, **attrs)
 
+    # ====== Cluster Policies ======
+
     def cluster_policies(
         self,
         cluster: str | _cluster.Cluster,
@@ -1082,6 +1097,8 @@ class Proxy(proxy.Proxy):
         return self._get(
             _cluster_policy.ClusterPolicy, cluster_policy, cluster_id=cluster
         )
+
+    # ====== Receivers ======
 
     def create_receiver(self, **attrs: Any) -> _receiver.Receiver:
         """Create a new receiver from attributes.
@@ -1198,6 +1215,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_receiver.Receiver, **query)
 
+    # ====== Actions ======
+
     def get_action(self, action: str | _action.Action) -> _action.Action:
         """Get a single action.
 
@@ -1251,6 +1270,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_action.Action, action, **attrs)
 
+    # ====== Events ======
+
     def get_event(self, event: str | _event.Event) -> _event.Event:
         """Get a single event.
 
@@ -1293,6 +1314,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_event.Event, **query)
 
+    # ====== Services ======
+
     def services(
         self,
         **query: Any,
@@ -1322,7 +1345,7 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_profile_type.ProfileType, profile_type)
         return obj.type_ops(self)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

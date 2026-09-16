@@ -31,6 +31,8 @@ class Proxy(proxy.Proxy):
         "subscription": _subscription.Subscription,
     }
 
+    # ====== Queues ======
+
     def create_queue(self, **attrs: Any) -> _queue.Queue:
         """Create a new queue from attributes
 
@@ -88,6 +90,8 @@ class Proxy(proxy.Proxy):
         :returns: The deleted queue.
         """
         return self._delete(_queue.Queue, value, ignore_missing=ignore_missing)
+
+    # ====== Messages ======
 
     def post_message(
         self,
@@ -182,6 +186,8 @@ class Proxy(proxy.Proxy):
         message.claim_id = resource.Resource._get_id(claim)  # type: ignore[arg-type]
         self._delete(_message.Message, message, ignore_missing=ignore_missing)
 
+    # ====== Subscriptions ======
+
     def create_subscription(
         self, queue_name: str, **attrs: Any
     ) -> _subscription.Subscription:
@@ -271,6 +277,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    # ====== Claims ======
+
     def create_claim(self, queue_name: str, **attrs: Any) -> _claim.Claim:
         """Create a new claim from attributes
 
@@ -346,7 +354,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

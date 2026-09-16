@@ -27,7 +27,7 @@ from openstack import warnings as os_warnings
 class Proxy(proxy.Proxy):
     api_version: ClassVar[Literal['2']] = '2'
 
-    # ========== Deployables ==========
+    # ====== Deployables ======
 
     def deployables(
         self,
@@ -96,7 +96,7 @@ class Proxy(proxy.Proxy):
         )
         return self.update_deployable(uuid, patch)
 
-    # ========== Devices ==========
+    # ====== Devices ======
 
     def devices(self, **query: Any) -> Generator[_device.Device, None, None]:
         """Retrieve a generator of devices.
@@ -141,7 +141,7 @@ class Proxy(proxy.Proxy):
 
         return self._get(_device.Device, device)
 
-    # ========== Device profiles ==========
+    # ====== Device Profiles ======
 
     def device_profiles(
         self,
@@ -213,7 +213,7 @@ class Proxy(proxy.Proxy):
 
         return self._get(_device_profile.DeviceProfile, device_profile)
 
-    # ========== Accelerator requests ==========
+    # ====== Accelerator Requests ======
 
     def accelerator_requests(
         self,
@@ -322,7 +322,7 @@ class Proxy(proxy.Proxy):
         )
         return self.patch_accelerator_request(uuid, properties)
 
-    # ========== Attributes ==========
+    # ====== Attributes ======
 
     def attributes(
         self,
@@ -391,7 +391,7 @@ class Proxy(proxy.Proxy):
 
         return self._get(_attribute.Attribute, attribute)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

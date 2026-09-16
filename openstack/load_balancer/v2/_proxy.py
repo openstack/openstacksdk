@@ -55,6 +55,8 @@ class Proxy(proxy.Proxy):
         "quota": _quota.Quota,
     }
 
+    # ====== Load Balancers ======
+
     def create_load_balancer(self, **attrs: Any) -> _lb.LoadBalancer:
         """Create a new load balancer from attributes
 
@@ -242,6 +244,8 @@ class Proxy(proxy.Proxy):
         lb = self._get_resource(_lb.LoadBalancer, load_balancer)
         lb.failover(self)
 
+    # ====== Listeners ======
+
     def create_listener(self, **attrs: Any) -> _listener.Listener:
         """Create a new listener from attributes
 
@@ -369,6 +373,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_listener.Listener, listener, **attrs)
 
+    # ====== Pools ======
+
     def create_pool(self, **attrs: Any) -> _pool.Pool:
         """Create a new pool from attributes
 
@@ -467,6 +473,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated pool
         """
         return self._update(_pool.Pool, pool, **attrs)
+
+    # ====== Members ======
 
     def create_member(
         self, pool: str | _pool.Pool, **attrs: Any
@@ -623,6 +631,8 @@ class Proxy(proxy.Proxy):
             _member.Member, member, pool_id=poolobj.id, **attrs
         )
 
+    # ====== Health Monitors ======
+
     @overload
     def find_health_monitor(
         self,
@@ -750,6 +760,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_hm.HealthMonitor, healthmonitor, **attrs)
 
+    # ====== L7 Policies ======
+
     def create_l7_policy(self, **attrs: Any) -> _l7policy.L7Policy:
         """Create a new l7policy from attributes
 
@@ -859,6 +871,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated l7policy
         """
         return self._update(_l7policy.L7Policy, l7_policy, **attrs)
+
+    # ====== L7 Rules ======
 
     def create_l7_rule(
         self, l7_policy: str | _l7policy.L7Policy, **attrs: Any
@@ -1016,6 +1030,8 @@ class Proxy(proxy.Proxy):
             _l7rule.L7Rule, l7rule, l7policy_id=l7policyobj.id, **attrs
         )
 
+    # ====== Quotas ======
+
     def quotas(self, **query: Any) -> Generator[_quota.Quota, None, None]:
         """Return a generator of quotas
 
@@ -1085,6 +1101,8 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
+    # ====== Providers ======
+
     def providers(
         self,
         **query: Any,
@@ -1107,6 +1125,8 @@ class Proxy(proxy.Proxy):
         return self._list(
             _provider.ProviderFlavorCapabilities, provider=provider, **query
         )
+
+    # ====== Flavor Profiles ======
 
     def create_flavor_profile(
         self, **attrs: Any
@@ -1224,6 +1244,8 @@ class Proxy(proxy.Proxy):
             _flavor_profile.FlavorProfile, flavor_profile, **attrs
         )
 
+    # ====== Flavors ======
+
     def create_flavor(self, **attrs: Any) -> _flavor.Flavor:
         """Create a new flavor from attributes
 
@@ -1319,6 +1341,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_flavor.Flavor, flavor, **attrs)
 
+    # ====== Amphorae ======
+
     def amphorae(
         self,
         **query: Any,
@@ -1405,6 +1429,8 @@ class Proxy(proxy.Proxy):
         """
         lb = self._get_resource(_amphora.Amphora, amphora)
         lb.failover(self)
+
+    # ====== Availability Zone Profiles ======
 
     def create_availability_zone_profile(
         self, **attrs: Any
@@ -1541,6 +1567,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== Availability Zones ======
+
     def create_availability_zone(
         self, **attrs: Any
     ) -> _availability_zone.AvailabilityZone:
@@ -1663,7 +1691,7 @@ class Proxy(proxy.Proxy):
             _availability_zone.AvailabilityZone, availability_zone, **attrs
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

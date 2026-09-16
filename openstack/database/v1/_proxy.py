@@ -31,6 +31,8 @@ class Proxy(proxy.Proxy):
         "user": _user.User,
     }
 
+    # ====== Databases ======
+
     def create_database(
         self,
         instance: str | _instance.Instance,
@@ -164,6 +166,8 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_database.Database, database)
 
+    # ====== Flavors ======
+
     @overload
     def find_flavor(
         self,
@@ -218,6 +222,8 @@ class Proxy(proxy.Proxy):
         :returns: A generator of flavor objects
         """
         return self._list(_flavor.Flavor, **query)
+
+    # ====== Instances ======
 
     def create_instance(self, **attrs: Any) -> _instance.Instance:
         """Create a new instance from attributes
@@ -323,6 +329,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated instance
         """
         return self._update(_instance.Instance, instance, **attrs)
+
+    # ====== Users ======
 
     def create_user(
         self,
@@ -452,7 +460,7 @@ class Proxy(proxy.Proxy):
         instance = self._get_resource(_instance.Instance, instance)
         return self._get(_user.User, user)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

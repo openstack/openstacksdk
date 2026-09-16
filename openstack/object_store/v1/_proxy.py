@@ -114,6 +114,8 @@ class Proxy(proxy.Proxy):
         else:
             return ['object']
 
+    # ====== Accounts ======
+
     def get_account_metadata(self) -> _account.Account:
         """Get metadata for this account."""
         return self._head(_account.Account)
@@ -135,6 +137,8 @@ class Proxy(proxy.Proxy):
         """
         account = self._get_resource(_account.Account, None)
         account.delete_metadata(self, keys)
+
+    # ====== Containers ======
 
     def containers(
         self,
@@ -239,6 +243,8 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_container.Container, container)
         res.delete_metadata(self, keys)
+
+    # ====== Objects ======
 
     def objects(
         self,
@@ -902,6 +908,8 @@ class Proxy(proxy.Proxy):
                 if entry['path'] == f'/{parse.unquote(name)}':
                     entry['etag'] = result.headers['Etag']
 
+    # ====== Info ======
+
     def get_info(self) -> _info.Info:
         """Get infomation about the object-storage service
 
@@ -909,6 +917,8 @@ class Proxy(proxy.Proxy):
         include metadata about maximum values and thresholds.
         """
         return self._get(_info.Info)
+
+    # ====== Temp URLs ======
 
     def set_account_temp_url_key(
         self, key: str, secondary: bool = False
@@ -1232,7 +1242,7 @@ class Proxy(proxy.Proxy):
                 deleted = True
         return deleted
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,
@@ -1295,7 +1305,8 @@ class Proxy(proxy.Proxy):
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
-    # ========== Project Cleanup ==========
+    # ====== Project Cleanups ======
+
     def _get_cleanup_dependencies(self) -> dict[str, CleanupDependency]:
         return {'object_store': {'before': [], 'after': []}}
 

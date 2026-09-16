@@ -68,6 +68,8 @@ class Proxy(proxy.Proxy):
             del url_parts[2]
         return super()._extract_name_consume_url_parts(url_parts)
 
+    # ====== Stacks ======
+
     def read_env_and_templates(
         self,
         template_file: str | None = None,
@@ -363,6 +365,8 @@ class Proxy(proxy.Proxy):
         obj = _stack_files.StackFiles(stack_name=stk.name, stack_id=stk.id)
         return obj.fetch(self)
 
+    # ====== Resources ======
+
     def resources(
         self,
         stack: str | _stack.Stack,
@@ -391,6 +395,8 @@ class Proxy(proxy.Proxy):
         return self._list(
             _resource.Resource, stack_name=obj.name, stack_id=obj.id, **query
         )
+
+    # ====== Software Configs ======
 
     def create_software_config(self, **attrs: Any) -> _sc.SoftwareConfig:
         """Create a new software config from attributes
@@ -451,6 +457,8 @@ class Proxy(proxy.Proxy):
         self._delete(
             _sc.SoftwareConfig, software_config, ignore_missing=ignore_missing
         )
+
+    # ====== Software Deployments ======
 
     def create_software_deployment(
         self, **attrs: Any
@@ -531,6 +539,8 @@ class Proxy(proxy.Proxy):
             _sd.SoftwareDeployment, software_deployment, **attrs
         )
 
+    # ====== Templates ======
+
     def validate_template(
         self,
         template: dict[str, Any] | None,
@@ -590,7 +600,7 @@ class Proxy(proxy.Proxy):
                 f"Error in processing template files: {e!s}"
             )
 
-    # ========== Stack events ==========
+    # ====== Stack Events ======
 
     def stack_events(
         self,
@@ -633,7 +643,7 @@ class Proxy(proxy.Proxy):
             **attr,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

@@ -52,7 +52,8 @@ class Proxy(proxy.Proxy):
         "tld": _tld.TLD,
     }
 
-    # ======== Zones ========
+    # ====== Zones ======
+
     def zones(self, **query: Any) -> Generator[_zone.Zone, None, None]:
         """Retrieve a generator of zones
 
@@ -188,7 +189,8 @@ class Proxy(proxy.Proxy):
         zone = self._get_resource(_zone.Zone, zone)
         zone.xfr(self)
 
-    # ======== Zone nameservers ========
+    # ====== Zone Nameservers ======
+
     def zone_nameservers(
         self,
         zone: str | _zone.Zone,
@@ -207,7 +209,8 @@ class Proxy(proxy.Proxy):
             zone_id=zone_id,
         )
 
-    # ======== Recordsets ========
+    # ====== Recordsets ======
+
     def recordsets(
         self,
         zone: str | _zone.Zone | None = None,
@@ -360,7 +363,8 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ======== Zone Imports ========
+    # ====== Zone Imports ======
+
     def zone_imports(
         self,
         **query: Any,
@@ -423,7 +427,8 @@ class Proxy(proxy.Proxy):
             _zone_import.ZoneImport, zone_import, ignore_missing=ignore_missing
         )
 
-    # ======== Zone Exports ========
+    # ====== Zone Exports ======
+
     def zone_exports(
         self,
         **query: Any,
@@ -512,7 +517,8 @@ class Proxy(proxy.Proxy):
             _zone_export.ZoneExport, zone_export, ignore_missing=ignore_missing
         )
 
-    # ======== FloatingIPs ========
+    # ====== Floating IPs ======
+
     def floating_ips(
         self,
         **query: Any,
@@ -570,7 +576,8 @@ class Proxy(proxy.Proxy):
         attrs = {'ptrdname': None}
         return self._update(_fip.FloatingIP, floating_ip, **attrs)
 
-    # ======== Zone Transfer ========
+    # ====== Zone Transfers ======
+
     def zone_transfer_requests(
         self,
         **query: Any,
@@ -703,7 +710,8 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_zone_transfer.ZoneTransferAccept, **attrs)
 
-    # ======== Zone Shares ========
+    # ====== Zone Shares ======
+
     def zone_shares(
         self,
         zone: str | _zone.Zone,
@@ -836,7 +844,8 @@ class Proxy(proxy.Proxy):
             zone_id=zone_obj.id,
         )
 
-    # ======== Limits ========
+    # ====== Limits ======
+
     def limits(self, **query: Any) -> Generator[_limit.Limit, None, None]:
         """Retrieve a generator of limits
 
@@ -845,7 +854,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_limit.Limit, **query)
 
-    # ======== Quotas ========
+    # ====== Quotas ======
+
     def quotas(self, **query: Any) -> Generator[_quota.Quota, None, None]:
         """Return a generator of quotas
 
@@ -902,7 +912,8 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
-    # ======== Service Statuses ========
+    # ====== Service Statuses ======
+
     def service_statuses(
         self,
     ) -> Generator[_svc_status.ServiceStatus, None, None]:
@@ -926,7 +937,8 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_svc_status.ServiceStatus, service)
 
-    # ======== TLDs ========
+    # ====== TLDs ======
+
     def tlds(self, **query: Any) -> Generator[_tld.TLD, None, None]:
         """Retrieve a generator of tlds
 
@@ -1023,7 +1035,8 @@ class Proxy(proxy.Proxy):
         """
         return self._find(_tld.TLD, name_or_id, ignore_missing=ignore_missing)
 
-    # ====== TSIG keys ======
+    # ====== TSIG Keys ======
+
     def tsigkeys(
         self,
         **query: Any,
@@ -1119,7 +1132,8 @@ class Proxy(proxy.Proxy):
             _tsigkey.TSIGKey, name_or_id, ignore_missing=ignore_missing
         )
 
-    # ======== Blacklists ========
+    # ====== Blacklists ======
+
     def blacklists(
         self,
         **query: Any,
@@ -1190,7 +1204,8 @@ class Proxy(proxy.Proxy):
             _blacklist.Blacklist, blacklist, ignore_missing=ignore_missing
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
+
     def wait_for_status(
         self,
         res: resource.ResourceT,

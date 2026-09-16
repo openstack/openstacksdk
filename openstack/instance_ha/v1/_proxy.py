@@ -35,6 +35,8 @@ class Proxy(proxy.Proxy):
         "vmove": _vmove.VMove,
     }
 
+    # ====== Notifications ======
+
     def notifications(
         self,
         **query: Any,
@@ -71,6 +73,8 @@ class Proxy(proxy.Proxy):
         :returns: The result of notification creation
         """
         return self._create(_notification.Notification, **attrs)
+
+    # ====== Segments ======
 
     def segments(
         self,
@@ -140,6 +144,8 @@ class Proxy(proxy.Proxy):
         return self._delete(
             _segment.Segment, segment, ignore_missing=ignore_missing
         )
+
+    # ====== Hosts ======
 
     @renamed_param('segment_id', 'segment')
     def hosts(
@@ -274,6 +280,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    # ====== VMoves ======
+
     def vmoves(
         self,
         notification: str | _notification.Notification,
@@ -322,7 +330,7 @@ class Proxy(proxy.Proxy):
             notification_id=notification_id,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

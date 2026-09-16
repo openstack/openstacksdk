@@ -92,7 +92,7 @@ class Proxy(proxy.Proxy):
         "user_message": _user_message.UserMessage,
     }
 
-    # ========= Access Rules ==========
+    # ====== Access Rules ======
 
     def access_rules(
         self,
@@ -186,7 +186,7 @@ class Proxy(proxy.Proxy):
                 return None
             raise
 
-    # ========= Availability Zones ==========
+    # ====== Availability Zones ======
 
     def availability_zones(
         self,
@@ -197,7 +197,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_availability_zone.AvailabilityZone)
 
-    # ========= Export Locations ==========
+    # ====== Export Locations ======
 
     @renamed_param('share_id', 'share')
     def export_locations(
@@ -234,7 +234,7 @@ class Proxy(proxy.Proxy):
             share_id=share_id,
         )
 
-    # ========= Limits ==========
+    # ====== Limits ======
 
     def limits(self, **query: Any) -> Generator[_limit.Limit, None, None]:
         """Lists all share limits.
@@ -246,7 +246,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_limit.Limit, **query)
 
-    # ========= Quota Class Sets ==========
+    # ====== Quota Class Sets ======
 
     @renamed_param('quota_class_name', 'quota_class_set')
     def get_quota_class_set(
@@ -278,7 +278,7 @@ class Proxy(proxy.Proxy):
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
 
-    # ========= Quota Sets ==========
+    # ====== Quota Sets ======
 
     def get_quota_set(
         self, project: str | _project.Project, **query: Any
@@ -326,7 +326,7 @@ class Proxy(proxy.Proxy):
         project_id = resource.Resource._get_id(project)
         self._delete(_quota_set.QuotaSet, None, project_id=project_id)
 
-    # ========= Services ==========
+    # ====== Services ======
 
     def services(
         self, **query: Any
@@ -400,7 +400,7 @@ class Proxy(proxy.Proxy):
         service.host = host
         service.ensure_shares(self)
 
-    # ========= Shares ==========
+    # ====== Shares ======
 
     def shares(
         self,
@@ -841,7 +841,7 @@ class Proxy(proxy.Proxy):
                 f"Some keys failed to be deleted {keys_failed_to_delete}"
             )
 
-    # ========= Share Groups ==========
+    # ====== Share Groups ======
 
     def share_groups(
         self,
@@ -975,7 +975,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========= Share Group Snapshots ==========
+    # ====== Share Group Snapshots ======
 
     def share_group_snapshots(
         self,
@@ -1127,7 +1127,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========= Share Instances ==========
+    # ====== Share Instances ======
 
     def share_instances(
         self,
@@ -1205,7 +1205,7 @@ class Proxy(proxy.Proxy):
             if not ignore_missing:
                 raise
 
-    # ========= Share Networks ==========
+    # ====== Share Networks ======
 
     def share_networks(
         self,
@@ -1298,7 +1298,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_share_network.ShareNetwork, **attrs)
 
-    # ========= Share Network Subnets ==========
+    # ====== Share Network Subnets ======
 
     @renamed_param('share_network_id', 'share_network')
     def share_network_subnets(
@@ -1516,7 +1516,7 @@ class Proxy(proxy.Proxy):
         else:
             res.delete_metadata(self)
 
-    # ========= Share Replicas ==========
+    # ====== Share Replicas ======
 
     def create_share_replica(
         self, share: str | _share.Share, **attrs: Any
@@ -1649,7 +1649,7 @@ class Proxy(proxy.Proxy):
         )
         share_replica.resync(self)
 
-    # ========= Share Snapshots ==========
+    # ====== Share Snapshots ======
 
     def share_snapshots(
         self,
@@ -1869,7 +1869,7 @@ class Proxy(proxy.Proxy):
         for key in keys:
             snapshot.delete_metadata_item(self, key)
 
-    # ========= Share Snapshot Instances ==========
+    # ====== Share Snapshot Instances ======
 
     def share_snapshot_instances(
         self,
@@ -1918,7 +1918,7 @@ class Proxy(proxy.Proxy):
             share_snapshot_instance,
         )
 
-    # ========= Resource Locks ==========
+    # ====== Resource Locks ======
 
     def resource_locks(
         self,
@@ -2049,7 +2049,7 @@ class Proxy(proxy.Proxy):
             attrs.pop('resource_type')
         return self._create(_resource_locks.ResourceLock, **attrs)
 
-    # ========= Share Transfers ==========
+    # ====== Share Transfers ======
 
     def create_share_transfer(
         self, **attrs: Any
@@ -2179,7 +2179,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========= Share Types ==========
+    # ====== Share Types ======
 
     def share_types(
         self, **query: Any
@@ -2286,7 +2286,7 @@ class Proxy(proxy.Proxy):
             if not ignore_missing:
                 raise
 
-    # ========= Storage Pools ==========
+    # ====== Storage Pools ======
 
     def storage_pools(
         self,
@@ -2310,7 +2310,7 @@ class Proxy(proxy.Proxy):
             _storage_pool.StoragePool, base_path=base_path, **query
         )
 
-    # ========= User Messages ==========
+    # ====== User Messages ======
 
     def user_messages(
         self,
@@ -2382,7 +2382,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

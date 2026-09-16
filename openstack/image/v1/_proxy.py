@@ -58,7 +58,8 @@ class Proxy(proxy.Proxy):
     _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
     _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
-    # ====== IMAGES ======
+    # ====== Images ======
+
     def create_image(
         self,
         name: str,
@@ -509,7 +510,7 @@ class Proxy(proxy.Proxy):
 
         return self._update_image_properties(image, meta, img_props)  # type: ignore[arg-type]
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,
