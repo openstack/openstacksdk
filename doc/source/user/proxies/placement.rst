@@ -15,7 +15,8 @@ Allocations
 
 .. autoclass:: openstack.placement.v1._proxy.Proxy
    :noindex:
-   :members: get_allocation, update_allocation, delete_allocation
+   :members: create_allocations, get_allocation, update_allocation,
+             delete_allocation
 
 Resource Classes
 ^^^^^^^^^^^^^^^^

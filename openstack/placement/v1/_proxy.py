@@ -78,6 +78,25 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_allocation.Allocation, consumer, **attrs)
 
+    def create_allocations(
+        self,
+        allocations: dict[str, dict[str, Any]],
+    ) -> None:
+        """Create or update allocations for multiple consumers.
+
+        :param allocations: A dict keyed by consumer UUID. Each value must
+            contain ``allocations``, ``project_id``, ``user_id``, and
+            ``consumer_generation``; from microversion 1.38 ``consumer_type``
+            is also required. Pass an empty ``allocations`` value for a
+            consumer to remove all of their allocations.
+
+        :returns: ``None``
+        :raises: :class:`~openstack.exceptions.ConflictException` if any
+            resource provider or consumer generation does not match, or if
+            there is insufficient inventory.
+        """
+        _allocation.Allocation.set(self, allocations=allocations)
+
     def delete_allocation(
         self,
         consumer: str | _allocation.Allocation,

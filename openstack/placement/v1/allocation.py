@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
+from openstack import exceptions
 from openstack import resource
 
 
@@ -66,3 +69,25 @@ class Allocation(resource.Resource):
     project_id = resource.Body('project_id')
     #: The UUID of a user.
     user_id = resource.Body('user_id')
+
+    @classmethod
+    def set(
+        cls,
+        session: adapter.Adapter,
+        allocations: dict[str, dict[str, object]],
+    ) -> None:
+        """Set allocations for multiple consumers in a single atomic request.
+
+        :param session: The session to use for making this request.
+        :param allocations: A dict keyed by consumer UUID; see
+            :meth:`~openstack.placement.v1._proxy.Proxy.set_allocations`
+            for the expected structure of each value.
+        :raises: :class:`~openstack.exceptions.ConflictException` if any
+            resource provider or consumer generation does not match, or if
+            there is insufficient inventory.
+        """
+        microversion = cls._get_microversion(session)
+        response = session.post(
+            cls.base_path, json=allocations, microversion=microversion
+        )
+        exceptions.raise_from_response(response)

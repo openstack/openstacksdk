@@ -26,6 +26,35 @@ class TestPlacementProxy(test_proxy_base.TestProxyBase):
 
 
 class TestPlacementAllocation(TestPlacementProxy):
+    def test_create_allocations(self):
+        self._verify(
+            'openstack.placement.v1.allocation.Allocation.set',
+            self.proxy.create_allocations,
+            method_kwargs={
+                'allocations': {
+                    'consumer-uuid': {
+                        'allocations': {},
+                        'project_id': 'project-uuid',
+                        'user_id': 'user-uuid',
+                        'consumer_generation': None,
+                        'consumer_type': 'INSTANCE',
+                    },
+                },
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'allocations': {
+                    'consumer-uuid': {
+                        'allocations': {},
+                        'project_id': 'project-uuid',
+                        'user_id': 'user-uuid',
+                        'consumer_generation': None,
+                        'consumer_type': 'INSTANCE',
+                    },
+                },
+            },
+        )
+
     def test_allocation_get(self):
         self.verify_get(
             self.proxy.get_allocation,
