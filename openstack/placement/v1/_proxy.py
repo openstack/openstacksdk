@@ -637,6 +637,61 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    def set_resource_provider_inventories(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        inventories: dict[str, dict[str, Any]],
+        resource_provider_generation: int,
+    ) -> _resource_provider.ResourceProvider:
+        """Replace all inventories for a resource provider in a single request.
+
+        :param resource_provider: The value can be either the ID of a resource
+            provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+        :param inventories: A dict mapping resource class names to inventory
+            configuration dicts (keys: ``total``, and optionally
+            ``allocation_ratio``, ``max_unit``, ``min_unit``, ``reserved``,
+            ``step_size``). Pass an empty dict to remove all inventories.
+        :param resource_provider_generation: The current generation of the
+            resource provider, used to detect concurrent updates.
+
+        :returns: The resource provider with its ``generation`` updated to
+            reflect the new state.
+        :raises: :class:`~openstack.exceptions.ConflictException` if the
+            generation does not match or allocations prevent removal.
+        """
+        res = self._get_resource(
+            _resource_provider.ResourceProvider,
+            resource_provider,
+        )
+        return res.set_inventories(
+            self,
+            inventories=inventories,
+            resource_provider_generation=resource_provider_generation,
+        )
+
+    def delete_resource_provider_inventories(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+    ) -> None:
+        """Delete all inventory records for a resource provider.
+
+        :param resource_provider: The value can be either the ID of a resource
+            provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+
+        :returns: ``None``
+        :raises: :class:`~openstack.exceptions.ConflictException` if there are
+            active allocations against the resource provider.
+        """
+        res = self._get_resource(
+            _resource_provider.ResourceProvider,
+            resource_provider,
+        )
+        res.delete_inventories(self)
+
     # ====== Resource provider usages ======
 
     def fetch_resource_provider_usages(

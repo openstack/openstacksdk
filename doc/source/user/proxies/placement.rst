@@ -60,7 +60,9 @@ Resource Provider Inventories
    :noindex:
    :members: create_resource_provider_inventory,
              update_resource_provider_inventory,
+             set_resource_provider_inventories,
              delete_resource_provider_inventory,
+             delete_resource_provider_inventories,
              get_resource_provider_inventory,
              resource_provider_inventories
 

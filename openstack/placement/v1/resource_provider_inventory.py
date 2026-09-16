@@ -79,8 +79,12 @@ class ResourceProviderInventory(resource.Resource):
     ) -> Self:
         # resource_provider_generation must always be provided on update, but
         # it will appear to be identical (by design) so we strip it. Prevent
-        # tihs happening.
+        # this happening.
         self._body._dirty.add('resource_provider_generation')
+        # The resource_class alternate_id gets marked dirty when constructed
+        # via new(), which happens inside proxy._update. Placement rejects it
+        # in the PUT body, so strip it before committing.
+        self._body._dirty.discard('resource_class')
         return super().commit(
             session,
             prepend_key=prepend_key,
