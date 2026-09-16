@@ -25,6 +25,13 @@ Allocations
    :members: create_allocations, get_allocation, update_allocation,
              delete_allocation
 
+Usages
+^^^^^^
+
+.. autoclass:: openstack.placement.v1._proxy.Proxy
+   :noindex:
+   :members: usages
+
 Resource Classes
 ^^^^^^^^^^^^^^^^
 
