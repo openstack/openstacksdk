@@ -256,7 +256,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated; use "
                 "'search_cluster_templates' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_cluster_templates(name_or_id, filters)
             if not entities:

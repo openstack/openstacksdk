@@ -53,7 +53,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "The 'full_listing' field is unnecessary and will be removed "
                 "in a future release.",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
         return list(self.object_store.containers(prefix=prefix))
 
