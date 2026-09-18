@@ -2857,7 +2857,7 @@ class Proxy(proxy.Proxy):
         self,
         **query: Any,
     ) -> Generator[_group_type.GroupType, None, None]:
-        """Retrive a generator of group types
+        """Retrieve a generator of group types
 
         :param query: Optional query parameters to be sent to limit the
             resources being returned:
