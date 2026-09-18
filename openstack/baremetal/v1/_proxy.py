@@ -183,7 +183,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "The 'find_chassis' method is deprecated; use 'get_chassis' "
             "instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
 
         return self._find(
@@ -1128,7 +1128,7 @@ class Proxy(proxy.Proxy):
         """
         warnings.warn(
             "The 'find_port' method is deprecated; use 'get_port' instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
 
         return self._find(
@@ -1756,7 +1756,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "The 'find_volume_connector' method is deprecated; use "
             "'get_volume_connector' instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
 
         return self._find(
@@ -1953,7 +1953,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "The 'find_volume_target' method is deprecated; use "
             "'get_volume_target' instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
 
         return self._find(

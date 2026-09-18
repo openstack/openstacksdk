@@ -404,7 +404,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "The 'normalize' field is unnecessary and will be removed in "
                 "a future release.",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
 
         return identity.get_user(user_id)

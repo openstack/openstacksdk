@@ -668,7 +668,7 @@ class Proxy(proxy.Proxy):
             warnings.warn(
                 "The 'is_public' property is not supported by Glance v2: use "
                 "'visibility=public/private' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
 
             is_public = kwargs['properties'].pop('is_public')

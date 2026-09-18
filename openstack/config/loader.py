@@ -1228,7 +1228,7 @@ class OpenStackConfig:
         warnings.warn(
             "The 'get_all_clouds' method is a deprecated alias for "
             "'get_clouds' and will be removed in a future release.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self.get_all()
 
@@ -1619,7 +1619,7 @@ class OpenStackConfig:
         warnings.warn(
             "The 'get_one_cloud' method is a deprecated alias for 'get_one' "
             "and will be removed in a future release.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self.get_one(
             cloud=cloud,

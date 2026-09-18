@@ -272,7 +272,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "reset_snapshot is a deprecated alias for reset_snapshot_status "
             "and will be removed in a future release.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self.reset_snapshot_status(snapshot, status)
 
@@ -1221,7 +1221,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "reset_backup is a deprecated alias for reset_backup_status "
             "and will be removed in a future release.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self.reset_backup_status(backup, status)
 

@@ -309,7 +309,7 @@ class Proxy(adapter.Adapter):
             warnings.warn(
                 "The 'service_type' parameter is unnecesary and will be "
                 "removed in a future release.",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
 
         url_path = urllib.parse.urlparse(url).path.strip()
