@@ -107,12 +107,7 @@ def _disable_service(
 
 def _get_implied_microversion(version: str | None) -> str | None:
     if version and '.' in version:
-        # Some services historically had a .0 in their normal api version.
-        # Neutron springs to mind with version "2.0". If a user has "2.0"
-        # set in a variable or config file just because history, we don't
-        # need to send any microversion headers.
-        if version.split('.')[1] != "0":
-            return version
+        return version
 
     return None
 
