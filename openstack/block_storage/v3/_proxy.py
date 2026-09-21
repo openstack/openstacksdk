@@ -82,7 +82,7 @@ class Proxy(proxy.Proxy):
         "volume": _volume.Volume,
     }
 
-    # ====== IMAGES ======
+    # ====== Images ======
 
     # TODO(stephenfin): Deprecate the unused wait, timeout parameters
     def create_image(
@@ -114,7 +114,8 @@ class Proxy(proxy.Proxy):
             self._connection.image._existing_image(id=data['image_id']),
         )
 
-    # ====== SNAPSHOTS ======
+    # ====== Snapshots ======
+
     def get_snapshot(
         self, snapshot: str | _snapshot.Snapshot
     ) -> _snapshot.Snapshot:
@@ -344,7 +345,8 @@ class Proxy(proxy.Proxy):
         else:
             snapshot.delete_metadata(self)
 
-    # ====== SNAPSHOT ACTIONS ======
+    # ====== Snapshot Actions ======
+
     def reset_snapshot_status(
         self, snapshot: str | _snapshot.Snapshot, status: str
     ) -> None:
@@ -441,7 +443,8 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ====== TYPES ======
+    # ====== Types ======
+
     def get_type(self, type: str | _type.Type) -> _type.Type:
         """Get a single type
 
@@ -732,7 +735,7 @@ class Proxy(proxy.Proxy):
 
         return self._update(_type.TypeEncryption, encryption, **attrs)
 
-    # ====== DEFAULT TYPES ======
+    # ====== Default Types ======
 
     def default_types(
         self,
@@ -815,7 +818,8 @@ class Proxy(proxy.Proxy):
         project_id = resource.Resource._get_id(project)
         self._delete(_default_type.DefaultType, project_id)
 
-    # ====== VOLUMES ======
+    # ====== Volumes ======
+
     def get_volume(self, volume: str | _volume.Volume) -> _volume.Volume:
         """Get a single volume
 
@@ -1075,7 +1079,8 @@ class Proxy(proxy.Proxy):
             **kwargs,
         )
 
-    # ====== VOLUME ACTIONS ======
+    # ====== Volume Actions ======
+
     def extend_volume(self, volume: str | _volume.Volume, size: int) -> None:
         """Extend a volume
 
@@ -1485,7 +1490,7 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.terminate_attachment(self, connector)
 
-    # ====== ATTACHMENTS ======
+    # ====== Attachments ======
 
     def create_attachment(
         self, volume: str | _volume.Volume, **attrs: Any
@@ -1606,7 +1611,8 @@ class Proxy(proxy.Proxy):
         attachment_obj = self._get_resource(_attachment.Attachment, attachment)
         return attachment_obj.complete(self)
 
-    # ====== BACKEND POOLS ======
+    # ====== Backend Pools ======
+
     def backend_pools(
         self,
         **query: Any,
@@ -1620,7 +1626,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_stats.Pools, **query)
 
-    # ====== BACKUPS ======
+    # ====== Backups ======
+
     def backups(
         self,
         *,
@@ -1859,7 +1866,7 @@ class Proxy(proxy.Proxy):
         else:
             backup.delete_metadata(self)
 
-    # ====== BACKUP ACTIONS ======
+    # ====== Backup Actions ======
 
     @renamed_param('volume_id', 'volume')
     def restore_backup(
@@ -1906,7 +1913,8 @@ class Proxy(proxy.Proxy):
         )
         return self.reset_backup_status(backup, status)
 
-    # ====== LIMITS ======
+    # ====== Limits ======
+
     def get_limits(
         self, project: str | _project.Project | None = None
     ) -> _limits.Limits:
@@ -1930,7 +1938,8 @@ class Proxy(proxy.Proxy):
             project_id=project_id,
         )
 
-    # ====== CAPABILITIES ======
+    # ====== Capabilities ======
+
     def get_capabilities(
         self, host: str | _capabilities.Capabilities
     ) -> _capabilities.Capabilities:
@@ -1945,7 +1954,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_capabilities.Capabilities, host)
 
-    # ====== CLUSTERS ======
+    # ====== Clusters ======
 
     def get_cluster(self, cluster: str | _cluster.Cluster) -> _cluster.Cluster:
         """Get a cluster
@@ -2055,7 +2064,7 @@ class Proxy(proxy.Proxy):
         cluster_obj = self._get_resource(_cluster.Cluster, cluster)
         return cluster_obj.disable(self, reason=reason)
 
-    # ====== GROUPS ======
+    # ====== Groups ======
 
     # TODO(stephenfin): Remove **attrs in 5.0
     @renamed_param('group_id', 'group')
@@ -2308,7 +2317,7 @@ class Proxy(proxy.Proxy):
             secondary_backend_id=secondary_backend_id,
         )
 
-    # ====== CONSISTENCY GROUPS ======
+    # ====== Consistency Groups ======
 
     def get_consistency_group(
         self, consistency_group: str | _consistency_group.ConsistencyGroup
@@ -2489,7 +2498,7 @@ class Proxy(proxy.Proxy):
             _consistency_group.ConsistencyGroup, consistency_group, **attrs
         )
 
-    # ====== CONSISTENCY GROUP SNAPSHOTS ======
+    # ====== Consistency Group Snapshots ======
 
     def get_consistency_group_snapshot(
         self,
@@ -2631,7 +2640,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ====== AVAILABILITY ZONES ======
+    # ====== Availability Zones ======
+
     def availability_zones(
         self,
     ) -> Generator[availability_zone.AvailabilityZone, None, None]:
@@ -2643,7 +2653,7 @@ class Proxy(proxy.Proxy):
 
         return self._list(availability_zone.AvailabilityZone)
 
-    # ====== GROUP SNAPSHOT ======
+    # ====== Group Snapshots ======
 
     @renamed_param('group_snapshot_id', 'group_snapshot')
     def get_group_snapshot(
@@ -2796,7 +2806,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ====== GROUP TYPE ======
+    # ====== Group Types ======
+
     def get_group_type(
         self, group_type: str | _group_type.GroupType
     ) -> _group_type.GroupType:
@@ -3254,7 +3265,7 @@ class Proxy(proxy.Proxy):
             _qos_spec.QoSSpecAssociation, qos_spec_id=qos_spec_id
         )
 
-    # ====== QUOTA CLASS SETS ======
+    # ====== Quota Class Sets ======
 
     def get_quota_class_set(
         self,
@@ -3296,7 +3307,7 @@ class Proxy(proxy.Proxy):
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
 
-    # ====== QUOTA SETS ======
+    # ====== Quota Sets ======
 
     def get_quota_set(
         self,
@@ -3409,7 +3420,8 @@ class Proxy(proxy.Proxy):
             attrs['project_id'] = project.id
             return self._update(_quota_set.QuotaSet, None, **attrs)
 
-    # ====== SERVICES ======
+    # ====== Services ======
+
     @overload
     def find_service(
         self,
@@ -3603,7 +3615,8 @@ class Proxy(proxy.Proxy):
         service = self._get_resource(_service.Service, None)
         return service.cleanup_workers(self, **attrs)
 
-    # ====== RESOURCE FILTERS ======
+    # ====== Resource Filters ======
+
     def resource_filters(
         self,
         **query: Any,
@@ -3614,7 +3627,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_resource_filter.ResourceFilter, **query)
 
-    # ====== EXTENSIONS ======
+    # ====== Extensions ======
+
     def extensions(self) -> Generator[_extension.Extension, None, None]:
         """Return a generator of extensions
 
@@ -3622,7 +3636,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_extension.Extension)
 
-    # ===== TRANFERS =====
+    # ====== Transfers ======
 
     def create_transfer(self, **attrs: Any) -> _transfer.Transfer:
         """Create a new Transfer record
@@ -3756,7 +3770,8 @@ class Proxy(proxy.Proxy):
         transfer = self._get_resource(_transfer.Transfer, transfer)
         return transfer.accept(self, auth_key=auth_key)
 
-    # ====== UTILS ======
+    # ====== Utilities ======
+
     def wait_for_status(
         self,
         res: resource.ResourceT,

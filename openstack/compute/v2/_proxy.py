@@ -89,7 +89,7 @@ class Proxy(proxy.Proxy):
         "volume_attachment": _volume_attachment.VolumeAttachment,
     }
 
-    # ========== Extensions ==========
+    # ====== Extensions ======
 
     @overload
     def find_extension(
@@ -139,7 +139,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(extension.Extension)
 
-    # ========== Flavors ==========
+    # ====== Flavors ======
 
     # TODO(stephenfin): Drop 'query' parameter or apply it consistently
     @overload
@@ -418,7 +418,7 @@ class Proxy(proxy.Proxy):
             if not ignore_missing:
                 raise
 
-    # ========== os-server-external-events ==========
+    # ====== Server External Events ======
 
     def create_server_external_events(
         self, events: list[dict[str, Any]]
@@ -436,7 +436,7 @@ class Proxy(proxy.Proxy):
         """
         return self._bulk_create(_server_event.ServerExternalEvent, events)
 
-    # ========== Aggregates ==========
+    # ====== Aggregates ======
 
     def aggregates(
         self,
@@ -640,7 +640,7 @@ class Proxy(proxy.Proxy):
             image_data.append({'id': img})
         aggregate.precache_images(self, image_data)
 
-    # ========== Images ==========
+    # ====== Images ======
 
     def delete_image(
         self, image: str | _image.Image, ignore_missing: bool = True
@@ -826,7 +826,7 @@ class Proxy(proxy.Proxy):
         else:
             res.delete_metadata(self)
 
-    # ========== Keypairs ==========
+    # ====== Keypairs ======
 
     def create_keypair(self, **attrs: Any) -> _keypair.Keypair:
         """Create a new keypair from attributes
@@ -949,7 +949,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_keypair.Keypair, **query)
 
-    # ========== Limits ==========
+    # ====== Limits ======
 
     def get_limits(self, **query: Any) -> limits.Limits:
         """Retrieve limits that are applied to the project's account
@@ -961,7 +961,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(limits.Limits, None)
         return res.fetch(self, **query)
 
-    # ========== Servers ==========
+    # ====== Servers ======
 
     def create_server(self, **attrs: Any) -> _server.Server:
         """Create a new server from attributes
@@ -1594,7 +1594,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.remove_all_tags(self)
 
-    # ========== Server security groups ==========
+    # ====== Server Security Groups ======
 
     def fetch_server_security_groups(
         self, server: str | _server.Server
@@ -1647,7 +1647,7 @@ class Proxy(proxy.Proxy):
         sec_group = self._get_resource(_sg.SecurityGroup, security_group)
         server.remove_security_group(self, sec_group.name or sec_group.id)
 
-    # ========== Server IPs ==========
+    # ====== Server IPs ======
 
     @renamed_param('network_id', 'network')
     def add_fixed_ip_to_server(
@@ -1712,7 +1712,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.remove_floating_ip(self, address)
 
-    # ========== Server Interfaces ==========
+    # ====== Server Interfaces ======
 
     def create_server_interface(
         self,
@@ -1871,7 +1871,7 @@ class Proxy(proxy.Proxy):
             base_path=base_path,
         )
 
-    # ========== Server Metadata ==========
+    # ====== Server Metadata ======
 
     def fetch_server_metadata(
         self, server: str | _server.Server
@@ -1944,7 +1944,7 @@ class Proxy(proxy.Proxy):
         else:
             res.delete_metadata(self)
 
-    # ========== Server Groups ==========
+    # ====== Server Groups ======
 
     def create_server_group(self, **attrs: Any) -> _server_group.ServerGroup:
         """Create a new server group from attributes
@@ -2069,7 +2069,7 @@ class Proxy(proxy.Proxy):
             query['all_projects'] = True
         return self._list(_server_group.ServerGroup, **query)
 
-    # ========== Hypervisors ==========
+    # ====== Hypervisors ======
 
     def hypervisors(
         self,
@@ -2181,7 +2181,7 @@ class Proxy(proxy.Proxy):
         hypervisor = self._get_resource(_hypervisor.Hypervisor, hypervisor)
         return hypervisor.get_uptime(self)
 
-    # ========== Services ==========
+    # ====== Services ======
 
     def _get_service(
         self,
@@ -2391,7 +2391,7 @@ class Proxy(proxy.Proxy):
 
         return self._update(_service.Service, service, **attrs)
 
-    # ========== Volume Attachments ==========
+    # ====== Volume Attachments ======
 
     # TODO(stephenfin): Make the volume argument required in 5.0
     def create_volume_attachment(
@@ -2629,7 +2629,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ========== Server Migrations ==========
+    # ====== Server Migrations ======
 
     def migrate_server(
         self, server: str | _server.Server, *, host: str | None = None
@@ -2809,7 +2809,7 @@ class Proxy(proxy.Proxy):
             server_id=server_id,
         )
 
-    # ========== Migrations ==========
+    # ====== Migrations ======
 
     def migrations(
         self,
@@ -2823,7 +2823,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_migration.Migration, **query)
 
-    # ========== Server diagnostics ==========
+    # ====== Server Diagnostics ======
 
     def get_server_diagnostics(
         self, server: str | _server.Server
@@ -2847,7 +2847,7 @@ class Proxy(proxy.Proxy):
             requires_id=False,
         )
 
-    # ========== Project usage ============
+    # ====== Project Usages ======
 
     def usages(
         self,
@@ -2898,7 +2898,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_usage.Usage, project.id)
         return res.fetch(self, **query)
 
-    # ========== Server consoles ==========
+    # ====== Server Consoles ======
 
     def create_server_remote_console(
         self,
@@ -3000,7 +3000,7 @@ class Proxy(proxy.Proxy):
         else:
             return server.get_console_url(self, console_type)
 
-    # ========== Quota class sets ==========
+    # ====== Quota Class Sets ======
 
     def get_quota_class_set(
         self,
@@ -3044,7 +3044,7 @@ class Proxy(proxy.Proxy):
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
 
-    # ========== Quota sets ==========
+    # ====== Quota Sets ======
 
     def get_quota_set(
         self,
@@ -3182,7 +3182,7 @@ class Proxy(proxy.Proxy):
             quota_set = self._get_resource(_quota_set.QuotaSet, None, **attrs)
             return quota_set.commit(self, **query)
 
-    # ========== Server actions ==========
+    # ====== Server Actions ======
 
     def get_server_action(
         self,
@@ -3239,7 +3239,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_server(
         self,
@@ -3417,7 +3417,7 @@ class Proxy(proxy.Proxy):
                 resource_evaluation_fn=resource_evaluation_fn,
             )
 
-    # ========== Server Share ==========
+    # ====== Server Shares ======
 
     def create_share_attachment(
         self,

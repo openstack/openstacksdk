@@ -38,7 +38,7 @@ class Proxy(proxy.Proxy):
         "service": _service.Service,
     }
 
-    # ========== Clusters ==========
+    # ====== Clusters ======
 
     def create_cluster(self, **attrs: Any) -> _cluster.Cluster:
         """Create a new cluster from attributes
@@ -146,7 +146,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
 
-    # ============== Cluster Templates ==============
+    # ====== Cluster Templates ======
 
     def create_cluster_template(
         self, **attrs: Any
@@ -271,7 +271,7 @@ class Proxy(proxy.Proxy):
             _cluster_template.ClusterTemplate, cluster_template, **attrs
         )
 
-    # ============== Cluster Certificates ==============
+    # ====== Cluster Certificates ======
 
     def create_cluster_certificate(
         self, **attrs: Any
@@ -303,7 +303,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_cluster_cert.ClusterCertificate, cluster_certificate)
 
-    # ============== Services ==============
+    # ====== Services ======
 
     def services(self) -> Generator[_service.Service, None, None]:
         """Return a generator of services
@@ -313,7 +313,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_service.Service)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

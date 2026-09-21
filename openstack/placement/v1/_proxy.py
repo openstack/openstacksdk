@@ -34,7 +34,7 @@ class Proxy(proxy.Proxy):
         "resource_provider": _resource_provider.ResourceProvider,
     }
 
-    # resource classes
+    # ====== Resource classes ======
 
     def create_resource_class(
         self, **attrs: Any
@@ -128,7 +128,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_resource_class.ResourceClass, **query)
 
-    # resource providers
+    # ====== Resource providers ======
 
     def create_resource_provider(
         self, **attrs: Any
@@ -262,7 +262,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_resource_provider.ResourceProvider, **query)
 
-    # resource provider aggregates
+    # ====== Resource provider aggregates ======
 
     def fetch_resource_provider_aggregates(
         self,
@@ -330,7 +330,7 @@ class Proxy(proxy.Proxy):
         )
         return res.set_aggregates(self, aggregates=list(aggregates))
 
-    # resource provider inventories
+    # ====== Resource provider inventories ======
 
     def create_resource_provider_inventory(
         self,
@@ -505,6 +505,8 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    # ====== Resource provider usages ======
+
     def fetch_resource_provider_usages(
         self,
         resource_provider: str | _resource_provider.ResourceProvider,
@@ -527,7 +529,7 @@ class Proxy(proxy.Proxy):
         )
         return res.fetch_usages(self)
 
-    # ========== Traits ==========
+    # ====== Traits ======
 
     def create_trait(self, name: str) -> _trait.Trait:
         """Create a new trait
@@ -617,7 +619,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

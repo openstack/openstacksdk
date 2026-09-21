@@ -287,6 +287,8 @@ class Proxy(proxy.Proxy):
             return res.fetch(self, error_message=err_msg, fields=fields_list)
         return res.fetch(self, error_message=err_msg)
 
+    # ====== Address Groups ======
+
     def create_address_group(
         self, **attrs: Any
     ) -> _address_group.AddressGroup:
@@ -452,6 +454,8 @@ class Proxy(proxy.Proxy):
         ag = self._get_resource(_address_group.AddressGroup, address_group)
         return ag.remove_addresses(self, addresses)
 
+    # ====== Address Scopes ======
+
     def create_address_scope(
         self, **attrs: Any
     ) -> _address_scope.AddressScope:
@@ -587,6 +591,8 @@ class Proxy(proxy.Proxy):
         return self._update(
             _address_scope.AddressScope, address_scope, **attrs
         )
+
+    # ====== Agents ======
 
     def agents(self, **query: Any) -> Generator[_agent.Agent, None, None]:
         """Return a generator of network agents
@@ -727,6 +733,8 @@ class Proxy(proxy.Proxy):
             _agent.NetworkHostingDHCPAgent, network_id=net.id, **query
         )
 
+    # ====== Auto Allocated Topologies ======
+
     def get_auto_allocated_topology(
         self, project: str | None = None
     ) -> _auto_allocated_topology.AutoAllocatedTopology:
@@ -790,6 +798,8 @@ class Proxy(proxy.Proxy):
             requires_id=False,
         )
 
+    # ====== Availability Zones ======
+
     def availability_zones(
         self,
         **query: Any,
@@ -806,6 +816,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.availability_zone.AvailabilityZone`
         """
         return self._list(availability_zone.AvailabilityZone)
+
+    # ====== BGP Peers ======
 
     def create_bgp_peer(self, **attrs: Any) -> _bgp_peer.BgpPeer:
         """Create a new BGP Peer from attributes"""
@@ -865,6 +877,8 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_bgp_peer.BgpPeer, None, None]:
         """Return a generator of BGP Peers"""
         return self._list(_bgp_peer.BgpPeer, **query)
+
+    # ====== BGP Speakers ======
 
     def create_bgp_speaker(self, **attrs: Any) -> _bgp_speaker.BgpSpeaker:
         """Create a new BGP Speaker"""
@@ -1023,6 +1037,8 @@ class Proxy(proxy.Proxy):
             self, resource.Resource._get_id(bgp_agent)
         )
 
+    # ====== BGPVPNs ======
+
     def create_bgpvpn(self, **attrs: Any) -> _bgpvpn.BgpVpn:
         """Create a new BGPVPN
 
@@ -1135,6 +1151,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_bgpvpn.BgpVpn, **query)
 
+    # ====== BGPVPN Network Associations ======
+
     def create_bgpvpn_network_association(
         self, bgpvpn: str | _bgpvpn.BgpVpn, **attrs: Any
     ) -> _bgpvpn_network_association.BgpVpnNetworkAssociation:
@@ -1240,6 +1258,8 @@ class Proxy(proxy.Proxy):
             bgpvpn_id=bgpvpn_res.id,
             **query,
         )
+
+    # ====== BGPVPN Port Associations ======
 
     def create_bgpvpn_port_association(
         self, bgpvpn: str | _bgpvpn.BgpVpn, **attrs: Any
@@ -1417,6 +1437,8 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    # ====== BGPVPN Router Associations ======
+
     def create_bgpvpn_router_association(
         self, bgpvpn: str | _bgpvpn.BgpVpn, **attrs: Any
     ) -> _bgpvpn_router_association.BgpVpnRouterAssociation:
@@ -1545,6 +1567,8 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    # ====== Extensions ======
+
     @overload
     def find_extension(
         self,
@@ -1600,6 +1624,8 @@ class Proxy(proxy.Proxy):
         :returns: A generator of extension objects
         """
         return self._list(extension.Extension, **query)
+
+    # ====== Flavors ======
 
     def create_flavor(self, **attrs: Any) -> _flavor.Flavor:
         """Create a new network service flavor from attributes
@@ -1767,6 +1793,8 @@ class Proxy(proxy.Proxy):
             self, service_profile.id
         )
 
+    # ====== Local IPs ======
+
     def create_local_ip(self, **attrs: Any) -> _local_ip.LocalIP:
         """Create a new local ip from attributes
 
@@ -1911,6 +1939,8 @@ class Proxy(proxy.Proxy):
         return self._update(
             _local_ip.LocalIP, local_ip, if_revision=if_revision, **attrs
         )
+
+    # ====== Local IP Associations ======
 
     def create_local_ip_association(
         self, local_ip: str | _local_ip.LocalIP, **attrs: Any
@@ -2079,6 +2109,8 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    # ====== Floating IPs ======
+
     def create_ip(self, **attrs: Any) -> _floating_ip.FloatingIP:
         """Create a new floating ip from attributes
 
@@ -2240,6 +2272,8 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
             **attrs,
         )
+
+    # ====== Port Forwardings ======
 
     def create_port_forwarding(
         self, **attrs: Any
@@ -2416,6 +2450,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== Health Monitors ======
+
     def create_health_monitor(
         self, **attrs: Any
     ) -> _health_monitor.HealthMonitor:
@@ -2562,6 +2598,8 @@ class Proxy(proxy.Proxy):
             _health_monitor.HealthMonitor, health_monitor, **attrs
         )
 
+    # ====== Listeners ======
+
     def create_listener(self, **attrs: Any) -> _listener.Listener:
         """Create a new listener from attributes
 
@@ -2690,6 +2728,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_listener.Listener, listener, **attrs)
 
+    # ====== Load Balancers ======
+
     def create_load_balancer(
         self, **attrs: Any
     ) -> _load_balancer.LoadBalancer:
@@ -2815,6 +2855,8 @@ class Proxy(proxy.Proxy):
         return self._update(
             _load_balancer.LoadBalancer, load_balancer, **attrs
         )
+
+    # ====== Metering Labels ======
 
     def create_metering_label(
         self, **attrs: Any
@@ -2957,6 +2999,8 @@ class Proxy(proxy.Proxy):
         return self._update(
             _metering_label.MeteringLabel, metering_label, **attrs
         )
+
+    # ====== Metering Label Rules ======
 
     def create_metering_label_rule(
         self, **attrs: Any
@@ -3110,6 +3154,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== Networks ======
+
     def create_network(self, **attrs: Any) -> _network.Network:
         """Create a new network from attributes
 
@@ -3260,6 +3306,8 @@ class Proxy(proxy.Proxy):
             _network.Network, network, if_revision=if_revision, **attrs
         )
 
+    # ====== Network IP Availabilities ======
+
     @overload
     def find_network_ip_availability(
         self,
@@ -3349,6 +3397,8 @@ class Proxy(proxy.Proxy):
         return self._list(
             network_ip_availability.NetworkIPAvailability, **query
         )
+
+    # ====== Network Segment Ranges ======
 
     def create_network_segment_range(
         self, **attrs: Any
@@ -3517,6 +3567,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== Pools ======
+
     def create_pool(self, **attrs: Any) -> _pool.Pool:
         """Create a new pool from attributes
 
@@ -3641,6 +3693,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated pool
         """
         return self._update(_pool.Pool, pool, **attrs)
+
+    # ====== Pool Members ======
 
     def create_pool_member(
         self, pool: str | _pool.Pool, **attrs: Any
@@ -3824,6 +3878,8 @@ class Proxy(proxy.Proxy):
             _pool_member.PoolMember, pool_member, pool_id=poolobj.id, **attrs
         )
 
+    # ====== Ports ======
+
     def create_port(self, **attrs: Any) -> _port.Port:
         """Create a new port from attributes
 
@@ -4000,6 +4056,8 @@ class Proxy(proxy.Proxy):
                     result.append(puerta)
         return result
 
+    # ====== Port Bindings ======
+
     def create_port_binding(
         self, port: str | _port.Port, **attrs: Any
     ) -> _port_binding.PortBinding:
@@ -4101,6 +4159,8 @@ class Proxy(proxy.Proxy):
         # There can be only 1 binding on a host at a time
         for binding in bindings_on_host:
             binding.delete_port_binding(self, host)
+
+    # ====== QoS Bandwidth Limit Rules ======
 
     def create_qos_bandwidth_limit_rule(
         self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
@@ -4284,6 +4344,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== QoS DSCP Marking Rules ======
+
     def create_qos_dscp_marking_rule(
         self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
     ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
@@ -4463,6 +4525,8 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
             **attrs,
         )
+
+    # ====== QoS Minimum Bandwidth Rules ======
 
     def create_qos_minimum_bandwidth_rule(
         self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
@@ -4649,6 +4713,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== QoS Minimum Packet Rate Rules ======
+
     def create_qos_minimum_packet_rate_rule(
         self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
     ) -> _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule:
@@ -4827,6 +4893,8 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
             **attrs,
         )
+
+    # ====== QoS Packet Rate Limit Rules ======
 
     def create_qos_packet_rate_limit_rule(
         self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
@@ -5007,6 +5075,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== QoS Policies ======
+
     def create_qos_policy(self, **attrs: Any) -> _qos_policy.QoSPolicy:
         """Create a new QoS policy from attributes
 
@@ -5138,6 +5208,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_qos_policy.QoSPolicy, qos_policy, **attrs)
 
+    # ====== QoS Rule Types ======
+
     @overload
     def find_qos_rule_type(
         self,
@@ -5210,6 +5282,8 @@ class Proxy(proxy.Proxy):
         :returns: A generator of QoS rule type objects
         """
         return self._list(_qos_rule_type.QoSRuleType, **query)
+
+    # ====== Quotas ======
 
     def delete_quota(
         self, quota: str | _quota.Quota, ignore_missing: bool = True
@@ -5304,6 +5378,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated quota
         """
         return self._update(_quota.Quota, quota, **attrs)
+
+    # ====== RBAC Policies ======
 
     def create_rbac_policy(self, **attrs: Any) -> _rbac_policy.RBACPolicy:
         """Create a new RBAC policy from attributes
@@ -5434,6 +5510,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated RBAC policy
         """
         return self._update(_rbac_policy.RBACPolicy, rbac_policy, **attrs)
+
+    # ====== Routers ======
 
     def create_router(self, **attrs: Any) -> _router.Router:
         """Create a new router from attributes
@@ -5817,6 +5895,8 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return agent.remove_router_from_agent(self, router.id)
 
+    # ====== NDP Proxies ======
+
     def create_ndp_proxy(self, **attrs: Any) -> _ndp_proxy.NDPProxy:
         """Create a new ndp proxy from attributes
 
@@ -5942,6 +6022,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated ndp_proxy
         """
         return self._update(_ndp_proxy.NDPProxy, ndp_proxy, **attrs)
+
+    # ====== Firewall Groups ======
 
     def create_firewall_group(
         self, **attrs: Any
@@ -6090,6 +6172,8 @@ class Proxy(proxy.Proxy):
         return self._update(
             _firewall_group.FirewallGroup, firewall_group, **attrs
         )
+
+    # ====== Firewall Policies ======
 
     def create_firewall_policy(
         self, **attrs: Any
@@ -6294,6 +6378,8 @@ class Proxy(proxy.Proxy):
         )
         return policy.remove_rule(self, **body)
 
+    # ====== Firewall Rules ======
+
     def create_firewall_rule(
         self, **attrs: Any
     ) -> _firewall_rule.FirewallRule:
@@ -6449,6 +6535,8 @@ class Proxy(proxy.Proxy):
             _firewall_rule.FirewallRule, firewall_rule, **attrs
         )
 
+    # ====== Security Groups ======
+
     def create_security_group(
         self, **attrs: Any
     ) -> _security_group.SecurityGroup:
@@ -6599,6 +6687,8 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
             **attrs,
         )
+
+    # ====== Security Group Rules ======
 
     def create_security_group_rule(
         self, **attrs: Any
@@ -6751,6 +6841,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_security_group_rule.SecurityGroupRule, **query)
 
+    # ====== Default Security Group Rules ======
+
     def create_default_security_group_rule(
         self, **attrs: Any
     ) -> _default_security_group_rule.DefaultSecurityGroupRule:
@@ -6890,7 +6982,7 @@ class Proxy(proxy.Proxy):
             _default_security_group_rule.DefaultSecurityGroupRule, **query
         )
 
-    # ========== Security Groups Default Statefulness ==========
+    # ====== Security Groups Default Statefulness ======
 
     def create_security_groups_default_statefulness(
         self, **attrs: Any
@@ -7050,6 +7142,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== Segments ======
+
     def create_segment(self, **attrs: Any) -> _segment.Segment:
         """Create a new segment from attributes
 
@@ -7175,6 +7269,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_segment.Segment, segment, **attrs)
 
+    # ====== Service Providers ======
+
     def service_providers(
         self,
         **query: Any,
@@ -7188,6 +7284,8 @@ class Proxy(proxy.Proxy):
         """
 
         return self._list(_service_provider.ServiceProvider, **query)
+
+    # ====== Service Profiles ======
 
     def create_service_profile(
         self, **attrs: Any
@@ -7330,6 +7428,8 @@ class Proxy(proxy.Proxy):
             _service_profile.ServiceProfile, service_profile, **attrs
         )
 
+    # ====== Subnets ======
+
     def create_subnet(self, **attrs: Any) -> _subnet.Subnet:
         """Create a new subnet from attributes
 
@@ -7467,6 +7567,8 @@ class Proxy(proxy.Proxy):
         return self._update(
             _subnet.Subnet, subnet, if_revision=if_revision, **attrs
         )
+
+    # ====== Subnet Pools ======
 
     def create_subnet_pool(self, **attrs: Any) -> _subnet_pool.SubnetPool:
         """Create a new subnet pool from attributes
@@ -7626,6 +7728,8 @@ class Proxy(proxy.Proxy):
             )
 
     # TODO(stephenfin): Rename to fetch_tags
+    # ====== Tags ======
+
     def get_tags(self, resource: resource.Resource) -> list[str]:
         """Retrieve the tags of a specified resource
 
@@ -7716,6 +7820,8 @@ class Proxy(proxy.Proxy):
         """
         self._check_tag_support(resource)
         return resource.check_tag(self, tag)  # type: ignore[no-any-return]
+
+    # ====== Trunks ======
 
     def create_trunk(self, **attrs: Any) -> _trunk.Trunk:
         """Create a new trunk from attributes
@@ -7871,8 +7977,7 @@ class Proxy(proxy.Proxy):
         trunk = self._get_resource(_trunk.Trunk, trunk)
         return trunk.get_subports(self)
 
-    # ========== VPNaas ==========
-    # ========== VPN Endpoint group ==========
+    # ====== VPN Endpoint Groups ======
 
     def create_vpn_endpoint_group(
         self, **attrs: Any
@@ -8013,7 +8118,8 @@ class Proxy(proxy.Proxy):
             _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group, **attrs
         )
 
-    # ========== IPsec Site Connection ==========
+    # ====== IPsec Site Connections ======
+
     def create_vpn_ipsec_site_connection(
         self, **attrs: Any
     ) -> _ipsec_site_connection.VpnIPSecSiteConnection:
@@ -8164,7 +8270,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== IKEPolicy ==========
+    # ====== IKE Policies ======
+
     def create_vpn_ike_policy(self, **attrs: Any) -> _ike_policy.VpnIkePolicy:
         """Create a new ike policy from attributes
 
@@ -8293,7 +8400,8 @@ class Proxy(proxy.Proxy):
             _ike_policy.VpnIkePolicy, ike_policy, ignore_missing=ignore_missing
         )
 
-    # ========== IPSecPolicy ==========
+    # ====== IPsec Policies ======
+
     def create_vpn_ipsec_policy(
         self, **attrs: Any
     ) -> _ipsec_policy.VpnIpsecPolicy:
@@ -8430,7 +8538,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== VPN Service ==========
+    # ====== VPN Services ======
+
     def create_vpn_service(self, **attrs: Any) -> _vpn_service.VpnService:
         """Create a new vpn service from attributes
 
@@ -8556,6 +8665,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated vpnservice
         """
         return self._update(_vpn_service.VpnService, vpn_service, **attrs)
+
+    # ====== Floating IP Port Forwardings ======
 
     def create_floating_ip_port_forwarding(
         self, floating_ip: str | _floating_ip.FloatingIP, **attrs: Any
@@ -8745,6 +8856,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== Conntrack Helpers ======
+
     def create_conntrack_helper(
         self, router: str | _router.Router, **attrs: Any
     ) -> _l3_conntrack_helper.ConntrackHelper:
@@ -8869,6 +8982,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    # ====== Tap Flows ======
+
     def create_tap_flow(self, **attrs: Any) -> _tap_flow.TapFlow:
         """Create a new Tap Flow from attributes"""
         return self._create(_tap_flow.TapFlow, **attrs)
@@ -8945,6 +9060,8 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_tap_flow.TapFlow, None, None]:
         """Return a generator of Tap Flows"""
         return self._list(_tap_flow.TapFlow, **query)
+
+    # ====== Tap Mirrors ======
 
     def create_tap_mirror(self, **attrs: Any) -> _tap_mirror.TapMirror:
         """Create a new Tap Mirror from attributes"""
@@ -9025,6 +9142,8 @@ class Proxy(proxy.Proxy):
         """Return a generator of Tap Mirrors"""
         return self._list(_tap_mirror.TapMirror, **query)
 
+    # ====== Tap Services ======
+
     def create_tap_service(self, **attrs: Any) -> _tap_service.TapService:
         """Create a new Tap Service from attributes"""
         return self._create(_tap_service.TapService, **attrs)
@@ -9103,6 +9222,8 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_tap_service.TapService, None, None]:
         """Return a generator of Tap Services"""
         return self._list(_tap_service.TapService, **query)
+
+    # ====== SFC Flow Classifiers ======
 
     def create_sfc_flow_classifier(
         self, **attrs: Any
@@ -9243,6 +9364,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_flow_classifier.SfcFlowClassifier, **query)
 
+    # ====== SFC Port Chains ======
+
     def create_sfc_port_chain(
         self, **attrs: Any
     ) -> _sfc_port_chain.SfcPortChain:
@@ -9374,6 +9497,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_port_chain.SfcPortChain, **query)
 
+    # ====== SFC Port Pairs ======
+
     def create_sfc_port_pair(self, **attrs: Any) -> _sfc_port_pair.SfcPortPair:
         """Create a new Port Pair from attributes
 
@@ -9501,6 +9626,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
         """
         return self._list(_sfc_port_pair.SfcPortPair, **query)
+
+    # ====== SFC Port Pair Groups ======
 
     def create_sfc_port_pair_group(
         self, **attrs: Any
@@ -9638,6 +9765,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_port_pair_group.SfcPortPairGroup, **query)
 
+    # ====== SFC Service Graphs ======
+
     def create_sfc_service_graph(
         self, **attrs: Any
     ) -> _sfc_sservice_graph.SfcServiceGraph:
@@ -9771,7 +9900,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_sservice_graph.SfcServiceGraph, **query)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

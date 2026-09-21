@@ -42,6 +42,8 @@ class Proxy(proxy.Proxy):
         "secret_store": _secret_store.SecretStore,
     }
 
+    # ====== Containers ======
+
     def create_container(self, **attrs: Any) -> _container.Container:
         """Create a new container from attributes
 
@@ -151,6 +153,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_container.Container, container, **attrs)
 
+    # ====== Orders ======
+
     def create_order(self, **attrs: Any) -> _order.Order:
         """Create a new order from attributes
 
@@ -249,6 +253,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated order
         """
         return self._update(_order.Order, order, **attrs)
+
+    # ====== Secrets ======
 
     def create_secret(self, **attrs: Any) -> _secret.Secret:
         """Create a new secret from attributes
@@ -350,7 +356,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_secret.Secret, secret, **attrs)
 
-    # ========== Secret Store Operations ==========
+    # ====== Secret Stores ======
 
     def secret_stores(
         self,
@@ -384,6 +390,8 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         return self._get(_secret_store.SecretStore, 'preferred')
+
+    # ====== Quotas ======
 
     @renamed_param('project_id', 'project')
     def delete_project_quota(
@@ -455,7 +463,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_quota.Quota, requires_id=False)
 
-    # ========== Secret ACL Operations ==========
+    # ====== Secret ACLs ======
 
     def get_secret_acl(
         self, secret: str | _secret.Secret
@@ -531,6 +539,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    # ====== Secret Consumers ======
+
     def create_secret_consumer(
         self, secret: str | _secret.Secret, **attrs: Any
     ) -> _secret_consumer.SecretConsumer:
@@ -600,7 +610,7 @@ class Proxy(proxy.Proxy):
             _secret_consumer.SecretConsumer, secret_id=sid, **query
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

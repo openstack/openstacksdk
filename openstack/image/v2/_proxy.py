@@ -92,7 +92,8 @@ class Proxy(proxy.Proxy):
     _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
     _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
-    # ====== CACHE MANAGEMENT======
+    # ====== Caches ======
+
     def get_image_cache(self) -> _cache.Cache:
         return self._get(_cache.Cache, requires_id=False)
 
@@ -153,7 +154,7 @@ class Proxy(proxy.Proxy):
         """
         return _cache.Cache.prune(self)
 
-    # ====== IMAGES ======
+    # ====== Images ======
 
     def _make_v2_image_params(
         self,
@@ -1216,7 +1217,8 @@ class Proxy(proxy.Proxy):
         image = self._get_resource(_image.Image, image)
         image.remove_tag(self, tag)
 
-    # ====== IMAGE MEMBERS ======
+    # ====== Image Members ======
+
     def add_member(
         self, image: str | _image.Image, **attrs: Any
     ) -> _member.Member:
@@ -1383,7 +1385,8 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    # ====== METADEF NAMESPACES ======
+    # ====== Metadef Namespaces ======
+
     def create_metadef_namespace(
         self, **attrs: Any
     ) -> _metadef_namespace.MetadefNamespace:
@@ -1535,7 +1538,8 @@ class Proxy(proxy.Proxy):
         )
         namespace.remove_all_tags(self)
 
-    # ====== METADEF OBJECT ======
+    # ====== Metadef Objects ======
+
     def create_metadef_object(
         self,
         namespace: str | _metadef_namespace.MetadefNamespace,
@@ -1687,7 +1691,8 @@ class Proxy(proxy.Proxy):
         )
         return namespace.delete_all_objects(self)
 
-    # ====== METADEF RESOURCE TYPES ======
+    # ====== Metadef Resource Types ======
+
     def metadef_resource_types(
         self,
         **query: Any,
@@ -1701,7 +1706,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_metadef_resource_type.MetadefResourceType, **query)
 
-    # ====== METADEF RESOURCE TYPES ASSOCIATION======
+    # ====== Metadef Resource Type Associations ======
+
     def create_metadef_resource_type_association(
         self,
         metadef_namespace: str | _metadef_namespace.MetadefNamespace,
@@ -1779,7 +1785,8 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ====== METADEF PROPERTY ======
+    # ====== Metadef Properties ======
+
     def create_metadef_property(
         self,
         metadef_namespace: str | _metadef_namespace.MetadefNamespace,
@@ -1939,7 +1946,8 @@ class Proxy(proxy.Proxy):
         )
         namespace.delete_all_properties(self)
 
-    # ====== SCHEMAS ======
+    # ====== Schemas ======
+
     def get_images_schema(self) -> _schema.Schema:
         """Get images schema
 
@@ -2152,7 +2160,8 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/tags',
         )
 
-    # ====== TASKS ======
+    # ====== Tasks ======
+
     def tasks(self, **query: Any) -> Generator[_task.Task, None, None]:
         """Return a generator of tasks
 
@@ -2259,7 +2268,8 @@ class Proxy(proxy.Proxy):
 
         return task
 
-    # ====== STORES ======
+    # ====== Stores ======
+
     def stores(
         self,
         details: bool = False,
@@ -2273,7 +2283,8 @@ class Proxy(proxy.Proxy):
             query['base_path'] = utils.urljoin(_si.Store.base_path, 'detail')
         return self._list(_si.Store, **query)
 
-    # ====== IMPORTS ======
+    # ====== Imports ======
+
     def get_import_info(self) -> _si.Import:
         """Get a info about image constraints
 
@@ -2283,7 +2294,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_si.Import, requires_id=False)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

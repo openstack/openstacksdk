@@ -100,7 +100,7 @@ class Proxy(proxy.Proxy):
         "user": _user.User,
     }
 
-    # ========== Credentials ==========
+    # ====== Credentials ======
 
     def create_credential(self, **attrs: Any) -> _credential.Credential:
         """Create a new credential from attributes
@@ -212,7 +212,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_credential.Credential, credential, **attrs)
 
-    # ========== Domains ==========
+    # ====== Domains ======
 
     def create_domain(self, **attrs: Any) -> _domain.Domain:
         """Create a new domain from attributes
@@ -312,7 +312,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_domain.Domain, domain, **attrs)
 
-    # ========== Domain configs ==========
+    # ====== Domain Configs ======
 
     def create_domain_config(
         self,
@@ -399,7 +399,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    # ========== Endpoints ==========
+    # ====== Endpoints ======
 
     def create_endpoint(self, **attrs: Any) -> _endpoint.Endpoint:
         """Create a new endpoint from attributes
@@ -532,7 +532,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ========== Project endpoints ==========
+    # ====== Project Endpoints ======
 
     def project_endpoints(
         self,
@@ -588,7 +588,7 @@ class Proxy(proxy.Proxy):
         endpoint = self._get_resource(_endpoint.Endpoint, endpoint)
         project.disassociate_endpoint(self, endpoint.id)
 
-    # ========== Endpoint Groups ==========
+    # ====== Endpoint Groups ======
 
     def create_endpoint_group(
         self, **attrs: Any
@@ -733,7 +733,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ========== Groups ==========
+    # ====== Groups ======
 
     def create_group(self, **attrs: Any) -> _group.Group:
         """Create a new group from attributes
@@ -909,7 +909,7 @@ class Proxy(proxy.Proxy):
         users = self._list(_user.User, base_path=base_path, **attrs)
         return users
 
-    # ========== Policies ==========
+    # ====== Policies ======
 
     def create_policy(self, **attrs: Any) -> _policy.Policy:
         """Create a new policy from attributes
@@ -1014,7 +1014,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_policy.Policy, policy, **attrs)
 
-    # ========== Project ==========
+    # ====== Projects ======
 
     def create_project(self, **attrs: Any) -> _project.Project:
         """Create a new project from attributes
@@ -1161,7 +1161,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_project.Project, project, **attrs)
 
-    # ========== Endpoint group projects ==========
+    # ====== Endpoint Group Projects ======
 
     def endpoint_group_projects(
         self,
@@ -1227,7 +1227,7 @@ class Proxy(proxy.Proxy):
         project = self._get_resource(_project.Project, project)
         endpoint_group.disassociate_project(self, project.id)
 
-    # ========== Services ==========
+    # ====== Services ======
 
     def create_service(self, **attrs: Any) -> _service.Service:
         """Create a new service from attributes
@@ -1330,7 +1330,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_service.Service, service, **attrs)
 
-    # ========== Users ==========
+    # ====== Users ======
 
     def create_user(self, **attrs: Any) -> _user.User:
         """Create a new user from attributes
@@ -1466,7 +1466,7 @@ class Proxy(proxy.Proxy):
         user_obj = self._get_resource(_user.User, user)
         user_obj.update_password(self, current_password, password)
 
-    # ========== Tokens ==========
+    # ====== Tokens ======
 
     def validate_token(
         self, token: str, nocatalog: bool = False, allow_expired: bool = False
@@ -1503,7 +1503,7 @@ class Proxy(proxy.Proxy):
         """
         _token.Token.revoke(self, token)
 
-    # ========== Trusts ==========
+    # ====== Trusts ======
 
     def create_trust(self, **attrs: Any) -> _trust.Trust:
         """Create a new trust from attributes
@@ -1589,7 +1589,7 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_trust.Trust, **query)
 
-    # ========== Regions ==========
+    # ====== Regions ======
 
     def create_region(self, **attrs: Any) -> _region.Region:
         """Create a new region from attributes
@@ -1694,7 +1694,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_region.Region, region, **attrs)
 
-    # ========== Roles ==========
+    # ====== Roles ======
 
     def create_role(self, **attrs: Any) -> _role.Role:
         """Create a new role from attributes
@@ -1797,7 +1797,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_role.Role, role, **attrs)
 
-    # ========== Role assignments ==========
+    # ====== Role Assignments ======
 
     @overload
     def role_assignments_filter(
@@ -2406,7 +2406,7 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         return system.validate_group_has_role(self, group, role)
 
-    # ========== Registered limits ==========
+    # ====== Registered Limits ======
 
     def registered_limits(
         self,
@@ -2496,7 +2496,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== Limits ==========
+    # ====== Limits ======
 
     def limits(self, **query: Any) -> Generator[_limit.Limit, None, None]:
         """Retrieve a generator of limits
@@ -2561,7 +2561,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_limit.Limit, limit, ignore_missing=ignore_missing)
 
-    # ========== Application credentials ==========
+    # ====== Application Credentials ======
 
     def application_credentials(
         self,
@@ -2722,7 +2722,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== Federation protocols ==========
+    # ====== Federation Protocols ======
 
     @renamed_param('idp_id', 'idp')
     def create_federation_protocol(
@@ -2910,7 +2910,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    # ========== Mappings ==========
+    # ====== Mappings ======
 
     def create_mapping(self, **attrs: Any) -> _mapping.Mapping:
         """Create a new mapping from attributes
@@ -3019,7 +3019,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_mapping.Mapping, mapping, **attrs)
 
-    # ========== Identity providers ==========
+    # ====== Identity Providers ======
 
     def create_identity_provider(
         self, **attrs: Any
@@ -3148,7 +3148,7 @@ class Proxy(proxy.Proxy):
             _identity_provider.IdentityProvider, identity_provider, **attrs
         )
 
-    # ========== Access rules ==========
+    # ====== Access Rules ======
 
     def access_rules(
         self,
@@ -3215,7 +3215,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== Service providers ==========
+    # ====== Service Providers ======
 
     def create_service_provider(
         self, **attrs: Any
@@ -3338,7 +3338,7 @@ class Proxy(proxy.Proxy):
             _service_provider.ServiceProvider, service_provider, **attrs
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

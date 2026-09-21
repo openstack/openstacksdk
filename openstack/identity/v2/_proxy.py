@@ -24,6 +24,8 @@ from openstack import resource
 class Proxy(proxy.Proxy):
     api_version: ClassVar[Literal['2']] = '2'
 
+    # ====== Extensions ======
+
     def extensions(self) -> Generator[_extension.Extension, None, None]:
         """Retrieve a generator of extensions
 
@@ -45,6 +47,8 @@ class Proxy(proxy.Proxy):
             when no extension can be found.
         """
         return self._get(_extension.Extension, extension)
+
+    # ====== Roles ======
 
     def create_role(self, **attrs: Any) -> _role.Role:
         """Create a new role from attributes
@@ -140,6 +144,8 @@ class Proxy(proxy.Proxy):
         :returns: The updated role
         """
         return self._update(_role.Role, role, **attrs)
+
+    # ====== Tenants ======
 
     def create_tenant(self, **attrs: Any) -> _tenant.Tenant:
         """Create a new tenant from attributes
@@ -238,6 +244,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_tenant.Tenant, tenant, **attrs)
 
+    # ====== Users ======
+
     def create_user(self, **attrs: Any) -> _user.User:
         """Create a new user from attributes
 
@@ -333,7 +341,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_user.User, user, **attrs)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

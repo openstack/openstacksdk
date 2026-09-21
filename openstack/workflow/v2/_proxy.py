@@ -28,6 +28,8 @@ class Proxy(proxy.Proxy):
         "workflow": _workflow.Workflow,
     }
 
+    # ====== Workflows ======
+
     def create_workflow(self, **attrs: Any) -> _workflow.Workflow:
         """Create a new workflow from attributes
 
@@ -145,6 +147,8 @@ class Proxy(proxy.Proxy):
             _workflow.Workflow, name_or_id, ignore_missing=ignore_missing
         )
 
+    # ====== Executions ======
+
     def create_execution(self, **attrs: Any) -> _execution.Execution:
         """Create a new execution from attributes
 
@@ -246,6 +250,8 @@ class Proxy(proxy.Proxy):
         return self._find(
             _execution.Execution, name_or_id, ignore_missing=ignore_missing
         )
+
+    # ====== Cron triggers ======
 
     def create_cron_trigger(self, **attrs: Any) -> _cron_trigger.CronTrigger:
         """Create a new cron trigger from attributes
@@ -379,7 +385,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

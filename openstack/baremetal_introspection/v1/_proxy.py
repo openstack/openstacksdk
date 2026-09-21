@@ -35,7 +35,7 @@ class Proxy(proxy.Proxy):
         "introspection_rule": _introspection_rule.IntrospectionRule,
     }
 
-    # ========== Introspections ==========
+    # ====== Introspections ======
 
     def introspections(
         self,
@@ -177,7 +177,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_introspect.Introspection, introspection)
         return res.wait(self, timeout=timeout, ignore_error=ignore_error)
 
-    # ========== Introspection ruless ==========
+    # ====== Introspection Rules ======
 
     def create_introspection_rule(
         self, **attrs: Any
@@ -260,7 +260,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_introspection_rule.IntrospectionRule, **query)
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,

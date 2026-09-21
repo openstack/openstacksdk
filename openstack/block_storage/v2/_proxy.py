@@ -44,7 +44,7 @@ from openstack import warnings as os_warnings
 class Proxy(proxy.Proxy):
     api_version: ClassVar[Literal['2']] = '2'
 
-    # ========== Extensions ==========
+    # ====== Extensions ======
 
     def extensions(self) -> Generator[_extension.Extension, None, None]:
         """Return a generator of extensions
@@ -53,7 +53,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_extension.Extension)
 
-    # ========== Images ==========
+    # ====== Images ======
 
     # TODO(stephenfin): Deprecate the unused wait, timeout parameters
     def create_image(
@@ -86,7 +86,7 @@ class Proxy(proxy.Proxy):
             self._connection.image._existing_image(id=data['image_id']),
         )
 
-    # ========== Snapshots ==========
+    # ====== Snapshots ======
 
     def get_snapshot(
         self, snapshot: str | _snapshot.Snapshot
@@ -250,7 +250,7 @@ class Proxy(proxy.Proxy):
             snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
             snapshot.force_delete(self)
 
-    # ========== Snapshot actions ==========
+    # ====== Snapshot Actions ======
 
     def reset_snapshot_status(
         self, snapshot: str | _snapshot.Snapshot, status: str
@@ -299,7 +299,7 @@ class Proxy(proxy.Proxy):
         snapshot_obj = self._get_resource(_snapshot.Snapshot, snapshot)
         snapshot_obj.unmanage(self)
 
-    # ========== Types ==========
+    # ====== Types ======
 
     def get_type(self, type: str | _type.Type) -> _type.Type:
         """Get a single type
@@ -589,7 +589,7 @@ class Proxy(proxy.Proxy):
 
         return self._update(_type.TypeEncryption, encryption, **attrs)
 
-    # ========== Volumes ==========
+    # ====== Volumes ======
 
     def get_volume(self, volume: str | _volume.Volume) -> _volume.Volume:
         """Get a single volume
@@ -756,7 +756,7 @@ class Proxy(proxy.Proxy):
                 params={'cascade': cascade},
             )
 
-    # ========== Volume actions ==========
+    # ====== Volume Actions ======
 
     def extend_volume(self, volume: str | _volume.Volume, size: int) -> None:
         """Extend a volume
@@ -1006,7 +1006,7 @@ class Proxy(proxy.Proxy):
             container_format=container_format,
         )
 
-    # ========== Backend pools ==========
+    # ====== Backend Pools ======
 
     def backend_pools(
         self,
@@ -1021,7 +1021,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_stats.Pools, **query)
 
-    # ========== Backups ==========
+    # ====== Backups ======
 
     def backups(
         self,
@@ -1147,7 +1147,7 @@ class Proxy(proxy.Proxy):
             backup = self._get_resource(_backup.Backup, backup)
             backup.force_delete(self)
 
-    # ========== Backup actions ==========
+    # ====== Backup Actions ======
 
     def import_backup(self, service: str, url: str) -> _backup.Backup:
         """Create a new backup from an external service.
@@ -1225,7 +1225,7 @@ class Proxy(proxy.Proxy):
         )
         return self.reset_backup_status(backup, status)
 
-    # ========== Limits ==========
+    # ====== Limits ======
 
     def get_limits(
         self, project: str | _project.Project | None = None
@@ -1247,7 +1247,7 @@ class Proxy(proxy.Proxy):
             )
         return self._get(_limits.Limits, requires_id=False)
 
-    # ========== Capabilities ==========
+    # ====== Capabilities ======
 
     def get_capabilities(self, host: str) -> _capabilities.Capabilities:
         """Get a backend's capabilites
@@ -1467,7 +1467,7 @@ class Proxy(proxy.Proxy):
             _qos_spec.QoSSpecAssociation, qos_spec_id=qos_spec_id
         )
 
-    # ========== Quota class sets ==========
+    # ====== Quota Class Sets ======
 
     def get_quota_class_set(
         self,
@@ -1511,7 +1511,7 @@ class Proxy(proxy.Proxy):
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
 
-    # ========== Quota sets ==========
+    # ====== Quota Sets ======
 
     def get_quota_set(
         self,
@@ -1621,7 +1621,8 @@ class Proxy(proxy.Proxy):
             attrs['project_id'] = project.id
             return self._update(_quota_set.QuotaSet, None, **attrs)
 
-    # ========== Services ==========
+    # ====== Services ======
+
     @overload
     def find_service(
         self,
@@ -1756,7 +1757,7 @@ class Proxy(proxy.Proxy):
         service_obj = self._get_resource(_service.Service, service)
         return service_obj.failover(self, backend_id=backend_id)
 
-    # ========== Volume metadata ==========
+    # ====== Volume Metadata ======
 
     def fetch_volume_metadata(
         self, volume: str | _volume.Volume
@@ -1825,7 +1826,7 @@ class Proxy(proxy.Proxy):
         else:
             volume.delete_metadata(self)
 
-    # ========== Snapshot metadata ==========
+    # ====== Snapshot Metadata ======
 
     def fetch_snapshot_metadata(
         self, snapshot: str | _snapshot.Snapshot
@@ -1896,7 +1897,7 @@ class Proxy(proxy.Proxy):
         else:
             snapshot.delete_metadata(self)
 
-    # ========== Transfers ==========
+    # ====== Transfers ======
 
     def create_transfer(self, **attrs: Any) -> _transfer.Transfer:
         """Create a new Transfer record
@@ -2027,7 +2028,7 @@ class Proxy(proxy.Proxy):
         transfer = self._get_resource(_transfer.Transfer, transfer)
         return transfer.accept(self, auth_key=auth_key)
 
-    # ========== Consistency groups ==========
+    # ====== Consistency Groups ======
 
     def get_consistency_group(
         self,
@@ -2225,7 +2226,7 @@ class Proxy(proxy.Proxy):
             _consistency_group.ConsistencyGroup, consistency_group, **attrs
         )
 
-    # ========== Consistency group snapshots ==========
+    # ====== Consistency Group Snapshots ======
 
     def get_consistency_group_snapshot(
         self,
@@ -2367,7 +2368,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    # ========== Utilities ==========
+    # ====== Utilities ======
 
     def wait_for_status(
         self,
