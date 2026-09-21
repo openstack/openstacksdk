@@ -26,6 +26,8 @@ class ResourceClass(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    allow_empty_commit = True
+
     # Added in 1.2
     _max_microversion = '1.2'
 
