@@ -142,7 +142,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated; use 'search_images' "
                 "instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_images(name_or_id, filters)
             if not entities:

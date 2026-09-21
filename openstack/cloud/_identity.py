@@ -185,7 +185,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
                 "'search_projects' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_projects(
                 name_or_id, filters, domain_id=domain_id
@@ -374,7 +374,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
                 "'search_user' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_users(
                 name_or_id, filters, domain_id=domain_id
@@ -657,7 +657,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
                 "'search_services' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_services(name_or_id, filters)
             if not entities:
@@ -854,7 +854,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
                 "'search_endpoints' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_endpoints(id, filters)
             if not entities:
@@ -1191,7 +1191,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated for removal. It is a "
                 "no-op and can be safely removed.",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
 
         if domain_id is None:
@@ -1271,7 +1271,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
                 "'search_projects' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_groups(
                 name_or_id, filters, domain_id=domain_id
@@ -1440,7 +1440,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
                 "'search_roles' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_roles(
                 name_or_id, filters, domain_id=domain_id

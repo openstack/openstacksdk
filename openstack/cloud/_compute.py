@@ -506,7 +506,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated; use 'search_keypairs' "
                 "instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_keypairs(name_or_id, filters)
             if not entities:
@@ -548,7 +548,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated; use 'search_flavors' "
                 "instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
 
         if not filters:
@@ -650,7 +650,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated; use "
                 "'search_servers' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_servers(
                 name_or_id,
@@ -751,7 +751,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated; use "
                 "'search_server_groups' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
             entities = self.search_server_groups(name_or_id, filters)
             if not entities:
@@ -1943,7 +1943,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             warnings.warn(
                 "The 'filters' argument is deprecated; use "
                 "'search_aggregates' instead",
-                os_warnings.RemovedInSDK60Warning,
+                os_warnings.RemovedInSDK50Warning,
             )
 
         return self.compute.find_aggregate(name_or_id, ignore_missing=True)
