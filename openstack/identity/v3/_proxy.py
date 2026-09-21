@@ -971,7 +971,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "find_policy is deprecated and will be removed in a future "
             "release; please use get_policy instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self._find(
             _policy.Policy, name_or_id, ignore_missing=ignore_missing
@@ -1651,7 +1651,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "find_region is deprecated and will be removed in a future "
             "release; please use get_region instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self._find(
             _region.Region, name_or_id, ignore_missing=ignore_missing
@@ -2973,7 +2973,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "find_mapping is deprecated and will be removed in a future "
             "release; please use get_mapping instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self._find(
             _mapping.Mapping, name_or_id, ignore_missing=ignore_missing
@@ -3090,7 +3090,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             "find_identity_provider is deprecated and will be removed in a "
             "future release; please use get_identity_provider instead.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self._find(
             _identity_provider.IdentityProvider,

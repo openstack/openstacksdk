@@ -104,6 +104,6 @@ class GroupSnapshot(resource.Resource):
         warnings.warn(
             "reset_state is a deprecated alias for reset_status and will be "
             "removed in a future release.",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         self.reset_status(session, status)

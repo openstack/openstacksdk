@@ -884,7 +884,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         warnings.warn(
             "get_server_meta() is deprecated; use "
             "cloud.compute.fetch_server_metadata(server) instead",
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
         # TODO(mordred) remove once ansible has moved to Inventory interface
         server_vars = meta.get_hostvars_from_server(self, server)  # type: ignore[arg-type]
