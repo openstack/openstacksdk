@@ -11,7 +11,6 @@
       - zuul: opendev.org/openstack/tempest
     required-projects:
       - name: openstack/openstacksdk
-      - name: openstack/os-client-config
     timeout: 9000
     vars:
       devstack_localrc:
@@ -50,7 +49,7 @@
       tox_install_siblings: false
       tox_envlist: functional
       zuul_copy_output:
-          '{{ ansible_user_dir }}/stackviz': logs
+        '{{ ansible_user_dir }}/stackviz': logs
       zuul_work_dir: src/opendev.org/openstack/openstacksdk
 
 - job:
@@ -145,7 +144,7 @@
       - openstack/neutron-vpnaas
       - openstack/tap-as-a-service
     vars:
-      INSTALL_OVN: False
+      INSTALL_OVN: false
       configure_swap_size: 8192
       devstack_local_conf:
         post-config:
@@ -160,8 +159,8 @@
               cert_manager: local_cert_manager
           $NEUTRON_CONF:
             DEFAULT:
-              router_distributed: True
-              l3_ha: True
+              router_distributed: true
+              l3_ha: true
           "/$NEUTRON_CORE_PLUGIN_CONF":
             ovs:
               tunnel_bridge: br-tun
@@ -171,7 +170,7 @@
               agent_mode: dvr_snat
             agent:
               availability_zone: nova
-              debug_iptables_rules: True
+              debug_iptables_rules: true
           $NEUTRON_DHCP_CONF:
             agent:
               availability_zone: nova
@@ -182,7 +181,7 @@
         Q_ML2_TENANT_NETWORK_TYPE: vxlan
         Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
         IPSEC_PACKAGE: libreswan
-        TAAS_SERVICE_DRIVER: TAAS:TAAS:neutron_taas.services.taas.service_drivers.taas_rpc.TaasRpcDriver:default
+        TAAS_SERVICE_DRIVER: "TAAS:TAAS:neutron_taas.services.taas.service_drivers.taas_rpc.TaasRpcDriver:default"
       devstack_plugins:
         designate: https://opendev.org/openstack/designate
         octavia: https://opendev.org/openstack/octavia
@@ -424,21 +423,18 @@
     vars:
       devstack_localrc:
         # LVM Backend config options
-        MANILA_SERVICE_IMAGE_ENABLED: False
+        MANILA_SERVICE_IMAGE_ENABLED: false
         SHARE_DRIVER: manila.share.drivers.lvm.LVMShareDriver
         MANILA_ENABLED_BACKENDS: chicago,denver
-        MANILA_OPTGROUP_chicago_driver_handles_share_servers: False
-        MANILA_OPTGROUP_denver_driver_handles_share_servers: False
+        MANILA_OPTGROUP_chicago_driver_handles_share_servers: false
+        MANILA_OPTGROUP_denver_driver_handles_share_servers: false
         SHARE_BACKING_FILE_SIZE: 32000M
         MANILA_DEFAULT_SHARE_TYPE_EXTRA_SPECS: 'snapshot_support=True create_share_from_snapshot_support=True revert_to_snapshot_support=True mount_snapshot_support=True'
-        MANILA_CONFIGURE_DEFAULT_TYPES: True
-
+        MANILA_CONFIGURE_DEFAULT_TYPES: true
         # Required for mounting shares
-        MANILA_ALLOW_NAS_SERVER_PORTS_ON_HOST: True
-
+        MANILA_ALLOW_NAS_SERVER_PORTS_ON_HOST: true
       devstack_plugins:
         manila: https://opendev.org/openstack/manila
-
       devstack_services:
         c-api: false
         c-bak: false
@@ -458,11 +454,9 @@
         nova: true
         placement-api: true
         dstat: false
-
       tox_environment:
         OPENSTACKSDK_HAS_MANILA: 1
         OPENSTACKSDK_TESTS_SUBDIR: compute_shared_file_system
-
       # Enable file backed memory to allow virtiofs
       devstack_local_conf:
         post-config:
