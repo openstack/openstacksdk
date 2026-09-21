@@ -414,7 +414,7 @@ class CreateOpts:
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: de-enveloping.
     response_key: str | types.Unset | None = types.UNSET
-    # TODO(stephenfin): Change default to PORT once Resource.create_method is
+    # TODO(stephenfin): Change default to POST once Resource.create_method is
     # gone.
     #: Method to use for create requests.
     method: Literal['POST', 'PUT'] | types.Unset = types.UNSET
