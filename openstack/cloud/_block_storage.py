@@ -208,7 +208,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
                         "Support for passing image as a raw dict has "
                         "been deprecated for removal. Consider passing a "
                         "string name or ID or an Image object instead.",
-                        os_warnings.RemovedInSDK60Warning,
+                        os_warnings.RemovedInSDK50Warning,
                     )
                 kwargs['imageRef'] = image['id']
             else:  # object

@@ -1056,7 +1056,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                         "Support for passing server group as a raw dict has "
                         "been deprecated for removal. Consider passing a "
                         "string name or ID or a ServerGroup object instead.",
-                        os_warnings.RemovedInSDK60Warning,
+                        os_warnings.RemovedInSDK50Warning,
                     )
                 group_id = group['id']
             else:  # object
@@ -1092,7 +1092,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                             "Support for passing network as a raw dict has "
                             "been deprecated for removal. Consider passing a "
                             "string name or ID or a Network object instead.",
-                            os_warnings.RemovedInSDK60Warning,
+                            os_warnings.RemovedInSDK50Warning,
                         )
                     network_id = net['id']
                 else:
@@ -1160,7 +1160,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                         "Support for passing image as a raw dict has "
                         "been deprecated for removal. Consider passing a "
                         "string name or ID or an Image object instead.",
-                        os_warnings.RemovedInSDK60Warning,
+                        os_warnings.RemovedInSDK50Warning,
                     )
                 kwargs['imageRef'] = image['id']
             else:
@@ -1173,7 +1173,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     "Support for passing flavor as a raw dict has "
                     "been deprecated for removal. Consider passing a "
                     "string name or ID or a Flavor object instead.",
-                    os_warnings.RemovedInSDK60Warning,
+                    os_warnings.RemovedInSDK50Warning,
                 )
             kwargs['flavorRef'] = flavor['id']
         else:
@@ -1276,7 +1276,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                         "Support for passing boot_volume as a raw dict has "
                         "been deprecated for removal. Consider passing a "
                         "string name or ID or a Volume object instead.",
-                        os_warnings.RemovedInSDK60Warning,
+                        os_warnings.RemovedInSDK50Warning,
                     )
                 volume_id = boot_volume['id']
             else:
@@ -1300,7 +1300,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                         "Support for passing image as a raw dict has "
                         "been deprecated for removal. Consider passing a "
                         "string name or ID or an Image object instead.",
-                        os_warnings.RemovedInSDK60Warning,
+                        os_warnings.RemovedInSDK50Warning,
                     )
                 image_obj = image
             else:
@@ -1338,7 +1338,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                         "Support for passing volumes as a list of raw dicts "
                         "been deprecated for removal. Consider passing a list "
                         "of string name or ID or ServerGroup objects instead.",
-                        os_warnings.RemovedInSDK60Warning,
+                        os_warnings.RemovedInSDK50Warning,
                     )
                 volume_id = volume['id']
             else:
