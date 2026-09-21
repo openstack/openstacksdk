@@ -62,7 +62,7 @@ class CloudConfig(cloud_region.CloudRegion):
         warnings.warn(
             'The CloudConfig class has been deprecated in favour of '
             'CloudRegion. Please update your references.',
-            os_warnings.RemovedInSDK60Warning,
+            os_warnings.RemovedInSDK50Warning,
         )
 
         self.region = region
