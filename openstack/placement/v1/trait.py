@@ -26,6 +26,7 @@ class Trait(resource.Resource):
     # Capabilities
 
     allow_create = True
+    create_method = 'PUT'
     allow_fetch = True
     allow_delete = True
     allow_list = True
@@ -42,6 +43,25 @@ class Trait(resource.Resource):
     )
 
     name = resource.Body('name', alternate_id=True)
+
+    def create(
+        self,
+        session: resource.AdapterT,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> 'Trait':
+        # placement expects an empty request body
+        self._body._dirty.discard('name')
+        return super().create(
+            session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            microversion=microversion,
+            **kwargs,
+        )
 
     @classmethod
     def list(
@@ -106,10 +126,16 @@ class Trait(resource.Resource):
                     return False
             return True
 
+        # Collect server-side query params from _query_mapping
+        server_params = {
+            k: v
+            for k, v in params.items()
+            if k in cls._query_mapping._mapping.keys()
+        }
         response = session.get(
             uri,
             headers={"Accept": "application/json"},
-            params={},
+            params=server_params,
             microversion=microversion,
         )
         exceptions.raise_from_response(response)
