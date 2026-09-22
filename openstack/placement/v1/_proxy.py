@@ -18,6 +18,9 @@ from openstack.placement.v1 import allocation as _allocation
 from openstack.placement.v1 import resource_class as _resource_class
 from openstack.placement.v1 import resource_provider as _resource_provider
 from openstack.placement.v1 import (
+    resource_provider_allocation as _resource_provider_allocation,
+)
+from openstack.placement.v1 import (
     resource_provider_inventory as _resource_provider_inventory,
 )
 from openstack.placement.v1 import resource_provider_trait as _rp_trait
@@ -614,6 +617,32 @@ class Proxy(proxy.Proxy):
             resource_provider,
         )
         return res.fetch_usages(self)
+
+    # ====== Resource provider allocations ======
+
+    def resource_provider_allocations(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        **query: Any,
+    ) -> Generator[
+        _resource_provider_allocation.ResourceProviderAllocation, None, None
+    ]:
+        """Retrieve a generator of resource provider allocations
+
+        :param resource_provider: Either the ID of a resource provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of resource provider inventory allocations.
+        """
+        resource_provider_id = resource.Resource._get_id(resource_provider)
+        return self._list(
+            _resource_provider_allocation.ResourceProviderAllocation,
+            resource_provider_id=resource_provider_id,
+            **query,
+        )
 
     # ====== Traits ======
 
