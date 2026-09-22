@@ -12,6 +12,7 @@
 
 from openstack.placement.v1 import _proxy
 from openstack.placement.v1 import allocation
+from openstack.placement.v1 import allocation_candidate
 from openstack.placement.v1 import resource_class
 from openstack.placement.v1 import resource_provider
 from openstack.placement.v1 import resource_provider_allocation
@@ -74,6 +75,16 @@ class TestPlacementAllocation(TestPlacementProxy):
             self.proxy.delete_allocation,
             allocation.Allocation,
             False,
+        )
+
+
+class TestPlacementAllocationCandidate(TestPlacementProxy):
+    def test_allocation_candidates(self):
+        self.verify_list(
+            self.proxy.allocation_candidates,
+            allocation_candidate.AllocationCandidate,
+            method_kwargs={'resources': 'VCPU:1', 'limit': 10},
+            expected_kwargs={'resources': 'VCPU:1', 'limit': 10},
         )
 
 
