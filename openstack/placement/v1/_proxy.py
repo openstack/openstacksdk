@@ -777,6 +777,33 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    def delete_resource_provider_trait(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Dissociate all traits from a resource provider.
+
+        :param resource_provider: The value can be either the ID of a resource
+            provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource provider does not exist. When set to ``True``,
+            no exception will be raised when attempting to delete traits for a
+            nonexistent resource provider.
+
+        :returns: ``None``
+        """
+        resource_provider_id = resource.Resource._get_id(resource_provider)
+        self._delete(
+            _rp_trait.ResourceProviderTrait,
+            None,
+            resource_provider_id=resource_provider_id,
+            ignore_missing=ignore_missing,
+        )
+
     # ====== Utilities ======
 
     def wait_for_status(
