@@ -129,3 +129,30 @@ class TestAllocation(base.BaseFunctionalTest):
             ignore_missing=False,
         )
         self.assertIsNone(result)
+
+        # re-create via the batch endpoint (POST /allocations), which sets
+        # allocations for multiple consumers atomically; consumer_generation
+        # must be null when the consumer does not yet exist.
+
+        result = self.operator_cloud.placement.create_allocations(
+            allocations={
+                self.consumer_id: {
+                    'allocations': {
+                        self.resource_provider.id: {
+                            'resources': {self.resource_class_name: 5},
+                        },
+                    },
+                    'project_id': self.project_id,
+                    'user_id': self.user_id,
+                    'consumer_generation': None,
+                    'consumer_type': 'INSTANCE',
+                },
+            },
+        )
+        self.assertIsNone(result)
+
+        alloc = self.operator_cloud.placement.get_allocation(self.consumer_id)
+        self.assertEqual(
+            {self.resource_class_name: 5},
+            alloc.allocations[self.resource_provider.id]['resources'],
+        )
