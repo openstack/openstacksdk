@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.placement.v1 import _proxy
+from openstack.placement.v1 import allocation
 from openstack.placement.v1 import resource_class
 from openstack.placement.v1 import resource_provider
 from openstack.placement.v1 import resource_provider_inventory
@@ -22,6 +23,28 @@ class TestPlacementProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+
+class TestPlacementAllocation(TestPlacementProxy):
+    def test_allocation_get(self):
+        self.verify_get(
+            self.proxy.get_allocation,
+            allocation.Allocation,
+        )
+
+    def test_allocation_update(self):
+        self.verify_update(
+            self.proxy.update_allocation,
+            allocation.Allocation,
+            False,
+        )
+
+    def test_allocation_delete(self):
+        self.verify_delete(
+            self.proxy.delete_allocation,
+            allocation.Allocation,
+            False,
+        )
 
 
 class TestPlacementResourceClass(TestPlacementProxy):
