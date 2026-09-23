@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Glance extra image properties such as ``hw_vif_multiqueue_enabled`` are
+    returned as strings (``"true"`` / ``"false"``). The image resource now
+    deserializes ``hw_vif_multiqueue_enabled`` with ``BoolStr`` so
+    ``"false"`` is treated as ``False`` rather than ``True``.
+    (`bug 1996033 <https://bugs.launchpad.net/bugs/1996033>`__)
