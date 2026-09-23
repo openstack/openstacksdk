@@ -10,8 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import gc
 from unittest import mock
 import uuid
+import weakref
 
 import keystoneauth1.session as ks_session
 import requests
@@ -126,13 +128,22 @@ class TestCloud(base.TestCase):
         close_mock.assert_not_called()
 
     def test_close_swallows_session_close_error(self):
-        # close() also runs from atexit and the context manager exit, so
-        # a failure while tearing down idle pooled connections must not
-        # propagate to the caller.
+        # close() also runs from the finalizer at interpreter shutdown and
+        # from the context manager exit, so a failure while tearing down idle
+        # pooled connections must not propagate to the caller.
         ks = self.cloud.session
         for exc in (OSError('boom'), requests.exceptions.RequestException):
             with mock.patch.object(ks.session, 'close', side_effect=exc):
                 self.cloud.close()  # must not raise
+
+    def test_unclosed_connection_is_garbage_collected(self):
+        conn = connection.Connection(config=self.cloud.config)
+        conn_ref = weakref.ref(conn)
+
+        del conn
+        gc.collect()
+
+        self.assertIsNone(conn_ref())
 
     def test_close_keeps_session_usable(self):
         # close() only releases pooled connections; the session must

@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import atexit
 from collections.abc import Iterable, Sequence
 import concurrent.futures
 import copy
@@ -50,6 +49,15 @@ if TYPE_CHECKING:
 
 
 _T = TypeVar('_T', bound=Mapping[str, Any])
+
+
+# plain function so nothing keeps ref to connection
+def _run_close(conn_ref: 'weakref.ref[_OpenStackCloudMixin]') -> None:
+    conn = conn_ref()
+    # Only resolves at interpreter shutdown: once the connection is collected
+    # the weakref is already cleared, and there is nothing left to release.
+    if conn is not None:
+        conn.close()
 
 
 class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
@@ -280,8 +288,11 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             _utils.localhost_supports_ipv6() if not self.force_ipv4 else False
         )
 
-        # Register cleanup steps
-        atexit.register(self.close)
+        # weakref.finalize holds its arguments. Passing a bound method or
+        # `self` would keep this connection, its session and all other
+        # internal objects (including TLS contexts) alive until the process
+        # exits.
+        self._finalizer = weakref.finalize(self, _run_close, weakref.ref(self))
 
     @property
     def session(self) -> 'ks_session.Session':
@@ -308,7 +319,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             self._close_session()
         if self.__pool_executor:
             self.__pool_executor.shutdown()
-        atexit.unregister(self.close)
+        self._finalizer.detach()
 
     def _close_session(self) -> None:
         """Release the connection pool of the keystoneauth1 session.
@@ -321,8 +332,8 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
 
         Tearing down idle pooled connections is best-effort: socket and
         request errors are swallowed so that releasing the pool can never
-        propagate out of ``close()``, which also runs from ``atexit`` and
-        the context manager exit.
+        propagate out of ``close()``, which also runs from the finalizer at
+        interpreter shutdown and from the context manager exit.
         """
         requests_session = getattr(self._session, '_session', None)
         if requests_session is not None:
