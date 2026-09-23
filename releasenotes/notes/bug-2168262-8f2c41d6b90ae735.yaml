@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    ``Connection`` no longer keeps itself alive for the lifetime of the
+    process. Cleanup was registered with ``atexit.register(self.close)``, and
+    because a bound method holds a strong reference to its instance, every
+    ``Connection`` ever created stayed reachable from the ``atexit`` registry
+    along with its keystoneauth1 session, that session's ``urllib3``
+    connection pools and their CA-loaded ``SSLContext`` objects. Applications
+    that build a ``Connection`` per request, such as Horizon, grew by hundreds
+    of kilobytes per request until the worker was restarted. Cleanup now uses
+    ``weakref.finalize``, which still runs at interpreter shutdown for
+    connections that are still alive but does not prevent them from being
+    garbage collected earlier.
