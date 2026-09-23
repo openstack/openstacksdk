@@ -134,17 +134,17 @@ class TestStack(base.TestCase):
         self.assertDictEqual(
             {
                 'action': 'action',
-                'any_tags': 'tags-any',
                 'limit': 'limit',
                 'marker': 'marker',
                 'name': 'name',
-                'not_any_tags': 'not-tags-any',
-                'not_tags': 'not-tags',
                 'owner_id': 'owner_id',
                 'project_id': 'tenant_id',
                 'status': 'status',
-                'tags': 'tags',
                 'username': 'username',
+                'tags': {'name': 'tags', 'format': 'csv'},
+                'any_tags': {'name': 'tags_any', 'format': 'csv'},
+                'not_tags': {'name': 'not_tags', 'format': 'csv'},
+                'not_any_tags': {'name': 'not_tags_any', 'format': 'csv'},
             },
             sot._query_mapping._mapping,
         )

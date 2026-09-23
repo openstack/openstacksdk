@@ -14,7 +14,6 @@ from typing import Any, Literal, Self, overload
 
 from keystoneauth1 import adapter
 
-from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -43,7 +42,11 @@ class Stack(resource.Resource):
         'owner_id',
         'username',
         project_id='tenant_id',
-        **tag.TagMixin._tag_query_parameters,
+        # Stack API uses underscores in tag query parameters
+        tags={'name': 'tags', 'format': 'csv'},
+        any_tags={'name': 'tags_any', 'format': 'csv'},
+        not_tags={'name': 'not_tags', 'format': 'csv'},
+        not_any_tags={'name': 'not_tags_any', 'format': 'csv'},
     )
 
     # Properties
