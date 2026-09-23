@@ -18,6 +18,7 @@ from openstack.placement.v1 import resource_provider
 from openstack.placement.v1 import resource_provider_allocation
 from openstack.placement.v1 import resource_provider_inventory
 from openstack.placement.v1 import resource_provider_trait
+from openstack.placement.v1 import usage
 from openstack.tests.unit import test_proxy_base as test_proxy_base
 
 
@@ -25,6 +26,23 @@ class TestPlacementProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+
+class TestPlacementUsage(TestPlacementProxy):
+    def test_usages(self):
+        self.verify_list(
+            self.proxy.usages,
+            usage.Usage,
+            method_kwargs={
+                'project_id': 'test_project',
+                'user_id': 'test_user',
+            },
+            expected_kwargs={
+                'project_id': 'test_project',
+                'user_id': 'test_user',
+                'consumer_type': None,
+            },
+        )
 
 
 class TestPlacementAllocation(TestPlacementProxy):

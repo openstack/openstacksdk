@@ -28,6 +28,7 @@ from openstack.placement.v1 import (
 )
 from openstack.placement.v1 import resource_provider_trait as _rp_trait
 from openstack.placement.v1 import trait as _trait
+from openstack.placement.v1 import usage as _usage
 from openstack import proxy
 from openstack import resource
 from openstack import warnings as os_warnings
@@ -857,6 +858,35 @@ class Proxy(proxy.Proxy):
             None,
             resource_provider_id=resource_provider_id,
             ignore_missing=ignore_missing,
+        )
+
+    # ====== Usages ======
+
+    def usages(
+        self,
+        project_id: str,
+        user_id: str | None = None,
+        consumer_type: str | None = None,
+    ) -> Generator[_usage.Usage, None, None]:
+        """Retrieve a generator of resource usages for a project.
+
+        Each yielded :class:`~openstack.placement.v1.usage.Usage` represents
+        one consumer type and contains the total resource consumption by
+        consumers of that type within the given project.
+
+        :param project_id: The UUID of the project to report usage for.
+        :param user_id: The UUID of the user to further filter by. Optional.
+        :param consumer_type: The consumer type to filter by. Optional;
+            requires placement microversion 1.38 or later.
+
+        :returns: A generator of
+            :class:`~openstack.placement.v1.usage.Usage` instances.
+        """
+        return self._list(
+            _usage.Usage,
+            project_id=project_id,
+            user_id=user_id,
+            consumer_type=consumer_type,
         )
 
     # ====== Utilities ======
