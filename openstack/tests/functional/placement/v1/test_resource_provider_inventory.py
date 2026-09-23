@@ -161,3 +161,49 @@ class TestResourceProviderInventory(base.BaseFunctionalTest):
             )
         )
         self.assertIsNone(result)
+
+        # replace all inventories at once (bulk set)
+        # fetch the RP first to get the current generation since prior
+        # operations have incremented it
+
+        current_rp = self.operator_cloud.placement.get_resource_provider(
+            self.resource_provider,
+        )
+        resource_provider = (
+            self.operator_cloud.placement.set_resource_provider_inventories(
+                self.resource_provider,
+                inventories={
+                    self.resource_class_name: {'total': 30},
+                },
+                resource_provider_generation=current_rp.generation,
+            )
+        )
+        self.assertIsInstance(
+            resource_provider, _resource_provider.ResourceProvider
+        )
+
+        inventories = list(
+            self.operator_cloud.placement.resource_provider_inventories(
+                self.resource_provider,
+            )
+        )
+        self.assertEqual(1, len(inventories))
+        self.assertEqual(30, inventories[0].total)
+
+        # delete all inventories at once
+
+        result = (
+            self.operator_cloud.placement.delete_resource_provider_inventories(
+                self.resource_provider,
+            )
+        )
+        self.assertIsNone(result)
+
+        # verify no inventories remain
+
+        inventories = list(
+            self.operator_cloud.placement.resource_provider_inventories(
+                self.resource_provider,
+            )
+        )
+        self.assertEqual([], inventories)

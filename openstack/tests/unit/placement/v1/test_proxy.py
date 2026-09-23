@@ -247,6 +247,26 @@ class TestPlacementResourceProviderInventory(TestPlacementProxy):
             expected_kwargs={'resource_provider_id': 'test_id'},
         )
 
+    def test_set_resource_provider_inventories(self):
+        self._verify(
+            'openstack.placement.v1.resource_provider.ResourceProvider.set_inventories',
+            self.proxy.set_resource_provider_inventories,
+            method_args=['value', {'VCPU': {'total': 8}}, 0],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'inventories': {'VCPU': {'total': 8}},
+                'resource_provider_generation': 0,
+            },
+        )
+
+    def test_delete_resource_provider_inventories(self):
+        self._verify(
+            'openstack.placement.v1.resource_provider.ResourceProvider.delete_inventories',
+            self.proxy.delete_resource_provider_inventories,
+            method_args=['value'],
+            expected_args=[self.proxy],
+        )
+
 
 class TestPlacementResourceProviderTrait(TestPlacementProxy):
     def test_get_resource_provider_trait(self):

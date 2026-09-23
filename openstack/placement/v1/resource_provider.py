@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Self
+from typing import Any, Self
 
 from keystoneauth1 import adapter
 
@@ -70,6 +70,75 @@ class ResourceProvider(resource.Resource):
     #: Resource class usage counts for this resource provider.
     usages = resource.Body('usages', type=dict)
 
+    def commit(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
+        # The uuid alternate_id gets marked dirty when constructed via new(),
+        # which happens inside proxy._update. Placement rejects uuid in the PUT
+        # body, so strip it before committing.
+        self._body._dirty.discard('uuid')
+        return super().commit(
+            session,
+            prepend_key=prepend_key,
+            has_body=has_body,
+            retry_on_conflict=retry_on_conflict,
+            base_path=base_path,
+            microversion=microversion,
+            **kwargs,
+        )
+
+    def set_inventories(
+        self,
+        session: adapter.Adapter,
+        inventories: dict[str, dict[str, object]],
+        resource_provider_generation: int,
+    ) -> Self:
+        """Replace all inventory records for the resource provider.
+
+        :param session: The session to use for making this request.
+        :param inventories: A dict mapping resource class names to inventory
+            configuration dicts. Pass an empty dict to remove all inventories.
+        :param resource_provider_generation: The generation of the resource
+            provider; used to detect concurrent updates.
+        :return: The resource provider with the updated generation.
+        :raises: :class:`~openstack.exceptions.ConflictException` if the
+            generation does not match or there are active allocations against
+            an inventory being removed.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'inventories')
+        microversion = self._get_microversion(session)
+        body = {
+            'resource_provider_generation': resource_provider_generation,
+            'inventories': inventories,
+        }
+        response = session.put(url, json=body, microversion=microversion)
+        exceptions.raise_from_response(response)
+        data = response.json()
+        self._body.attributes.update(
+            {'generation': data['resource_provider_generation']}
+        )
+        return self
+
+    def delete_inventories(self, session: adapter.Adapter) -> None:
+        """Delete all inventory records for the resource provider.
+
+        :param session: The session to use for making this request.
+        :raises: :class:`~openstack.exceptions.ConflictException` if there are
+            active allocations against the resource provider.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'inventories')
+        microversion = self._get_microversion(session)
+        response = session.delete(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+
     def fetch_usages(self, session: adapter.Adapter) -> Self:
         """Fetch resource usage counts for the resource provider
 
@@ -121,21 +190,31 @@ class ResourceProvider(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'aggregates')
         microversion = self._get_microversion(session)
 
-        body = {
-            'aggregates': aggregates or [],
-        }
         if utils.supports_microversion(session, '1.19'):
-            body['resource_provider_generation'] = self.generation
+            # 1.19+: body is a dict with aggregates and generation
+            body: dict[str, Any] | list[Any] = {
+                'aggregates': aggregates or [],
+                'resource_provider_generation': self.generation,
+            }
+        else:
+            # pre-1.19: body is a plain list of aggregate UUIDs
+            body = aggregates or []
 
         response = session.put(url, json=body, microversion=microversion)
         exceptions.raise_from_response(response)
         data = response.json()
 
-        updates = {'aggregates': data['aggregates']}
-        if 'resource_provider_generation' in data:
-            updates['resource_provider_generation'] = data[
-                'resource_provider_generation'
-            ]
+        # pre-1.19: response is a plain list of aggregate UUIDs
+        # 1.19+: response is a dict with 'aggregates' and
+        # 'resource_provider_generation'
+        if isinstance(data, list):
+            updates = {'aggregates': data}
+        else:
+            updates = {'aggregates': data['aggregates']}
+            if 'resource_provider_generation' in data:
+                updates['resource_provider_generation'] = data[
+                    'resource_provider_generation'
+                ]
         self._body.attributes.update(updates)
 
         return self
