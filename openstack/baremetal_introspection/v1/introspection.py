@@ -35,8 +35,7 @@ class Introspection(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    create_opts = resource.CreateOpts(requires_id=True)
-    create_returns_body = False
+    create_opts = resource.CreateOpts(requires_id=True, has_body=False)
 
     #: Timestamp at which the introspection was finished.
     finished_at = resource.Body('finished_at')
