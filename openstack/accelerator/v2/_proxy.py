@@ -141,6 +141,26 @@ class Proxy(proxy.Proxy):
 
         return self._get(_device.Device, device)
 
+    def enable_device(self, device: str | _device.Device) -> _device.Device:
+        """Enable a device.
+
+        :param device: The value can be the ID of a device or a
+            :class:`~openstack.accelerator.v2.device.Device` instance.
+        :returns: The updated device.
+        """
+        res = self._get_resource(_device.Device, device)
+        return res.enable(self)
+
+    def disable_device(self, device: str | _device.Device) -> _device.Device:
+        """Disable a device.
+
+        :param device: The value can be the ID of a device or a
+            :class:`~openstack.accelerator.v2.device.Device` instance.
+        :returns: The updated device.
+        """
+        res = self._get_resource(_device.Device, device)
+        return res.disable(self)
+
     # ====== Device Profiles ======
 
     def device_profiles(
