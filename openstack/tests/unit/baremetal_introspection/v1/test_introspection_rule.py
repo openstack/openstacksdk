@@ -65,7 +65,6 @@ class TestIntrospectionRule(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertEqual('POST', sot.create_method)
 
     def test_instantiate(self):
         sot = introspection_rule.IntrospectionRule(**FAKE)

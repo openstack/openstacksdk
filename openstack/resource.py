@@ -414,10 +414,8 @@ class CreateOpts:
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: de-enveloping.
     response_key: str | types.Unset | None = types.UNSET
-    # TODO(stephenfin): Change default to POST once Resource.create_method is
-    # gone.
-    #: Method to use for create requests.
-    method: Literal['POST', 'PUT'] | types.Unset = types.UNSET
+    #: Method to use for create requests. If unset, defaults to POST.
+    method: Literal['POST', 'PUT'] = 'POST'
     # TODO(stephenfin): Could we drop this in favour of a SingletonResource or
     # similar?
     #: Whether an ID is required or not. If unset, derived from the method.
@@ -484,9 +482,6 @@ class Resource(dict[str, Any]):
     #: override this to set per-resource defaults without overriding create().
     create_opts: ClassVar[CreateOpts] = CreateOpts()
 
-    #: **DEPRECATED:** Use ``create_opts.method`` instead.
-    #: Method for creating a resource.
-    create_method: Literal['POST', 'PUT'] = 'POST'
     #: **DEPRECATED:** Use ``create_opts.requires_id`` instead.
     #: Whether create requires an ID (determined from method if None).
     create_requires_id: bool | None = None
@@ -1552,11 +1547,7 @@ class Resource(dict[str, Any]):
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, 'create')
 
-        method = (
-            self.create_opts.method
-            if self.create_opts.method is not types.UNSET
-            else self.create_method
-        )
+        method = self.create_opts.method
 
         if method not in {'PUT', 'POST'}:
             raise exceptions.ResourceFailure(
@@ -1667,11 +1658,7 @@ class Resource(dict[str, Any]):
         if not cls.allow_create:
             raise exceptions.MethodNotSupported(cls, 'create')
 
-        method = (
-            cls.create_opts.method
-            if cls.create_opts.method is not types.UNSET
-            else cls.create_method
-        )
+        method = cls.create_opts.method
 
         if method not in {'PUT', 'POST'}:
             raise exceptions.ResourceFailure(

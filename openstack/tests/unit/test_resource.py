@@ -269,7 +269,6 @@ class TestResource(base.TestCase):
         self.assertFalse(sot.allow_list)
         self.assertFalse(sot.allow_head)
         self.assertEqual('PUT', sot.commit_method)
-        self.assertEqual('POST', sot.create_method)
 
     def test_repr(self):
         a = {"a": 1}
@@ -1494,7 +1493,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'PUT'
+            create_opts = resource.CreateOpts(method='PUT')
 
         self._test_create(Test, requires_id=True, prepend_key=True)
 
@@ -1503,7 +1502,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'PUT'
+            create_opts = resource.CreateOpts(method='PUT')
             _max_microversion = '1.42'
 
         self._test_create(
@@ -1515,7 +1514,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'PUT'
+            create_opts = resource.CreateOpts(method='PUT')
             _max_microversion = '1.99'
 
         self._test_create(
@@ -1530,7 +1529,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'PUT'
+            create_opts = resource.CreateOpts(method='PUT')
 
         self._test_create(
             Test, requires_id=True, prepend_key=True, params={'answer': 42}
@@ -1541,7 +1540,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
 
         self._test_create(Test, requires_id=False, prepend_key=True)
 
@@ -1550,7 +1549,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             resource_key = 'SomeKey'
 
         self._test_create(
@@ -1565,7 +1564,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             resource_key = 'SomeKey'
 
         self._test_create(
@@ -1580,7 +1579,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             resource_key = 'SomeKey'
 
         self._test_create(
@@ -1596,7 +1595,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
 
         self._test_create(
             Test, requires_id=False, prepend_key=True, base_path='dummy'
@@ -1607,7 +1606,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
 
         self._test_create(
             Test, requires_id=False, prepend_key=True, params={'answer': 42}
@@ -3165,7 +3164,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             allow_create = True
 
         mock.patch.object(Test, '_prepare_request').start()
@@ -3227,7 +3226,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             allow_create = True
             resources_key = 'tests'
 
@@ -3237,7 +3236,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'PUT'
+            create_opts = resource.CreateOpts(method='PUT')
             allow_create = True
             resources_key = 'tests'
 
@@ -3247,7 +3246,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             allow_create = True
             resources_key = 'tests'
 
@@ -3257,7 +3256,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             allow_create = True
             resources_key = 'tests'
             _max_microversion = '1.42'
@@ -3268,7 +3267,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             allow_create = True
             resources_key = 'tests'
 
@@ -3278,7 +3277,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             allow_create = False
             resources_key = 'tests'
 
@@ -3293,7 +3292,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            create_method = 'POST'
+            create_opts = resource.CreateOpts(method='POST')
             allow_create = True
             resources_key = 'tests'
 
