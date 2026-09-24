@@ -136,7 +136,8 @@ class TestCloud(base.TestCase):
             with mock.patch.object(ks.session, 'close', side_effect=exc):
                 self.cloud.close()  # must not raise
 
-    def test_unclosed_connection_is_garbage_collected(self):
+    @mock.patch('openstack.cloud.openstackcloud._run_close')
+    def test_unclosed_connection_is_garbage_collected(self, mock_run_close):
         conn = connection.Connection(config=self.cloud.config)
         conn_ref = weakref.ref(conn)
 
@@ -144,6 +145,7 @@ class TestCloud(base.TestCase):
         gc.collect()
 
         self.assertIsNone(conn_ref())
+        mock_run_close.assert_called_once()
 
     def test_close_keeps_session_usable(self):
         # close() only releases pooled connections; the session must
