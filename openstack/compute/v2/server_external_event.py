@@ -22,7 +22,8 @@ class ServerExternalEvent(resource.Resource):
     resources_key = 'events'
     base_path = '/os-server-external-events'
     requires_id = False
-    create_requires_id = False
+
+    create_opts = resource.CreateOpts(requires_id=False)
 
     # capabilities
     allow_create = True
