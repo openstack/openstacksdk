@@ -19,6 +19,7 @@ from keystoneauth1 import adapter
 
 from openstack.common import tag
 from openstack import exceptions
+from openstack import format
 from openstack.image import _download
 from openstack import resource
 from openstack import utils
@@ -230,9 +231,11 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     #: In this case, the driver sets the number of queues equal to the
     #: number of guest vCPUs. This makes the network performance scale
     #: across a number of vCPUs.
+    #: Glance stores this extra property as a string; BoolStr parses
+    #: ``"false"`` correctly (``type=bool`` would treat it as True).
     is_hw_vif_multiqueue_enabled = resource.Body(
         'hw_vif_multiqueue_enabled',
-        type=bool,
+        type=format.BoolStr,
     )
     #: If true, enables the BIOS bootmenu.
     is_hw_boot_menu_enabled = resource.Body('hw_boot_menu', type=bool)
