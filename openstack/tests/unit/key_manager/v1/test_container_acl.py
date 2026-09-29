@@ -40,7 +40,7 @@ class TestContainerACL(base.TestCase):
         self.assertFalse(sot.requires_id)
         self.assertEqual('PUT', sot.create_opts.method)
         self.assertFalse(sot.create_opts.requires_id)
-        self.assertEqual('PATCH', sot.commit_method)
+        self.assertEqual('PATCH', sot.commit_opts.method)
 
     def test_make_it(self):
         sot = container_acl.ContainerACL(container_id=CONTAINER_ID, **EXAMPLE)

@@ -21,8 +21,8 @@ from openstack import resource
 
 
 class BaseResource(resource.Resource):
-    commit_method = 'POST'
     create_opts = resource.CreateOpts(method='PUT')
+    commit_opts = resource.CommitOpts(method='POST')
 
     #: Metadata stored for this resource. *Type: dict*
     metadata: dict[str, Any] = {}

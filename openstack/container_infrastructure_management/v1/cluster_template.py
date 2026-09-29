@@ -24,8 +24,7 @@ class ClusterTemplate(resource.Resource):
     allow_delete = True
     allow_list = True
     allow_patch = True
-
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     #: The exposed port of COE API server.
     apiserver_port = resource.Body('apiserver_port', type=int)

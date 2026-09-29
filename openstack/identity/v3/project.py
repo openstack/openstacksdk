@@ -36,7 +36,7 @@ class Project(resource.Resource, tag.TagMixin):
     allow_commit = True
     allow_delete = True
     allow_list = True
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     _allow_unknown_attrs_in_body = True
 

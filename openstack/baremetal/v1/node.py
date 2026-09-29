@@ -88,7 +88,7 @@ class Node(_common.Resource):
     allow_delete = True
     allow_list = True
     allow_patch = True
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     _query_mapping = resource.QueryParameters(
         'associated',

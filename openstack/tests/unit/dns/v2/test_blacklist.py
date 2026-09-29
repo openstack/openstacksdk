@@ -34,7 +34,7 @@ class TestBlackList(base.TestCase):
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
-        self.assertEqual('PATCH', sot.commit_method)
+        self.assertEqual('PATCH', sot.commit_opts.method)
 
     def test_make_it(self):
         sot = blacklist.Blacklist(**EXAMPLE)

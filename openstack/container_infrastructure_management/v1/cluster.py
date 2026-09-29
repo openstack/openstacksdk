@@ -30,8 +30,7 @@ class Cluster(resource.Resource):
     allow_delete = True
     allow_list = True
     allow_patch = True
-
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     #: The endpoint URL of COE API exposed to end-users.
     api_address = resource.Body('api_address')

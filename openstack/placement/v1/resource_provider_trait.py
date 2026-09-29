@@ -28,7 +28,6 @@ class ResourceProviderTrait(resource.Resource):
     )
 
     requires_id = False
-    commit_method = 'PUT'
 
     # Capabilities
 

@@ -25,8 +25,7 @@ class ResourceClass(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
-
-    allow_empty_commit = True
+    commit_opts = resource.CommitOpts(request_has_body=False)
 
     # Added in 1.2
     _max_microversion = '1.2'

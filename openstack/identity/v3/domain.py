@@ -34,7 +34,7 @@ class Domain(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     _query_mapping = resource.QueryParameters(
         'name',
