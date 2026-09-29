@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
-from keystoneauth1 import adapter
 
 from openstack import resource
 
@@ -30,6 +27,7 @@ class SoftwareDeployment(resource.Resource):
     allow_commit = True
 
     create_opts = resource.CreateOpts(request_key=None)
+    commit_opts = resource.CommitOpts(request_key=None)
 
     # Properties
     #: The stack action that triggers this deployment resource.
@@ -54,14 +52,3 @@ class SoftwareDeployment(resource.Resource):
     created_at = resource.Body('creation_time')
     #: The date and time when the software deployment resource was created.
     updated_at = resource.Body('updated_time')
-
-    def commit(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Self:
-        # This overrides the default behavior of resource creation because
-        # heat doesn't accept resource_key in its request.
-        return super().commit(session, prepend_key, *args, **kwargs)

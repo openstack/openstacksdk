@@ -1875,7 +1875,10 @@ class TestResourceActions(base.TestCase):
         )
 
         self.mock_prepare_request.assert_called_once_with(
-            prepend_key=prepend_key, base_path=base_path, patch=False
+            prepend_key=prepend_key,
+            base_path=base_path,
+            patch=False,
+            resource_request_key=None,
         )
 
         if commit_method == 'PATCH':
@@ -1962,6 +1965,79 @@ class TestResourceActions(base.TestCase):
             has_body=True,
             explicit_microversion='1.42',
         )
+
+    def test_commit_override_request_key_none(self):
+        class Test(_TestResource):
+            commit_opts = resource.CommitOpts(request_key=None)
+
+        sot = Test(id="id")
+        sot._body = mock.Mock()
+        sot._body.dirty = mock.Mock(return_value={"x": "y"})
+        sot._body._dirty = set()
+        sot._header = mock.Mock()
+        sot._header.dirty = dict()
+
+        with (
+            mock.patch.object(
+                sot, '_prepare_request', return_value=self.request
+            ) as mock_prep,
+            mock.patch.object(sot, '_translate_response'),
+        ):
+            sot.commit(self.session)
+            mock_prep.assert_called_once_with(
+                prepend_key=False,
+                base_path=None,
+                patch=False,
+                resource_request_key=None,
+            )
+
+    def test_commit_override_request_key_custom(self):
+        class Test(_TestResource):
+            commit_opts = resource.CommitOpts(request_key='custom')
+
+        sot = Test(id="id")
+        sot._body = mock.Mock()
+        sot._body.dirty = mock.Mock(return_value={"x": "y"})
+        sot._body._dirty = set()
+        sot._header = mock.Mock()
+        sot._header.dirty = dict()
+
+        with (
+            mock.patch.object(
+                sot, '_prepare_request', return_value=self.request
+            ) as mock_prep,
+            mock.patch.object(sot, '_translate_response'),
+        ):
+            sot.commit(self.session)
+            mock_prep.assert_called_once_with(
+                prepend_key=True,
+                base_path=None,
+                patch=False,
+                resource_request_key='custom',
+            )
+
+    def test_commit_no_response_body(self):
+        class Test(_TestResource):
+            commit_opts = resource.CommitOpts(response_has_body=False)
+
+        sot = Test(id="id")
+        sot._body = mock.Mock()
+        sot._body.dirty = mock.Mock(return_value={"x": "y"})
+        sot._body._dirty = set()
+        sot._header = mock.Mock()
+        sot._header.dirty = dict()
+
+        with (
+            mock.patch.object(
+                sot, '_prepare_request', return_value=self.request
+            ),
+            mock.patch.object(sot, '_translate_response') as mock_translate,
+        ):
+            sot.commit(self.session)
+            mock_translate.assert_called_once_with(
+                self.response,
+                has_body=False,
+            )
 
     def test_commit_not_dirty(self):
         self.sot._body = mock.Mock()

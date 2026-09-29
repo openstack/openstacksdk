@@ -1872,9 +1872,10 @@ class Resource(dict[str, Any]):
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
-        :param prepend_key: Whether the
-            :data:`~openstack.resource.Resource.resource_key` should be
-            prepended in a resource creation request. Default to True.
+        :param prepend_key: *DEPRECATED* Configure ``commit_opts`` instead.
+            Whether the :data:`~openstack.resource.Resource.resource_key`
+            should be prepended in a resource commit request. Default to True.
+        :param has_body: *DEPRECATED* Configure ``commit_opts`` instead.
         :param retry_on_conflict: Whether to enable retries on HTTP
             CONFLICT (409). Value of ``None`` leaves the `Adapter` defaults.
         :param base_path: Base part of the URI for modifying resources, if
@@ -1898,10 +1899,20 @@ class Resource(dict[str, Any]):
         if not self.requires_commit:
             return self
 
+        if not isinstance(self.commit_opts.request_key, types.Unset):
+            prepend_key = self.commit_opts.request_key is not None
+            request_key = self.commit_opts.request_key
+        else:
+            request_key = None
+
+        if not self.commit_opts.response_has_body:
+            has_body = False
+
         request = self._prepare_request(
             prepend_key=prepend_key,
             base_path=base_path,
             patch=self.allow_patch,
+            resource_request_key=request_key,
             **attrs,
         )
         if microversion is None:
