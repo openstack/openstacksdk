@@ -46,7 +46,6 @@ class Account(_base.BaseResource):
     #: The timestamp of the transaction.
     timestamp = resource.Header("x-timestamp")
 
-    has_body = False
     requires_id = False
 
     def set_temp_url_key(
