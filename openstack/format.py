@@ -33,3 +33,22 @@ class BoolStr(Formatter[bool]):
             return False
         else:
             raise ValueError(f"Unable to deserialize boolean string: {value}")
+
+
+class FlexibleBoolStr(Formatter[bool]):
+    """Leniently convert a boolean string to a boolean
+
+    Behaves like ``oslo_utils.strutils.bool_from_string`` with its default
+    arguments, which is how services such as Nova interpret these values:
+    recognised strings map to ``True`` or ``False`` and anything else is
+    ``False``. This also means a single malformed value cannot prevent the
+    containing resource from being loaded.
+    """
+
+    TRUE_STRINGS = frozenset(('1', 't', 'true', 'on', 'y', 'yes'))
+
+    @classmethod
+    def deserialize(cls, value: Any) -> bool:
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() in cls.TRUE_STRINGS

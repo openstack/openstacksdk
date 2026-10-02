@@ -82,15 +82,15 @@ EXAMPLE: dict[str, Any] = {
     'hw_watchdog_action': '44',
     'os_command_line': '45',
     'hw_vif_model': '46',
-    'hw_vif_multiqueue_enabled': True,
-    'hw_boot_menu': True,
+    'hw_vif_multiqueue_enabled': 'yes',
+    'hw_boot_menu': 'false',
     'vmware_adaptertype': '47',
     'vmware_ostype': '48',
     'auto_disk_config': True,
     'os_type': '49',
     'os_admin_user': 'ubuntu',
     'hw_qemu_guest_agent': 'yes',
-    'os_require_quiesce': True,
+    'os_require_quiesce': 'True',
 }
 
 
@@ -224,11 +224,8 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['hw_watchdog_action'], sot.hw_watchdog_action)
         self.assertEqual(EXAMPLE['os_command_line'], sot.os_command_line)
         self.assertEqual(EXAMPLE['hw_vif_model'], sot.hw_vif_model)
-        self.assertEqual(
-            EXAMPLE['hw_vif_multiqueue_enabled'],
-            sot.is_hw_vif_multiqueue_enabled,
-        )
-        self.assertEqual(EXAMPLE['hw_boot_menu'], sot.is_hw_boot_menu_enabled)
+        self.assertIs(True, sot.is_hw_vif_multiqueue_enabled)
+        self.assertIs(False, sot.is_hw_boot_menu_enabled)
         self.assertEqual(EXAMPLE['vmware_adaptertype'], sot.vmware_adaptertype)
         self.assertEqual(EXAMPLE['vmware_ostype'], sot.vmware_ostype)
         self.assertEqual(EXAMPLE['auto_disk_config'], sot.has_auto_disk_config)
@@ -237,7 +234,35 @@ class TestImage(base.TestCase):
         self.assertEqual(
             EXAMPLE['hw_qemu_guest_agent'], sot.hw_qemu_guest_agent
         )
-        self.assertEqual(EXAMPLE['os_require_quiesce'], sot.os_require_quiesce)
+        self.assertIs(True, sot.os_require_quiesce)
+
+    def test_make_it_boolean_strings(self):
+        sot = image.Image.existing(
+            id=IDENTIFIER,
+            hw_vif_multiqueue_enabled='false',
+            hw_boot_menu='on',
+            os_require_quiesce='no',
+        )
+        self.assertIs(False, sot.is_hw_vif_multiqueue_enabled)
+        self.assertIs(True, sot.is_hw_boot_menu_enabled)
+        self.assertIs(False, sot.os_require_quiesce)
+
+    def test_make_it_unrecognised_boolean_strings(self):
+        sot = image.Image.existing(
+            id=IDENTIFIER,
+            hw_vif_multiqueue_enabled='INVALID',
+            hw_boot_menu='',
+            os_require_quiesce='maybe',
+        )
+        self.assertIs(False, sot.is_hw_vif_multiqueue_enabled)
+        self.assertIs(False, sot.is_hw_boot_menu_enabled)
+        self.assertIs(False, sot.os_require_quiesce)
+
+    def test_make_it_unset_boolean_strings(self):
+        sot = image.Image.existing(id=IDENTIFIER)
+        self.assertIsNone(sot.is_hw_vif_multiqueue_enabled)
+        self.assertIsNone(sot.is_hw_boot_menu_enabled)
+        self.assertIsNone(sot.os_require_quiesce)
 
     def test_deactivate(self):
         sot = image.Image(**EXAMPLE)

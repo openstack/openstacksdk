@@ -27,3 +27,53 @@ class TestBoolStrFormatter(base.TestCase):
         self.assertRaises(ValueError, format.BoolStr.deserialize, None)
         self.assertRaises(ValueError, format.BoolStr.deserialize, '')
         self.assertRaises(ValueError, format.BoolStr.deserialize, 'INVALID')
+
+
+class TestFlexibleBoolStrFormatter(base.TestCase):
+    def test_deserialize_true(self):
+        for value in (
+            True,
+            '1',
+            't',
+            'T',
+            'true',
+            'True',
+            'TRUE',
+            'on',
+            'ON',
+            'y',
+            'Y',
+            'yes',
+            'Yes',
+            ' yes ',
+        ):
+            self.assertIs(
+                True, format.FlexibleBoolStr.deserialize(value), repr(value)
+            )
+
+    def test_deserialize_false(self):
+        for value in (
+            False,
+            '0',
+            'f',
+            'F',
+            'false',
+            'False',
+            'FALSE',
+            'off',
+            'OFF',
+            'n',
+            'N',
+            'no',
+            'No',
+            ' no ',
+        ):
+            self.assertIs(
+                False, format.FlexibleBoolStr.deserialize(value), repr(value)
+            )
+
+    def test_deserialize_unrecognised(self):
+        for value in (None, '', 'INVALID', '2', 'enabled', 'maybe'):
+            self.assertIs(
+                False, format.FlexibleBoolStr.deserialize(value), repr(value)
+            )

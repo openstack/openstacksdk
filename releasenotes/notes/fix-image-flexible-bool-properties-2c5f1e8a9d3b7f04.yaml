@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    The ``hw_boot_menu`` and ``os_require_quiesce`` image properties are now
+    parsed as boolean strings, so a value of ``"false"`` is treated as
+    ``False``. These properties and ``hw_vif_multiqueue_enabled`` now
+    interpret their values the same way as Nova: ``1``, ``t``, ``true``,
+    ``on``, ``y`` and ``yes`` (case-insensitively) are ``True``, and any
+    other value is ``False``. An unrecognised value no longer raises an
+    exception that prevents the image from loading.
+    (`bug 2169133 <https://bugs.launchpad.net/bugs/2169133>`__)

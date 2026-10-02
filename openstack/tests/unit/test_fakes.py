@@ -39,6 +39,7 @@ class TestGetFake(base.TestCase):
             d = resource.Body("d", type=_format.BoolStr)
             e = resource.Body("e", type=dict)
             f = resource.URI("path")
+            g = resource.Body("g", type=_format.FlexibleBoolStr)
 
         class Bar(resource.Resource):
             a = resource.Body("a", type=list, list_type=str)
@@ -52,6 +53,7 @@ class TestGetFake(base.TestCase):
         self.assertIsInstance(foo.d, bool)
         self.assertIsInstance(foo.e, dict)
         self.assertIsInstance(foo.f, str)
+        self.assertIsInstance(foo.g, bool)
 
         bar = fakes.generate_fake_resource(Bar)
         self.assertIsInstance(bar.a, list)

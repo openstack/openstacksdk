@@ -111,8 +111,9 @@ def generate_fake_resource(
             elif issubclass(target_type, float):
                 # float
                 base_attrs[name] = random.random()  # noqa: S311
-            elif issubclass(target_type, bool) or issubclass(
-                target_type, _format.BoolStr
+            elif issubclass(
+                target_type,
+                bool | _format.BoolStr | _format.FlexibleBoolStr,
             ):
                 # bool
                 base_attrs[name] = random.choice([True, False])  # noqa: S311
