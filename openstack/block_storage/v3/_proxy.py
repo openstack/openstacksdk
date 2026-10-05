@@ -1532,6 +1532,8 @@ class Proxy(proxy.Proxy):
 
     def attachments(
         self,
+        *,
+        details: bool = True,
         **query: Any,
     ) -> Generator[_attachment.Attachment, None, None]:
         """Returns a generator of attachments.
@@ -1539,12 +1541,16 @@ class Proxy(proxy.Proxy):
         This is an internal API and should only be called by services
         consuming volume attachments like nova, glance, ironic etc.
 
+        :param details: When set to ``False`` no extended attributes
+            will be returned. The default, ``True``, will cause objects with
+            additional attributes to be returned.
         :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of attachment objects.
         """
-        return self._list(_attachment.Attachment, **query)
+        base_path = '/attachments/detail' if details else None
+        return self._list(_attachment.Attachment, base_path=base_path, **query)
 
     def delete_attachment(
         self,

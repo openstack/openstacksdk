@@ -14,6 +14,7 @@ from unittest import mock
 import warnings
 
 from openstack.block_storage.v3 import _proxy
+from openstack.block_storage.v3 import attachment
 from openstack.block_storage.v3 import backup
 from openstack.block_storage.v3 import capabilities
 from openstack.block_storage.v3 import cluster
@@ -1626,4 +1627,22 @@ class TestConsistencyGroupSnapshot(TestVolumeProxy):
             self.proxy.delete_consistency_group_snapshot,
             consistency_group_snapshot.ConsistencyGroupSnapshot,
             True,
+        )
+
+
+class TestAttachment(TestVolumeProxy):
+    def test_attachments_detailed(self):
+        self.verify_list(
+            self.proxy.attachments,
+            attachment.Attachment,
+            method_kwargs={"details": True, "query": 1},
+            expected_kwargs={"query": 1, "base_path": "/attachments/detail"},
+        )
+
+    def test_attachments_not_detailed(self):
+        self.verify_list(
+            self.proxy.attachments,
+            attachment.Attachment,
+            method_kwargs={"details": False, "query": 1},
+            expected_kwargs={"query": 1},
         )
