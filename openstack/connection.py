@@ -279,7 +279,7 @@ import argparse
 import concurrent.futures
 import copy
 import importlib.metadata as importlib_metadata
-from typing import Any, Optional, Self, TYPE_CHECKING, cast
+from typing import Any, Self, TYPE_CHECKING, cast
 
 import keystoneauth1.exceptions
 from keystoneauth1 import session as ks_session
@@ -318,7 +318,7 @@ _logger = _log.setup_logging('openstack')
 
 def from_config(
     cloud: str | None = None,
-    config: Optional['cloud_region.CloudRegion'] = None,
+    config: 'cloud_region.CloudRegion | None' = None,
     options: argparse.Namespace | None = None,
     **kwargs: Any,
 ) -> 'Connection':
@@ -368,7 +368,7 @@ class Connection(
     def __init__(
         self,
         cloud: str | None = None,
-        config: Optional['cloud_region.CloudRegion'] = None,
+        config: 'cloud_region.CloudRegion | None' = None,
         session: ks_session.Session | None = None,
         app_name: str | None = None,
         app_version: str | None = None,
@@ -379,7 +379,7 @@ class Connection(
         use_direct_get: bool | None = None,
         task_manager: Any = None,
         rate_limit: float | dict[str, float] | None = None,
-        oslo_conf: Optional['cfg.ConfigOpts'] = None,
+        oslo_conf: 'cfg.ConfigOpts | None' = None,
         service_types: list[str] | None = None,
         global_request_id: str | None = None,
         strict_proxies: bool = False,

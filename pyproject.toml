@@ -109,10 +109,11 @@ warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
 disable_error_code = ["import-untyped"]
-exclude = "(?x)(doc | examples | releasenotes)"
+exclude = "(?x)(doc | releasenotes)"
 
 [[tool.mypy.overrides]]
 module = [
+    "examples.*",
     "openstack._hacking.*",
     "openstack.tests.functional.*",
 ]
