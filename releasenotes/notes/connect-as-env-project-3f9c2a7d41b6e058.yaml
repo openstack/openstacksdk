@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    ``Connection.connect_as()`` and ``Connection.connect_as_project()`` now
+    use the project they are given when the parent connection was configured
+    from ``OS_*`` environment variables. Since openstacksdk 2.0.0 the values
+    of ``OS_PROJECT_ID`` and ``OS_PROJECT_NAME`` took precedence, so the new
+    connection silently stayed scoped to the original project. Among other
+    things this made ``openstack project cleanup --project <project>`` delete
+    the resources of the project from the environment instead of the
+    requested one. The same applies to ``domain_id``/``domain_name``,
+    ``token`` and ``passcode``. Passing only one of ``project_id`` or
+    ``project_name`` (and likewise for the domain, project domain and user
+    domain) now also stops the other half of the pair from being inherited.
