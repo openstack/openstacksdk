@@ -26,6 +26,7 @@ approach, this is where you'll want to begin.
    Logging <guides/logging>
    Statistics reporting <guides/stats>
    Microversions <microversions>
+   Service Tokens <service_tokens>
    Baremetal <guides/baremetal>
    Block Storage <guides/block_storage>
    Clustering <guides/clustering>

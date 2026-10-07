@@ -89,6 +89,11 @@ keyword arguments, pass the connection parameters directly to
 
 .. note:: To enable logging, see the :doc:`logging` user guide.
 
+.. seealso::
+
+   For service-to-service communication requiring service tokens, refer to
+   the :doc:`/user/service_tokens` guide.
+
 Next
 ----
 Now that you can create a connection, continue with the :ref:`user_guides`
