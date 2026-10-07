@@ -1,0 +1,1 @@
+/openstacksdk/latest/user/guides/connect_from_config.html 301 /openstacksdk/latest/user/guides/connect.html

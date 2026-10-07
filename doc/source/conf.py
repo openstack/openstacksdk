@@ -27,12 +27,6 @@ extensions = [
     'sphinxcontrib.rsvgconverter',
 ]
 
-# openstackdocstheme options
-openstackdocs_repo_name = 'openstack/openstacksdk'
-openstackdocs_pdf_link = True
-openstackdocs_use_storyboard = False
-html_theme = 'openstackdocs'
-
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
 # execute "export SPHINX_DEBUG=1" in your terminal to disable
@@ -70,10 +64,20 @@ autodoc_typehints = 'none'
 # Locations to exclude when looking for source files.
 exclude_patterns = []
 
+# -- Options for openstackstackdocstheme ----------------------------------
+openstackdocs_repo_name = 'openstack/openstacksdk'
+openstackdocs_pdf_link = True
+openstackdocs_use_storyboard = False
+
 # -- Options for HTML output ----------------------------------------------
+
+html_theme = 'openstackdocs'
 
 # Don't let openstackdocstheme insert TOCs automatically.
 theme_include_auto_toc = False
+
+# Add any paths that contain "extra" files, such as .htaccess or robots.txt.
+html_extra_path = ['_extra']
 
 # -- Options for LaTeX output ---------------------------------------------
 
