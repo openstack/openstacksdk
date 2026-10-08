@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The ``NetworkSegmentRange`` resource now supports tags. Tags can be
+    managed with the ``set_tags``, ``add_tag``, ``remove_tag`` and
+    ``get_tags`` network proxy methods, and network segment ranges can be
+    filtered by tag when listing using the ``tags``, ``any_tags``,
+    ``not_tags`` and ``not_any_tags`` query parameters.

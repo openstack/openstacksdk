@@ -117,3 +117,35 @@ class TestNetworkSegmentRange(base.BaseFunctionalTest):
             self.NETWORK_SEGMENT_RANGE_ID, name="update_test_name"
         )
         self.assertEqual("update_test_name", update_seg_range.name)
+
+    def test_set_tags(self):
+        sot = self.operator_cloud.network.get_network_segment_range(
+            self.NETWORK_SEGMENT_RANGE_ID
+        )
+        self.assertEqual([], sot.tags)
+
+        self.operator_cloud.network.set_tags(sot, ["blue"])
+        sot = self.operator_cloud.network.get_network_segment_range(
+            self.NETWORK_SEGMENT_RANGE_ID
+        )
+        self.assertEqual(["blue"], sot.tags)
+
+        self.operator_cloud.network.set_tags(sot, [])
+        sot = self.operator_cloud.network.get_network_segment_range(
+            self.NETWORK_SEGMENT_RANGE_ID
+        )
+        self.assertEqual([], sot.tags)
+
+    def test_add_remove_tag(self):
+        sot = self.operator_cloud.network.get_network_segment_range(
+            self.NETWORK_SEGMENT_RANGE_ID
+        )
+        self.assertEqual([], sot.tags)
+
+        self.operator_cloud.network.add_tag(sot, "green")
+        tags = self.operator_cloud.network.get_tags(sot)
+        self.assertEqual(["green"], tags)
+
+        self.operator_cloud.network.remove_tag(sot, "green")
+        tags = self.operator_cloud.network.get_tags(sot)
+        self.assertEqual([], tags)

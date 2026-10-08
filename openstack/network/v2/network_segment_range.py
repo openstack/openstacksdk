@@ -13,10 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class NetworkSegmentRange(resource.Resource):
+class NetworkSegmentRange(resource.Resource, _base.TagMixinNetwork):
     resource_key = 'network_segment_range'
     resources_key = 'network_segment_ranges'
     base_path = '/network_segment_ranges'
@@ -44,6 +45,7 @@ class NetworkSegmentRange(resource.Resource):
         'available',
         'sort_key',
         'sort_dir',
+        **_base.TagMixinNetwork._tag_query_parameters,
     )
 
     # Properties
