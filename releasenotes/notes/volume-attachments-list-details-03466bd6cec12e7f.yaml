@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The block storage v3 proxy ``attachments`` API now supports a
+    ``details`` parameter, allowing users to list volume attachments
+    with or without additional details.
