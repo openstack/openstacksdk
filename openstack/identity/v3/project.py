@@ -282,4 +282,5 @@ class EndpointGroupProject(Project):
     allow_commit = False
     allow_delete = True
     allow_list = True
-    create_method = 'PUT'
+
+    create_opts = resource.CreateOpts(method='PUT')

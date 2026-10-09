@@ -26,7 +26,6 @@ class Trait(resource.Resource):
     # Capabilities
 
     allow_create = True
-    create_method = 'PUT'
     allow_fetch = True
     allow_delete = True
     allow_list = True

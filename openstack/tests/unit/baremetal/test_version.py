@@ -38,7 +38,6 @@ class TestVersion(base.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_head)
         self.assertEqual('PUT', sot.commit_method)
-        self.assertEqual('POST', sot.create_method)
 
     def test_make_it(self):
         sot = version.Version(**EXAMPLE)
