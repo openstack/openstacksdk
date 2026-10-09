@@ -482,9 +482,6 @@ class Resource(dict[str, Any]):
     #: override this to set per-resource defaults without overriding create().
     create_opts: ClassVar[CreateOpts] = CreateOpts()
 
-    #: **DEPRECATED:** Use ``create_opts.requires_id`` instead.
-    #: Whether create requires an ID (determined from method if None).
-    create_requires_id: bool | None = None
     #: **DEPRECATED:** Use ``create_opts.has_body`` instead.
     #: Does create returns a body (if False requires ID), defaults to has_body
     create_returns_body: bool | None = None
@@ -1561,11 +1558,7 @@ class Resource(dict[str, Any]):
         if not isinstance(self.create_opts.requires_id, types.Unset):
             requires_id = self.create_opts.requires_id
         else:
-            requires_id = (
-                self.create_requires_id
-                if self.create_requires_id is not None
-                else method == 'PUT'
-            )
+            requires_id = bool(method == 'PUT')
 
         if not isinstance(self.create_opts.request_key, types.Unset):
             prepend_key = self.create_opts.request_key is not None
@@ -1679,11 +1672,7 @@ class Resource(dict[str, Any]):
         if not isinstance(cls.create_opts.requires_id, types.Unset):
             requires_id = cls.create_opts.requires_id
         else:
-            requires_id = (
-                cls.create_requires_id
-                if cls.create_requires_id is not None
-                else method == 'PUT'
-            )
+            requires_id = bool(method == 'PUT')
 
         _body: list[Any] = []
         resources = []
