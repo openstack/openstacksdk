@@ -352,7 +352,7 @@ class Object(_base.BaseResource):
         return response.iter_content(chunk_size, decode_unicode=False)
 
     # TODO(stephenfin): Migrate to _transform_create_request +
-    # create_returns_body = False once _Request gains a 'data' field for
+    # create_opts.has_body = False once _Request gains a 'data' field for
     # binary/streaming PUT bodies. Currently session.put(data=self.data) can't
     # be expressed via the request object, so the override is the only way to
     # pass raw object data.

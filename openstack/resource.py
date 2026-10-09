@@ -482,10 +482,6 @@ class Resource(dict[str, Any]):
     #: override this to set per-resource defaults without overriding create().
     create_opts: ClassVar[CreateOpts] = CreateOpts()
 
-    #: **DEPRECATED:** Use ``create_opts.has_body`` instead.
-    #: Does create returns a body (if False requires ID), defaults to has_body
-    create_returns_body: bool | None = None
-
     #: Commits happen without header or body being dirty.
     allow_empty_commit = False
     #: Method for committing a resource. This must be PATCH if
@@ -1602,8 +1598,8 @@ class Resource(dict[str, Any]):
 
         has_body = (
             self.has_body
-            if self.create_returns_body is None
-            else self.create_returns_body
+            if self.create_opts.has_body is types.UNSET
+            else self.create_opts.has_body
         )
         self.microversion = microversion
 
@@ -1613,7 +1609,7 @@ class Resource(dict[str, Any]):
             resource_response_key=response_key,
         )
         # direct comparision to False since we need to rule out None
-        if self.has_body and self.create_returns_body is False:
+        if self.has_body and self.create_opts.has_body is False:
             # fetch the body if it's required but not returned by create
             return self.fetch(
                 session,
@@ -1733,10 +1729,10 @@ class Resource(dict[str, Any]):
 
         has_body = (
             cls.has_body
-            if cls.create_returns_body is None
-            else cls.create_returns_body
+            if cls.create_opts.has_body is types.UNSET
+            else cls.create_opts.has_body
         )
-        if has_body and cls.create_returns_body is False:
+        if has_body and cls.create_opts.has_body is False:
             return (r.fetch(session) for r in resources)
         else:
             return (
