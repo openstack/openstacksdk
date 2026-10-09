@@ -13,7 +13,7 @@ Create Connection From A File
 -----------------------------
 
 Default Location
-****************
+~~~~~~~~~~~~~~~~
 
 To create a connection from a file you need a YAML file to contain the
 configuration.
@@ -25,20 +25,18 @@ To use a configuration file called ``clouds.yaml`` in one of the default
 locations:
 
 * Current Directory
-* ~/.config/openstack
-* /etc/openstack
+* ``~/.config/openstack``
+* ``/etc/openstack``
 
 call :py:func:`~openstack.connection.from_config`. The ``from_config``
 function takes three optional arguments:
 
-* **cloud_name** allows you to specify a cloud from your ``clouds.yaml`` file.
-* **cloud_config** allows you to pass in an existing
+* ``cloud`` allows you to specify a cloud from your ``clouds.yaml`` file.
+* ``config`` allows you to pass in an existing
+  :py:class:`~openstack.config.cloud_region.CloudRegion` object.
   ``openstack.config.loader.OpenStackConfig``` object.
-* **options** allows you to specify a namespace object with options to be
-  added to the cloud config.
-
-.. literalinclude:: ../examples/connect.py
-   :pyobject: Opts
+* ``options`` allows you to specify a ``argparse.Namespace`` object with
+  options to be added to the cloud config.
 
 .. literalinclude:: ../examples/connect.py
    :pyobject: create_connection_from_config
@@ -49,7 +47,7 @@ function takes three optional arguments:
 .. note:: To enable logging, set ``debug=True`` in the ``options`` object.
 
 User Defined Location
-*********************
+~~~~~~~~~~~~~~~~~~~~~
 
 To use a configuration file in a user defined location set the
 environment variable ``OS_CLIENT_CONFIG_FILE`` to the
@@ -57,7 +55,7 @@ absolute path of a file.::
 
     export OS_CLIENT_CONFIG_FILE=/path/to/my/config/my-clouds.yaml
 
-and call :py:func:`~openstack.connection.from_config` with the **cloud_name**
+and call :py:func:`~openstack.connection.from_config` with the **name**
 of the cloud configuration to use, .
 
 Create Connection From Environment Variables

@@ -36,14 +36,6 @@ config = loader.OpenStackConfig()
 cloud = openstack.connect(cloud=TEST_CLOUD)
 
 
-class Opts:
-    def __init__(self, cloud_name='devstack-admin', debug=False):
-        self.cloud = cloud_name
-        self.debug = debug
-        # Use identity v3 API for examples.
-        self.identity_api_version = '3'
-
-
 def _get_resource_value(resource_key, default):
     return config.get_extra_config(EXAMPLE_CONFIG_KEY).get(
         resource_key, default
