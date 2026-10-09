@@ -23,7 +23,6 @@ approach, this is where you'll want to begin.
    Introduction <guides/intro>
    Configuration <config/index>
    Connect to an OpenStack Cloud <guides/connect>
-   Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
    Logging <guides/logging>
    Statistics reporting <guides/stats>
    Microversions <microversions>

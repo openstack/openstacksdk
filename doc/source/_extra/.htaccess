@@ -1,0 +1,1 @@
+redirectmatch 301 ^/openstacksdk/([^/]+)/user/guides/connect_from_config.html$ /openstacksdk/$1/user/guides/connect.html

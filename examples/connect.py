@@ -14,7 +14,7 @@
 Connect to an OpenStack cloud.
 
 For a full guide see
-https://docs.openstack.org/openstacksdk/latest/user/guides/connect_from_config.html
+https://docs.openstack.org/openstacksdk/latest/user/guides/connect.html
 """
 
 import argparse

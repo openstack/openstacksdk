@@ -49,6 +49,7 @@ doc = [
     "reno>=3.1.0", # Apache-2.0
     "sphinx>=2.0.0,!=2.1.0", # BSD
     "sphinxcontrib-svg2pdfconverter>=0.1.0", # BSD
+    "whereto>=0.5.0", # Apache-2.0
 ]
 test = [
     "coverage!=4.4,>=4.0", # Apache-2.0
