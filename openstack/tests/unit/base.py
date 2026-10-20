@@ -139,6 +139,8 @@ class TestCase(base.TestCase):
                 'region_name': 'SpecialRegion',
                 'interface': 'internal',
                 'endpoint_override': 'https://example.org:8888/heat/v2',
+                'status_code_retry_delay': '1.5',
+                'retriable_status_codes': '409,503',
             },
             # test a service with dashes
             'ironic_inspector': {

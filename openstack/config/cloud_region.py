@@ -617,6 +617,26 @@ class CloudRegion:
             converter=int,
         )
 
+    def get_status_code_retry_delay(self, service_type):
+        value = self._get_config(
+            'status_code_retry_delay',
+            service_type,
+            fallback_to_unprefixed=True,
+        )
+        return float(value) if value is not None else value
+
+    def get_retriable_status_codes(self, service_type):
+        value = self._get_config(
+            'retriable_status_codes',
+            service_type,
+            fallback_to_unprefixed=True,
+        )
+        if value is None:
+            return None
+        if isinstance(value, str):
+            value = value.split(',')
+        return [int(code) for code in value]
+
     @property
     def prefer_ipv6(self):
         return not self._force_ipv4
@@ -841,6 +861,14 @@ class CloudRegion:
         kwargs.setdefault(
             'status_code_retries', self.get_status_code_retries(service_type)
         )
+        kwargs.setdefault(
+            'status_code_retry_delay',
+            self.get_status_code_retry_delay(service_type),
+        )
+        # Skip if unset to avoid overriding the default on Proxy.
+        retriable_status_codes = self.get_retriable_status_codes(service_type)
+        if retriable_status_codes is not None:
+            kwargs.setdefault('retriable_status_codes', retriable_status_codes)
         kwargs.setdefault('statsd_prefix', self.get_statsd_prefix())
         kwargs.setdefault('statsd_client', self.get_statsd_client())
         kwargs.setdefault('prometheus_counter', self.get_prometheus_counter())

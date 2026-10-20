@@ -35,7 +35,11 @@ fake_services_dict = {
     'auth': {'password': 'hunter2', 'username': 'AzureDiamond'},
     'connect_retries': 1,
     'connect_retry_delay': 0.5,
+    'status_code_retry_delay': 0.25,
+    'retriable_status_codes': [503],
     'baremetal_status_code_retries': 5,
+    'baremetal_status_code_retry_delay': 2.5,
+    'baremetal_retriable_status_codes': [409, 503],
     'baremetal_connect_retries': 3,
     'baremetal_connect_retry_delay': 1.5,
 }
@@ -186,6 +190,20 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual(3, cc.get_connect_retries('baremetal'))
         self.assertEqual(0.5, cc.get_connect_retry_delay('compute'))
         self.assertEqual(1.5, cc.get_connect_retry_delay('baremetal'))
+        self.assertEqual(0.25, cc.get_status_code_retry_delay('compute'))
+        self.assertEqual(2.5, cc.get_status_code_retry_delay('baremetal'))
+        self.assertEqual([503], cc.get_retriable_status_codes('compute'))
+        self.assertEqual(
+            [409, 503], cc.get_retriable_status_codes('baremetal')
+        )
+
+    def test_get_retriable_status_codes_string(self):
+        cc = cloud_region.CloudRegion(
+            config={'baremetal_retriable_status_codes': '409,503'}
+        )
+        self.assertEqual(
+            [409, 503], cc.get_retriable_status_codes('baremetal')
+        )
 
     def test_rackspace_workaround(self):
         # We're skipping loader here, so we have to expand relevant
