@@ -1483,7 +1483,7 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(sot.microversion, microversion)
         sot._translate_response.assert_called_once_with(
             self.response,
-            has_body=sot.has_body,
+            has_body=sot.create_opts.response_has_body,
             resource_response_key=resource_response_key,
         )
         self.assertEqual(result, sot)
@@ -1611,6 +1611,36 @@ class TestResourceActions(base.TestCase):
         self._test_create(
             Test, requires_id=False, prepend_key=True, params={'answer': 42}
         )
+
+    def test_post_create_no_response_body(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_opts = resource.CreateOpts(
+                method='POST', response_has_body=False
+            )
+
+        sot = Test()
+        with (
+            mock.patch.object(
+                sot, '_prepare_request', return_value=self.request
+            ),
+            mock.patch.object(sot, '_translate_response') as mock_translate,
+            mock.patch.object(sot, 'fetch', return_value=sot) as mock_fetch,
+        ):
+            result = sot.create(self.session)
+
+            mock_translate.assert_called_once_with(
+                self.response,
+                has_body=False,
+                resource_response_key=None,
+            )
+            mock_fetch.assert_called_once_with(
+                self.session,
+                resource_response_key=None,
+            )
+            self.assertEqual(result, sot)
 
     def test_fetch(self):
         result = self.sot.fetch(self.session)
@@ -3272,6 +3302,41 @@ class TestResourceActions(base.TestCase):
             resources_key = 'tests'
 
         self._test_bulk_create(Test, self.session.post, base_path='dummy')
+
+    def test_bulk_create_no_response_body(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_opts = resource.CreateOpts(
+                method='POST', response_has_body=False
+            )
+            allow_create = True
+            resources_key = 'tests'
+
+        req1 = mock.Mock(body={'name': 'res1'}, url='uri', headers='headers')
+        req2 = mock.Mock(body={'name': 'res2'}, url='uri', headers='headers')
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.return_value = {'tests': []}
+        self.session.post.return_value = mock_response
+
+        with (
+            mock.patch.object(
+                Test, '_prepare_request', side_effect=[req1, req2]
+            ),
+            mock.patch.object(
+                Test, 'fetch', return_value=mock.Mock()
+            ) as mock_fetch,
+        ):
+            res = list(
+                Test.bulk_create(
+                    self.session,
+                    [{'name': 'res1'}, {'name': 'res2'}],
+                )
+            )
+            self.assertEqual(len(res), 2)
+            self.assertEqual(mock_fetch.call_count, 2)
 
     def test_bulk_create_fail(self):
         class Test(resource.Resource):

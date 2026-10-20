@@ -420,9 +420,8 @@ class CreateOpts:
     # similar?
     #: Whether an ID is required or not. If unset, derived from the method.
     requires_id: bool | types.Unset = types.UNSET
-    #: Whether the response includes a body. If unset, defaults to the
-    #: ``has_body`` attribute of the resource.
-    has_body: bool | types.Unset = types.UNSET
+    #: Whether the response includes a body. If unset, defaults to True.
+    response_has_body: bool = True
 
 
 class Resource(dict[str, Any]):
@@ -474,9 +473,6 @@ class Resource(dict[str, Any]):
 
     #: Do calls for this resource require an ID.
     requires_id = True
-
-    #: Do responses for this resource have bodies.
-    has_body = True
 
     #: Class-level configuration for the create operation. Subclasses can
     #: override this to set per-resource defaults without overriding create().
@@ -1340,7 +1336,7 @@ class Resource(dict[str, Any]):
         and body on this instance and clears the dirty set.
         """
         if has_body is None:
-            has_body = self.has_body
+            has_body = True
 
         exceptions.raise_from_response(response, error_message=error_message)
 
@@ -1596,20 +1592,15 @@ class Resource(dict[str, Any]):
                 params=params,
             )
 
-        has_body = (
-            self.has_body
-            if self.create_opts.has_body is types.UNSET
-            else self.create_opts.has_body
-        )
         self.microversion = microversion
 
         self._translate_response(
             response,
-            has_body=has_body,
+            has_body=self.create_opts.response_has_body,
             resource_response_key=response_key,
         )
         # direct comparision to False since we need to rule out None
-        if self.has_body and self.create_opts.has_body is False:
+        if self.create_opts.response_has_body is False:
             # fetch the body if it's required but not returned by create
             return self.fetch(
                 session,
@@ -1727,12 +1718,7 @@ class Resource(dict[str, Any]):
         else:
             json = [json]
 
-        has_body = (
-            cls.has_body
-            if cls.create_opts.has_body is types.UNSET
-            else cls.create_opts.has_body
-        )
-        if has_body and cls.create_opts.has_body is False:
+        if not cls.create_opts.response_has_body:
             return (r.fetch(session) for r in resources)
         else:
             return (

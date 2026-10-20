@@ -91,8 +91,10 @@ class QuotaSet(resource.Resource):
         and body on this instance and clears the dirty set.
         """
         if has_body is None:
-            has_body = self.has_body
+            has_body = True
+
         exceptions.raise_from_response(response, error_message=error_message)
+
         if has_body:
             try:
                 body = response.json()
