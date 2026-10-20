@@ -85,6 +85,8 @@ class TestFromConf(base.TestCase):
         self.assertEqual(
             'https://example.org:8888/heat/v2', adap.endpoint_override
         )
+        self.assertEqual(1.5, adap.status_code_retry_delay)
+        self.assertEqual([409, 503], adap.retriable_status_codes)
 
         adap.get('/foo')
         self.assert_calls()
