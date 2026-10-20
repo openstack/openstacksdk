@@ -15,6 +15,7 @@ from typing import Any, Self
 from keystoneauth1 import adapter
 
 from openstack.key_manager.v1 import _format
+from openstack.key_manager.v1 import _microversion
 from openstack import resource
 from openstack import utils
 
@@ -29,6 +30,15 @@ class Secret(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
+
+    # secret_store_id / secret_store_ref on secret GET/list, and
+    # PUT .../secrets/{id}/secret-store/{store_id}, were introduced in 1.3
+    _max_microversion = '1.3'
+
+    @classmethod
+    def _get_microversion(cls, session: adapter.Adapter) -> str | None:
+        # Barbican's unversioned discovery has no min/max; use the probe.
+        return _microversion.get_microversion(session, cls._max_microversion)
 
     _query_mapping = resource.QueryParameters(
         "name",
@@ -63,6 +73,12 @@ class Secret(resource.Resource):
     name = resource.Body('name')
     #: A URI to the sercret
     secret_ref = resource.Body('secret_ref')
+    #: Computed UUID of the secret store currently holding the payload
+    #: (microversion 1.3+; JSON null when N/A)
+    secret_store_id = resource.Body('secret_store_id')
+    #: Computed HREF of the secret store currently holding the payload
+    #: (microversion 1.3+; JSON null when N/A)
+    secret_store_ref = resource.Body('secret_store_ref')
     #: The ID of the secret
     # NOTE: This is not really how alternate IDs are supposed to work and
     # ultimately means this has to work differently than all other services
@@ -104,7 +120,9 @@ class Secret(resource.Resource):
             requires_id=requires_id, base_path=base_path
         )
 
-        response = session.get(request.url).json()
+        if microversion is None:
+            microversion = self._get_microversion(session)
+        response = session.get(request.url, microversion=microversion).json()
 
         content_type = None
         if self.payload_content_type is not None:
@@ -119,6 +137,7 @@ class Secret(resource.Resource):
                 utils.urljoin(request.url, "payload"),
                 headers={"Accept": content_type},
                 skip_cache=skip_cache,
+                microversion=microversion,
             )
             # NOTE(pas-ha): do not return payload.text here,
             # as it will be decoded to whatever requests and chardet detected,
@@ -136,3 +155,30 @@ class Secret(resource.Resource):
         self._update_from_body_attrs(response)
 
         return self
+
+    def migrate_store(
+        self,
+        session: adapter.Adapter,
+        secret_store_id: str,
+        *,
+        microversion: str | None = None,
+    ) -> None:
+        """Migrate this secret onto another secret store.
+
+        Requires key-manager microversion 1.3. Prefer
+        :meth:`~openstack.key_manager.v1._proxy.Proxy.migrate_secret_store`
+        which enforces that and accepts UUID/URI/``SecretStore``.
+
+        :param session: The session to use for making this request.
+        :param secret_store_id: Destination store UUID (or trailing path
+            segment of a ``…/secret-stores/<uuid>`` URI).
+        :param microversion: API microversion to use. Defaults to the
+            negotiated microversion for this resource.
+        :returns: None
+        """
+        if microversion is None:
+            microversion = self._get_microversion(session)
+        url = utils.urljoin(
+            self.base_path, self.id, 'secret-store', secret_store_id
+        )
+        session.put(url, microversion=microversion)

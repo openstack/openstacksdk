@@ -31,6 +31,14 @@ class TestSecretStore(base.BaseFunctionalTest):
             self.assertIsInstance(store, _secret_store.SecretStore)
             self.assertIsNotNone(store.name)
             self.assertIsNotNone(store.status)
+            self.assertIsNotNone(store.secret_store_id)
+            # secret_store_id is derived from secret_store_ref via
+            # HREFToUUID. .id on a *list* result is the raw href (it is
+            # only rewritten to the UUID for the global-default / preferred
+            # singletons below, via _normalize_secret_store_resource), so
+            # compare against the href, not against .secret_store_id.
+            self.assertEqual(store.id, store.secret_store_ref)
+            self.assertIn(store.secret_store_id, store.secret_store_ref)
 
         # Test list secret stores with filters
         global_default_stores = list(
@@ -47,9 +55,23 @@ class TestSecretStore(base.BaseFunctionalTest):
             self.assertIsInstance(default_store, _secret_store.SecretStore)
             self.assertIsNotNone(default_store.name)
             self.assertTrue(default_store.global_default)
+            self.assertIsNotNone(default_store.secret_store_id)
+            self.assertEqual(default_store.secret_store_id, default_store.id)
+            self.assertIn(
+                default_store.secret_store_id,
+                default_store.secret_store_ref,
+            )
 
         # Test get preferred secret store
         if secret_stores:
             preferred_store = key_manager.get_preferred_secret_store()
             self.assertIsInstance(preferred_store, _secret_store.SecretStore)
             self.assertIsNotNone(preferred_store.name)
+            self.assertIsNotNone(preferred_store.secret_store_id)
+            self.assertEqual(
+                preferred_store.secret_store_id, preferred_store.id
+            )
+            self.assertIn(
+                preferred_store.secret_store_id,
+                preferred_store.secret_store_ref,
+            )

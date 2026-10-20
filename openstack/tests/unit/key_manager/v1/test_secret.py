@@ -18,6 +18,8 @@ from openstack.tests.unit import base
 
 ID_VAL = "123"
 IDENTIFIER = f'http://localhost:9311/v1/secrets/{ID_VAL}'
+STORE_ID = '11111111-1111-1111-1111-111111111111'
+STORE_REF = f'http://localhost:9311/v1/secret-stores/{STORE_ID}'
 EXAMPLE: dict[str, Any] = {
     'algorithm': '1',
     'bit_length': '2',
@@ -26,6 +28,8 @@ EXAMPLE: dict[str, Any] = {
     'mode': '5',
     'name': '6',
     'secret_ref': IDENTIFIER,
+    'secret_store_id': STORE_ID,
+    'secret_store_ref': STORE_REF,
     'status': '8',
     'updated': '2015-03-09T12:15:57.233773',
     'created': '2015-03-09T12:15:57.233774',
@@ -47,6 +51,7 @@ class TestSecret(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertEqual('1.3', sot._max_microversion)
 
         self.assertDictEqual(
             {
@@ -77,6 +82,8 @@ class TestSecret(base.TestCase):
         self.assertEqual(EXAMPLE['secret_ref'], sot.secret_ref)
         self.assertEqual(EXAMPLE['secret_ref'], sot.id)
         self.assertEqual(ID_VAL, sot.secret_id)
+        self.assertEqual(EXAMPLE['secret_store_id'], sot.secret_store_id)
+        self.assertEqual(EXAMPLE['secret_store_ref'], sot.secret_store_ref)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(EXAMPLE['secret_type'], sot.secret_type)
@@ -88,10 +95,21 @@ class TestSecret(base.TestCase):
             EXAMPLE['payload_content_encoding'], sot.payload_content_encoding
         )
 
+    def _session(
+        self,
+        default_microversion=None,
+        microversion_range=(None, None),
+    ):
+        sess = mock.Mock()
+        sess.default_microversion = default_microversion
+        # Pre-seed the probe cache so tests don't issue a discovery GET.
+        sess._key_manager_microversion_range = microversion_range
+        return sess
+
     def test_get_no_payload(self):
         sot = secret.Secret(id="id")
 
-        sess = mock.Mock()
+        sess = self._session()
         rv = mock.Mock()
         return_body = {"status": "cool"}
         rv.json = mock.Mock(return_value=return_body)
@@ -99,7 +117,21 @@ class TestSecret(base.TestCase):
 
         sot.fetch(sess)
 
-        sess.get.assert_called_once_with("secrets/id")
+        sess.get.assert_called_once_with("secrets/id", microversion=None)
+
+    def test_get_negotiates_microversion(self):
+        sot = secret.Secret(id="id")
+
+        sess = self._session(microversion_range=('1.0', '1.3'))
+        rv = mock.Mock()
+        return_body = {"status": "cool", "secret_store_id": STORE_ID}
+        rv.json = mock.Mock(return_value=return_body)
+        sess.get = mock.Mock(return_value=rv)
+
+        sot.fetch(sess)
+
+        sess.get.assert_called_once_with("secrets/id", microversion='1.3')
+        self.assertEqual(STORE_ID, sot.secret_store_id)
 
     def _test_payload(self, sot, metadata, content_type="some/type"):
         metadata_response = mock.Mock()
@@ -110,7 +142,7 @@ class TestSecret(base.TestCase):
         payload = b"secret info"
         payload_response.content = payload
 
-        sess = mock.Mock()
+        sess = self._session()
         sess.get = mock.Mock(side_effect=[metadata_response, payload_response])
 
         rv = sot.fetch(sess)
@@ -119,11 +151,13 @@ class TestSecret(base.TestCase):
             [
                 mock.call(
                     "secrets/id",
+                    microversion=None,
                 ),
                 mock.call(
                     "secrets/id/payload",
                     headers={"Accept": content_type},
                     skip_cache=False,
+                    microversion=None,
                 ),
             ]
         )
@@ -159,3 +193,27 @@ class TestSecret(base.TestCase):
         }
         sot = secret.Secret(id="id")
         self._test_payload(sot, metadata, content_type)
+
+    def test_migrate_store(self):
+        sot = secret.Secret(id=ID_VAL)
+        sess = self._session(default_microversion='1.3')
+        resp = mock.Mock()
+        resp.status_code = 204
+        sess.put.return_value = resp
+        sot.migrate_store(sess, STORE_ID)
+        sess.put.assert_called_once_with(
+            f'secrets/123/secret-store/{STORE_ID}',
+            microversion='1.3',
+        )
+
+    def test_migrate_store_explicit_microversion(self):
+        sot = secret.Secret(id=ID_VAL)
+        sess = self._session()
+        resp = mock.Mock()
+        resp.status_code = 204
+        sess.put.return_value = resp
+        sot.migrate_store(sess, STORE_ID, microversion='1.3')
+        sess.put.assert_called_once_with(
+            f'secrets/123/secret-store/{STORE_ID}',
+            microversion='1.3',
+        )
