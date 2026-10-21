@@ -647,6 +647,25 @@ class Connection(
         for key, value in kwargs.items():
             params['auth'][key] = value
 
+        # get_one() merges the base cloud config back in, and
+        # _fix_backwards_auth() prefers top-level values (where OS_*
+        # environment variables live) over the auth dict. Pass the overridden
+        # settings that function handles as top-level values too so they win,
+        # and clear the other half of each id/name pair with an empty string so
+        # an inherited id or name cannot change the scope.
+        for name_key, id_key in (
+            ('project_name', 'project_id'),
+            ('project_domain_name', 'project_domain_id'),
+            ('user_domain_name', 'user_domain_id'),
+            ('domain_name', 'domain_id'),
+        ):
+            if name_key in kwargs or id_key in kwargs:
+                params[name_key] = kwargs.get(name_key) or ''
+                params[id_key] = kwargs.get(id_key) or ''
+        for key in ('token', 'passcode'):
+            if key in kwargs:
+                params[key] = kwargs[key] or ''
+
         cloud_region = config.get_one(**params)
         # Attach the discovery cache from the old session so we won't
         # double discover.

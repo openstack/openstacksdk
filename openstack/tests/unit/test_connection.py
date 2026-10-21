@@ -286,6 +286,90 @@ class TestConnection(_TestConnectionBase):
         self.assertFalse(sot.session.verify)
 
 
+class TestConnectAs(base.TestCase):
+    """connect_as() must not fall back to settings from OS_* variables."""
+
+    def setUp(self):
+        super().setUp()
+        self._set_env(
+            OS_AUTH_URL=CONFIG_AUTH_URL,
+            OS_USERNAME=CONFIG_USERNAME,
+            OS_PASSWORD=CONFIG_PASSWORD,
+            OS_USER_DOMAIN_NAME='Default',
+            OS_PROJECT_DOMAIN_ID='default',
+            OS_PROJECT_ID='env-project-id',
+            OS_PROJECT_NAME='env-project',
+        )
+        self.conn = self._connect()
+
+    def _set_env(self, **env):
+        for key, value in env.items():
+            self.useFixture(fixtures.EnvironmentVariable(key, value))
+
+    def _connect(self):
+        cloud = openstack.config.OpenStackConfig(
+            config_files=[], vendor_files=[]
+        ).get_one()
+        return connection.Connection(config=cloud)
+
+    def test_environment_project(self):
+        auth = self.conn.config.config['auth']
+        self.assertEqual('env-project-id', auth['project_id'])
+
+    def test_connect_as_project(self):
+        project = {'id': 'target-id', 'name': 'target', 'domain_id': 'd2'}
+        auth = self.conn.connect_as_project(project).config.config['auth']
+        self.assertEqual('target-id', auth['project_id'])
+        self.assertEqual('target', auth['project_name'])
+        self.assertEqual('d2', auth['project_domain_id'])
+
+    def test_connect_as_project_id(self):
+        auth = self.conn.connect_as(project_id='target-id').config.config[
+            'auth'
+        ]
+        self.assertEqual('target-id', auth['project_id'])
+        self.assertIsNone(auth.get('project_name'))
+
+    def test_connect_as_project_name(self):
+        auth = self.conn.connect_as(project_name='target').config.config[
+            'auth'
+        ]
+        self.assertEqual('target', auth['project_name'])
+        self.assertIsNone(auth.get('project_id'))
+        # Settings that were not overridden are still inherited.
+        self.assertEqual('default', auth['project_domain_id'])
+        self.assertEqual('Default', auth['user_domain_name'])
+        self.assertEqual(CONFIG_USERNAME, auth['username'])
+
+    def test_connect_as_user_keeps_environment_project(self):
+        auth = self.conn.connect_as(
+            username='other', password='secret'
+        ).config.config['auth']
+        self.assertEqual('other', auth['username'])
+        self.assertEqual('env-project-id', auth['project_id'])
+
+    def test_connect_as_domain(self):
+        self._set_env(
+            OS_PROJECT_ID=None, OS_PROJECT_NAME=None, OS_DOMAIN_ID='env-domain'
+        )
+        conn = self._connect()
+        auth = conn.connect_as(domain_name='target').config.config['auth']
+        self.assertEqual('target', auth['domain_name'])
+        self.assertIsNone(auth.get('domain_id'))
+
+    def test_connect_as_token(self):
+        self._set_env(
+            OS_USERNAME=None,
+            OS_PASSWORD=None,
+            OS_USER_DOMAIN_NAME=None,
+            OS_AUTH_TYPE='v3token',
+            OS_TOKEN='env-token',
+        )
+        conn = self._connect()
+        auth = conn.connect_as(token='new-token').config.config['auth']
+        self.assertEqual('new-token', auth['token'])
+
+
 class TestOsloConfig(_TestConnectionBase):
     def test_from_conf(self):
         c1 = connection.Connection(cloud='sample-cloud')
