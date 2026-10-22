@@ -17,6 +17,7 @@ from typing import Any, ClassVar, Literal, overload
 from openstack._utils import renamed_param
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
+from openstack.key_manager.v1 import _microversion
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import container_acl as _container_acl
 from openstack.key_manager.v1 import order as _order
@@ -28,6 +29,41 @@ from openstack.key_manager.v1 import secret_consumer as _secret_consumer
 from openstack.key_manager.v1 import secret_store as _secret_store
 from openstack import proxy
 from openstack import resource
+
+
+def _normalize_secret_store_resource(
+    store: _secret_store.SecretStore,
+) -> _secret_store.SecretStore:
+    """Prefer the catalogue UUID over singleton path keys.
+
+    GETs of ``global-default`` / ``preferred`` leave ``Resource.id`` set to
+    the path segment used for the request (``"preferred"`` or
+    ``"global-default"``) rather than a UUID. ``secret_store_id`` is always
+    derived from ``secret_store_ref`` via ``HREFToUUID``, regardless of
+    microversion, so use it as the canonical id so callers can pass the
+    resource into ``migrate_secret_store``.
+    """
+    if store.secret_store_id:
+        store.id = store.secret_store_id
+    return store
+
+
+def _normalize_secret_store_id(
+    secret_store: str | _secret_store.SecretStore,
+) -> str:
+    """Return a store UUID from a UUID, URI, or SecretStore resource."""
+    if isinstance(secret_store, str):
+        if not secret_store:
+            raise ValueError(
+                'secret_store must be a UUID, URI, or SecretStore instance'
+            )
+        return secret_store.rstrip('/').rsplit('/', 1)[-1]
+    # Prefer the UUID from secret_store_ref (HREFToUUID) over Resource.id,
+    # which may still be a singleton path key ("preferred") or a full href.
+    store_id = secret_store.secret_store_id or secret_store.id
+    if not store_id:
+        raise ValueError('secret_store resource has no id')
+    return store_id.rstrip('/').rsplit('/', 1)[-1]
 
 
 class Proxy(proxy.Proxy):
@@ -358,6 +394,37 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_secret.Secret, secret, **attrs)
 
+    def migrate_secret_store(
+        self,
+        secret: str | _secret.Secret,
+        secret_store: str | _secret_store.SecretStore,
+    ) -> None:
+        """Migrate a secret to another secret store.
+
+        Requires key-manager microversion 1.3.
+
+        :param secret: The value can be the ID of a secret or a
+            :class:`~openstack.key_manager.v1.secret.Secret` instance.
+        :param secret_store: Destination store as a UUID, a
+            ``…/secret-stores/<uuid>`` URI, or a
+            :class:`~openstack.key_manager.v1.secret_store.SecretStore`
+            instance.
+
+        :returns: None
+        """
+        # NOTE: Can't use openstack.utils.supports_microversion() here --
+        # Barbican's unversioned discovery document never carries a
+        # microversion range, so adapter.get_endpoint_data() always reports
+        # min/max as None for key-manager. See _microversion.py.
+        if not _microversion.supports_microversion(self, '1.3'):
+            raise exceptions.SDKException(
+                "Migrate secret store requires at least microversion 1.3"
+            )
+        store_id = _normalize_secret_store_id(secret_store)
+        res = self._get_resource(_secret.Secret, secret)
+        # Microversion comes from Secret._get_microversion.
+        res.migrate_store(self, store_id)
+
     # ====== Container ACLs ======
 
     def get_container_acl(
@@ -465,7 +532,8 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_secret_store.SecretStore, 'global-default')
+        store = self._get(_secret_store.SecretStore, 'global-default')
+        return _normalize_secret_store_resource(store)
 
     def get_preferred_secret_store(self) -> _secret_store.SecretStore:
         """Get the preferred secret store for the current project
@@ -475,7 +543,8 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_secret_store.SecretStore, 'preferred')
+        store = self._get(_secret_store.SecretStore, 'preferred')
+        return _normalize_secret_store_resource(store)
 
     # ====== Quotas ======
 

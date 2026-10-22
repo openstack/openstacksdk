@@ -15,13 +15,13 @@ from typing import Any
 from openstack.key_manager.v1 import secret_store
 from openstack.tests.unit import base
 
-
+STORE_ID = "4d27b7a7-b82f-491d-88c0-746bd67dadc8"
 EXAMPLE: dict[str, Any] = {
     "status": "ACTIVE",
     "updated": "2016-08-22T23:46:45.114283",
     "name": "PKCS11 HSM",
     "created": "2016-08-22T23:46:45.114283",
-    "secret_store_ref": "http://localhost:9311/v1/secret-stores/4d27b7a7-b82f-491d-88c0-746bd67dadc8",
+    "secret_store_ref": f"http://localhost:9311/v1/secret-stores/{STORE_ID}",
     "global_default": True,
     "crypto_plugin": "p11_crypto",
     "secret_store_plugin": "store_crypto",
@@ -38,6 +38,7 @@ class TestSecretStore(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertEqual('1.3', sot._max_microversion)
 
     def test_make_it(self):
         sot = secret_store.SecretStore(**EXAMPLE)
@@ -51,7 +52,5 @@ class TestSecretStore(base.TestCase):
         self.assertEqual(
             EXAMPLE['secret_store_plugin'], sot.secret_store_plugin
         )
-        # Test the alternate_id extraction
-        self.assertEqual(
-            '4d27b7a7-b82f-491d-88c0-746bd67dadc8', sot.secret_store_id
-        )
+        # alternate_id + HREFToUUID extracts the UUID from secret_store_ref
+        self.assertEqual(STORE_ID, sot.secret_store_id)

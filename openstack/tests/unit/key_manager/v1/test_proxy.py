@@ -12,6 +12,7 @@
 
 from unittest import mock
 
+from openstack import exceptions
 from openstack.key_manager.v1 import _proxy
 from openstack.key_manager.v1 import container
 from openstack.key_manager.v1 import container_acl
@@ -105,6 +106,62 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
 
     def test_secret_update(self):
         self.verify_update(self.proxy.update_secret, secret.Secret)
+
+    @mock.patch(
+        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        return_value=True,
+    )
+    def test_migrate_secret_store(self, _mock_mv):
+        self._verify(
+            "openstack.key_manager.v1.secret.Secret.migrate_store",
+            self.proxy.migrate_secret_store,
+            method_args=["id", "ss-id"],
+            expected_args=[mock.ANY, "ss-id"],
+            expected_kwargs={},
+        )
+
+    @mock.patch(
+        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        return_value=True,
+    )
+    def test_migrate_secret_store_href(self, _mock_mv):
+        store_id = '11111111-1111-1111-1111-111111111111'
+        store_ref = f'http://localhost:9311/v1/secret-stores/{store_id}'
+        self._verify(
+            "openstack.key_manager.v1.secret.Secret.migrate_store",
+            self.proxy.migrate_secret_store,
+            method_args=["id", store_ref],
+            expected_args=[mock.ANY, store_id],
+            expected_kwargs={},
+        )
+
+    @mock.patch(
+        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        return_value=True,
+    )
+    def test_migrate_secret_store_resource(self, _mock_mv):
+        store_id = '11111111-1111-1111-1111-111111111111'
+        store_ref = f'http://localhost:9311/v1/secret-stores/{store_id}'
+        store = secret_store.SecretStore(secret_store_ref=store_ref)
+        self._verify(
+            "openstack.key_manager.v1.secret.Secret.migrate_store",
+            self.proxy.migrate_secret_store,
+            method_args=["id", store],
+            expected_args=[mock.ANY, store_id],
+            expected_kwargs={},
+        )
+
+    @mock.patch(
+        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        return_value=False,
+    )
+    def test_migrate_secret_store_requires_microversion(self, _mock_mv):
+        self.assertRaises(
+            exceptions.SDKException,
+            self.proxy.migrate_secret_store,
+            "id",
+            "ss-id",
+        )
 
 
 class TestKeyManagerQuota(TestKeyManagerProxy):
