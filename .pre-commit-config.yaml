@@ -29,23 +29,5 @@ repos:
     hooks:
       - id: hacking
         additional_dependencies:
-          - flake8-import-order~=0.18.2
+          - flake8-import-order~=0.19.2
         exclude: '^(doc|releasenotes|tools)/.*$'
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - dogpile.cache
-          - keystoneauth1>=5.11.0
-          - types-decorator
-          - types-PyYAML
-          - types-requests
-          - types-simplejson
-        # keep this in-sync with '[mypy] exclude' in 'setup.cfg'
-        exclude: |
-          (?x)(
-            doc/.*
-            | examples/.*
-            | releasenotes/.*
-          )
