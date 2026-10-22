@@ -1,8 +1,4 @@
 ---
-# Central project entity. It pulls general templates and basic jobs.
-# functional-jobs, metal-jobs and acceptance-jobs are being
-# merged with this entity into singe one.
-
 - project:
     templates:
       - check-requirements
@@ -30,6 +26,10 @@
             voting: false
         - ansible-collections-openstack-functional-devstack:
             voting: false
+    post-review:
+      jobs:
+        - openstacksdk-acceptance-devstack
+        - openstacksdk-acceptance-cleura
     gate:
       jobs:
         - openstacksdk-functional-devstack

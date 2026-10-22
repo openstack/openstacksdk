@@ -146,11 +146,3 @@
             PjciFvc2OR0cGUC/an3xtmqi18GWcWdinaBA0+OEnArdOdSc79MTZnMifICAeCQ3yiEnA
             001hbBrRYTHgitpo4gYJOFMVufhcfvq6yB9wi3MqvpKP8wGH2SyNz7y5Gy9zbUgQFsRP7
             2h3LRDRCVGYBVgBLD5mcIMn93HddOko8Q8RO8qVZM13R39dgGAi0KMEhF3bpjA=
-
-# We define additional project entity not to handle acceptance jobs in
-# already complex enough general project entity.
-- project:
-    post-review:
-      jobs:
-        - openstacksdk-acceptance-devstack
-        - openstacksdk-acceptance-cleura
