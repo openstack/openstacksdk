@@ -25,8 +25,7 @@ class TestDevice(base.BaseFunctionalTest):
 
     def setUp(self):
         super().setUp()
-        self.require_service('accelerator', min_microversion='2.3')
-        self._set_operator_cloud(accelerator_default_microversion='2.3')
+        self.require_service('accelerator')
 
     def _wait_for_device_status(self, device_id, expected_status):
         for _ in utils.iterate_timeout(

@@ -27,6 +27,10 @@ class Device(resource.Resource):
     allow_commit = False
     allow_delete = False
     allow_list = True
+
+    # The 'status' attribute is available since 2.3
+    _max_microversion = '2.3'
+
     #: The timestamp when this device was created.
     created_at = resource.Body('created_at')
     #: The hostname of the device.

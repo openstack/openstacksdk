@@ -34,6 +34,9 @@ class AcceleratorRequest(resource.Resource):
     #: Allow patch operation for binding.
     allow_patch = True
 
+    # The 'project_id' attribute can be passed to bind since 2.1
+    _max_microversion = '2.1'
+
     #: The device address associated with this ARQ (if any)
     attach_handle_info = resource.Body('attach_handle_info')
     #: The type of attach handle (e.g. PCI, mdev...)
@@ -48,6 +51,8 @@ class AcceleratorRequest(resource.Resource):
     hostname = resource.Body('hostname')
     #: The UUID of the instance associated with this ARQ (if any)
     instance_uuid = resource.Body('instance_uuid')
+    #: The project ID of the ARQ
+    project_id = resource.Body('project_id')
     #: The state of the ARQ
     state = resource.Body('state')
     #: The UUID of the ARQ

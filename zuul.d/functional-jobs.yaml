@@ -478,8 +478,11 @@
       Run openstacksdk functional tests against a master devstack with cyborg
     required-projects:
       - openstack/cyborg
-      - openstack/python-cyborgclient
     vars:
+      devstack_localrc:
+        # python-cyborgclient is not in required-projects; skip the
+        # git_clone that Cyborg's devstack plugin does by default.
+        CYBORG_CLIENT_INSTALL: false
       devstack_plugins:
         cyborg: https://opendev.org/openstack/cyborg
       devstack_services:
