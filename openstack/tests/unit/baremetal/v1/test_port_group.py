@@ -28,6 +28,7 @@ FAKE: dict[str, Any] = {
             "rel": "bookmark",
         },
     ],
+    "mode": "active-backup",
     "name": "test_portgroup",
     "node_uuid": "6d85703a-565d-469a-96ce-30b6de53079d",
     "ports": [
@@ -40,6 +41,7 @@ FAKE: dict[str, Any] = {
             "rel": "bookmark",
         },
     ],
+    "properties": {"miimon": "100"},
     "standalone_ports_supported": True,
     "updated_at": None,
     "uuid": "e43c722c-248e-4c6e-8ce8-0d8ff129387a",
@@ -58,6 +60,16 @@ class TestPortGroup(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertEqual('PATCH', sot.commit_opts.method)
+        self.assertDictEqual(
+            {
+                'address': 'address',
+                'fields': {'format': 'csv'},
+                'limit': 'limit',
+                'marker': 'marker',
+                'node': 'node',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_instantiate(self):
         sot = port_group.PortGroup(**FAKE)
@@ -67,9 +79,11 @@ class TestPortGroup(base.TestCase):
         self.assertEqual(FAKE['extra'], sot.extra)
         self.assertEqual(FAKE['internal_info'], sot.internal_info)
         self.assertEqual(FAKE['links'], sot.links)
+        self.assertEqual(FAKE['mode'], sot.mode)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['node_uuid'], sot.node_id)
         self.assertEqual(FAKE['ports'], sot.ports)
+        self.assertEqual(FAKE['properties'], sot.properties)
         self.assertEqual(
             FAKE['standalone_ports_supported'],
             sot.is_standalone_ports_supported,
