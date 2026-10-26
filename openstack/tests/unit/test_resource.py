@@ -268,7 +268,7 @@ class TestResource(base.TestCase):
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
         self.assertFalse(sot.allow_head)
-        self.assertEqual('PUT', sot.commit_method)
+        self.assertEqual('PUT', sot.commit_opts.method)
 
     def test_repr(self):
         a = {"a": 1}
@@ -1856,7 +1856,7 @@ class TestResourceActions(base.TestCase):
         base_path=None,
         explicit_microversion=None,
     ):
-        self.sot.commit_method = commit_method
+        self.test_class.commit_opts = resource.CommitOpts(method=commit_method)
 
         # Need to make sot look dirty so we can attempt an update
         self.sot._body = mock.Mock()
@@ -1973,6 +1973,28 @@ class TestResourceActions(base.TestCase):
 
         self.session.put.assert_not_called()
 
+    def test_commit_not_dirty_empty_request(self):
+        class Test(resource.Resource):
+            base_path = '/test'
+            allow_commit = True
+            commit_opts = resource.CommitOpts(request_has_body=False)
+
+        sot = Test(id='test-id')
+        sot._body = mock.Mock()
+        sot._body.dirty = dict()
+        sot._body._dirty = set()
+        sot._header = mock.Mock()
+        sot._header.dirty = dict()
+
+        with (
+            mock.patch.object(
+                sot, '_prepare_request', return_value=self.request
+            ),
+            mock.patch.object(sot, '_translate_response'),
+        ):
+            sot.commit(self.session)
+            self.session.put.assert_called_once()
+
     def test_commit_jsonpatch_original_body_sync(self):
         """Test _original_body is synced with _body.attributes after commit.
 
@@ -1986,7 +2008,7 @@ class TestResourceActions(base.TestCase):
             base_path = '/test'
             allow_commit = True
             allow_patch = True
-            commit_method = 'PATCH'
+            commit_opts = resource.CommitOpts(method='PATCH')
 
             name = resource.Body('name')
             description = resource.Body('description')

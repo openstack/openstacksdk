@@ -54,7 +54,7 @@ class TestZone(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
-        self.assertEqual('PATCH', sot.commit_method)
+        self.assertEqual('PATCH', sot.commit_opts.method)
 
         self.assertDictEqual(
             {

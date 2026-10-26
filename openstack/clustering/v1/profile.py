@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Literal
-
 from openstack import resource
 
 
@@ -26,8 +24,7 @@ class Profile(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
-
-    commit_method: Literal['PATCH', 'PUT'] = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     _query_mapping = resource.QueryParameters(
         'sort', 'global_project', 'type', 'name'
@@ -62,4 +59,4 @@ class ProfileValidate(Profile):
     allow_delete = False
     allow_list = False
 
-    commit_method = 'PUT'
+    commit_opts = resource.CommitOpts(method='PUT')

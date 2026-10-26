@@ -23,8 +23,7 @@ class Action(resource.Resource):
     allow_list = True
     allow_fetch = True
     allow_commit = True
-
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     _query_mapping = resource.QueryParameters(
         'name',

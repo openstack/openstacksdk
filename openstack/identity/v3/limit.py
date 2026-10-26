@@ -28,9 +28,8 @@ class Limit(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
-    commit_method = 'PATCH'
-
     create_opts = resource.CreateOpts(response_key='limits')
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     _query_mapping = resource.QueryParameters(
         'service_id', 'region_id', 'resource_name', 'project_id'

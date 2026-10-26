@@ -424,6 +424,27 @@ class CreateOpts:
     response_has_body: bool = True
 
 
+@final
+@dataclasses.dataclass(frozen=True)
+class CommitOpts:
+    #: Key to use when enveloping requests. If unset, defaults to the
+    #: ``resource_key`` attribute of the resource. Set to None to disable
+    #: enveloping.
+    request_key: str | types.Unset | None = types.UNSET
+    #: Key to use when de-enveloping responses. If unset, defaults to the
+    #: ``resource_key`` attribute of the resource. Set to None to disable
+    #: de-enveloping.
+    response_key: str | types.Unset | None = types.UNSET
+    #: Method to use for commit requests. This must be PATCH if allow_patch is
+    #: True.
+    method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
+    #: Whether the request includes a body. If False, the commit can happen
+    #: without header or body being dirty.
+    request_has_body: bool = True
+    #: Whether the response includes a body. If unset, defaults to True.
+    response_has_body: bool = True
+
+
 class Resource(dict[str, Any]):
     # TODO(mordred) While this behaves mostly like a munch for the purposes
     # we need, sub-resources, such as Server.security_groups, which is a list
@@ -478,11 +499,9 @@ class Resource(dict[str, Any]):
     #: override this to set per-resource defaults without overriding create().
     create_opts: ClassVar[CreateOpts] = CreateOpts()
 
-    #: Commits happen without header or body being dirty.
-    allow_empty_commit = False
-    #: Method for committing a resource. This must be PATCH if
-    #: allow_patch is True.
-    commit_method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
+    #: Class-level configuration for the commit operation. Subclasses can
+    #: override this to set per-resource defaults without overriding commit().
+    commit_opts: ClassVar[CommitOpts] = CommitOpts()
 
     #: Maximum microversion to use for getting/creating/updating the Resource
     _max_microversion: str | None = None
@@ -512,11 +531,12 @@ class Resource(dict[str, Any]):
         if (
             cls.allow_commit
             and cls.allow_patch
-            and cls.commit_method != 'PATCH'
+            and cls.commit_opts.method != 'PATCH'
         ):
             raise TypeError(
                 f"{cls.__name__}: 'allow_patch' is True but "
-                f"'commit_method' is {cls.commit_method!r} instead of 'PATCH'"
+                f"'commit_opts.method' is {cls.commit_opts.method!r} instead "
+                f"of 'PATCH'"
             )
 
     def __init__(
@@ -1833,7 +1853,9 @@ class Resource(dict[str, Any]):
     def requires_commit(self) -> bool:
         """Whether the next commit() call will do anything."""
         return bool(
-            self._body.dirty or self._header.dirty or self.allow_empty_commit
+            self._body.dirty
+            or self._header.dirty
+            or not self.commit_opts.request_has_body
         )
 
     def commit(
@@ -1888,7 +1910,7 @@ class Resource(dict[str, Any]):
         return self._commit(
             session,
             request,
-            self.commit_method,
+            self.commit_opts.method,
             microversion,
             has_body=has_body,
             retry_on_conflict=retry_on_conflict,

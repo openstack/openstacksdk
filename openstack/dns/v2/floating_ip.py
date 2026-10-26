@@ -24,7 +24,7 @@ class FloatingIP(_base.Resource):
     allow_fetch = True
     allow_commit = True
     allow_list = True
-    commit_method = "PATCH"
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     #: Properties
     #: current action in progress on the resource

@@ -23,14 +23,13 @@ class Claim(_base.MessageResource):
     resources_key = 'claims'
     base_path = '/queues/%(queue_name)s/claims'
 
-    create_opts = resource.CreateOpts(request_key=None)
-
     # capabilities
     allow_create = True
     allow_fetch = True
     allow_commit = True
     allow_delete = True
-    commit_method = 'PATCH'
+    create_opts = resource.CreateOpts(request_key=None)
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     # Properties
     #: The value in seconds indicating how long the claim has existed.

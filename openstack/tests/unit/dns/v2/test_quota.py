@@ -35,7 +35,7 @@ class TestQuota(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.commit_method, "PATCH")
+        self.assertTrue(sot.commit_opts.method, "PATCH")
 
     def test_make_it(self):
         sot = quota.Quota(project='FAKE_PROJECT', **EXAMPLE)

@@ -28,7 +28,7 @@ class ContainerACL(resource.Resource):
     # its own. Barbican creates/replaces the ACL with a PUT and partially
     # updates it with a PATCH.
     create_opts = resource.CreateOpts(method='PUT', requires_id=False)
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
     requires_id = False
 
     # Properties

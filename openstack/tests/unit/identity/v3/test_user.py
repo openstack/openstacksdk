@@ -63,7 +63,7 @@ class TestUser(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertEqual('PATCH', sot.commit_method)
+        self.assertEqual('PATCH', sot.commit_opts.method)
 
         self.assertDictEqual(
             {

@@ -154,9 +154,8 @@ class AmphoraConfig(resource.Resource):
     allow_commit = True
     allow_delete = False
     allow_list = False
-    allow_empty_commit = True
-
     requires_id = False
+    commit_opts = resource.CommitOpts(request_has_body=False)
 
     # Properties
     #: The ID of the amphora.
@@ -185,9 +184,8 @@ class AmphoraFailover(resource.Resource):
     allow_commit = True
     allow_delete = False
     allow_list = False
-    allow_empty_commit = True
-
     requires_id = False
+    commit_opts = resource.CommitOpts(request_has_body=False)
 
     # Properties
     #: The ID of the amphora.

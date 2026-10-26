@@ -41,7 +41,7 @@ class TestFloatingIP(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
 
-        self.assertEqual('PATCH', sot.commit_method)
+        self.assertEqual('PATCH', sot.commit_opts.method)
 
     def test_make_it(self):
         sot = fip.FloatingIP(**EXAMPLE)

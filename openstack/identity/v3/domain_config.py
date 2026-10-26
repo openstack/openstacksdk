@@ -28,15 +28,15 @@ class DomainConfigDriver(resource.Resource):
 class DomainConfig(resource.Resource):
     resource_key = 'config'
     base_path = '/domains/%(domain_id)s/config'
-    requires_id = False
-    commit_method = 'PATCH'
-    create_opts = resource.CreateOpts(method='PUT', requires_id=False)
 
     # capabilities
     allow_create = True
     allow_fetch = True
     allow_commit = True
     allow_delete = True
+    requires_id = False
+    create_opts = resource.CreateOpts(method='PUT', requires_id=False)
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     #: The domain ID.
     domain_id = resource.URI('domain_id')

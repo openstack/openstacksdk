@@ -24,7 +24,7 @@ class Policy(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
-    commit_method = 'PATCH'
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     # Properties
     #: The policy rule set itself, as a serialized blob. *Type: string*

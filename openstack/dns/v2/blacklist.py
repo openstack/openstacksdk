@@ -26,7 +26,7 @@ class Blacklist(_base.Resource):
     allow_fetch = True
     allow_commit = True
     allow_delete = True
-    commit_method = "PATCH"
+    commit_opts = resource.CommitOpts(method='PATCH')
 
     _query_mapping = resource.QueryParameters(
         'pattern',
