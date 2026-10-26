@@ -10,16 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from http import HTTPStatus
+
+from openstack import exceptions
 from openstack.tests.functional.image.v2 import base
 
 
 class TestTask(base.BaseImageTest):
     def test_tasks(self):
-        tasks = list(self.admin_image_client.tasks())
-        # NOTE(stephenfin): Yes, this is a dumb test. Basically all that we're
-        # checking is that the API endpoint is correct. It would be nice to
-        # have a proper check here that includes creation of tasks but we don't
-        # currently have the ability to do this and I'm not even sure if tasks
-        # are still really a supported thing. A potential future work item,
-        # perhaps.
-        self.assertIsInstance(tasks, list)
+        try:
+            tasks = list(self.admin_image_client.tasks())
+        except exceptions.HttpException as error:
+            # The deprecated global Tasks API returns 410 Gone. Consumers
+            # should use the interoperable image import API instead.
+            self.assertEqual(HTTPStatus.GONE, error.status_code)
+        else:
+            self.assertIsInstance(tasks, list)
