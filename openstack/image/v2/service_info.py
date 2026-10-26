@@ -27,6 +27,8 @@ class Import(resource.Resource):
 
     #: import methods
     import_methods = resource.Body('import-methods', type=dict)
+    #: import plugins
+    plugins = resource.Body('plugins', type=list)
 
 
 class Store(resource.Resource):

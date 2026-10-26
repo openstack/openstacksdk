@@ -2285,14 +2285,19 @@ class Proxy(proxy.Proxy):
 
     # ====== Imports ======
 
-    def get_import_info(self) -> _si.Import:
-        """Get a info about image constraints
+    def get_import_info(self, *, detail: bool = False) -> _si.Import:
+        """Get info about image import methods and plugins
 
+        :param detail: When set to ``True``, returns additional information
+            about the configured image import plugins and their properties.
         :returns: One :class:`~openstack.image.v2.service_info.Import`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_si.Import, requires_id=False)
+        base_path = _si.Import.base_path
+        if detail:
+            base_path += '/detail'
+        return self._get(_si.Import, requires_id=False, base_path=base_path)
 
     # ====== Utilities ======
 

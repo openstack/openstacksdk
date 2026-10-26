@@ -26,6 +26,30 @@ EXAMPLE_IMPORT: dict[str, Any] = {
         'value': ['glance-direct', 'web-download'],
     }
 }
+EXAMPLE_IMPORT_DETAIL: dict[str, Any] = {
+    'import-methods': {
+        'description': 'Import methods available.',
+        'type': 'array',
+        'value': ['glance-direct', 'web-download', 'copy-image'],
+    },
+    'plugins': [
+        {
+            'name': 'inject_image_metadata',
+            'properties': {
+                'ignore_user_roles': ['admin'],
+                'inject': {'os_distro': 'fedora'},
+            },
+        },
+        {
+            'name': 'image_conversion',
+            'properties': {'output_format': 'raw'},
+        },
+        {
+            'name': 'image_decompression',
+            'properties': {},
+        },
+    ],
+}
 EXAMPLE_STORE: dict[str, Any] = {
     'id': IDENTIFIER,
     'description': 'Fast access to rbd store',
@@ -83,3 +107,10 @@ class TestImport(base.TestCase):
     def test_make_it(self):
         sot = si.Import(**EXAMPLE_IMPORT)
         self.assertEqual(EXAMPLE_IMPORT['import-methods'], sot.import_methods)
+
+    def test_make_it_detail(self):
+        sot = si.Import(**EXAMPLE_IMPORT_DETAIL)
+        self.assertEqual(
+            EXAMPLE_IMPORT_DETAIL['import-methods'], sot.import_methods
+        )
+        self.assertEqual(EXAMPLE_IMPORT_DETAIL['plugins'], sot.plugins)

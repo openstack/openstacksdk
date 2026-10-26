@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added support for the /info/import/detail endpoint of Glance.
