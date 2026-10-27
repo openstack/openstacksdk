@@ -77,6 +77,15 @@ class InspectionRules(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertEqual('PATCH', sot.commit_opts.method)
+        self.assertDictEqual(
+            {
+                'detail': 'detail',
+                'fields': {'format': 'csv'},
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_instantiate(self):
         sot = inspection_rules.InspectionRule(**FAKE)
