@@ -25,6 +25,7 @@ from openstack import utils
 FAKE: dict[str, Any] = {
     "created_at": "2024-08-18T22:28:48.643434+11:11",
     "description": "Enable logical processors",
+    "disable_ramdisk": False,
     "extra": {},
     "links": [
         {
@@ -75,6 +76,7 @@ class Runbooks(base.TestCase):
         self.assertEqual(FAKE['steps'], sot.steps)
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['description'], sot.description)
+        self.assertEqual(FAKE['disable_ramdisk'], sot.disable_ramdisk)
         self.assertEqual(FAKE['extra'], sot.extra)
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['name'], sot.name)

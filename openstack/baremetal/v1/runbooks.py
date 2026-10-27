@@ -45,6 +45,10 @@ class Runbook(_common.Resource):
     #: A human readable description of the runbook. Introduced in API
     #: microversion 1.112.
     description = resource.Body('description')
+    #: Whether to boot the ramdisk while using this runbook for a cleaning or
+    #: servicing operation. Only steps explicitly marked as not requiring the
+    #: ramdisk can be executed when this is set.
+    disable_ramdisk = resource.Body('disable_ramdisk', type=bool)
     #: A set of one or more arbitrary metadata key and value pairs.
     extra = resource.Body('extra')
     #: A list of relative links. Includes the self and bookmark links.

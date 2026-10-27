@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Adds the missing ``disable_ramdisk`` field to the bare metal ``Runbook``
+    resource. The bare metal service has accepted and returned this field
+    since runbooks were introduced in API microversion 1.92.
