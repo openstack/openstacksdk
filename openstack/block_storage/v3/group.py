@@ -62,6 +62,7 @@ class Group(resource.Resource):
     #: A comma-separated list of volume IDs to remove from the group.
     remove_volumes = resource.Body("remove_volumes")
 
+    _min_microversion = "3.13"
     _max_microversion = "3.38"
 
     def _action(

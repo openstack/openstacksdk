@@ -41,6 +41,7 @@ class UserMessage(resource.Resource):
         "sort_key",
     )
 
+    _min_microversion = '2.37'
     _max_microversion = '2.37'
 
     #: Properties

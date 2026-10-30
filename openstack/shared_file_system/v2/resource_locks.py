@@ -45,9 +45,8 @@ class ResourceLock(resource.Resource):
         "with_count",
         "all_projects",
     )
-    # The resource was introduced in this microversion, so it is the minimum
-    # version to use it. Openstacksdk currently doesn't allow to set
-    # minimum microversions.
+    # resource locks were introduced in 2.81
+    _min_microversion = '2.81'
     _max_microversion = '2.81'
 
     #: Properties

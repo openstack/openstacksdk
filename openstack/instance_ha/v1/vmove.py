@@ -20,6 +20,8 @@ class VMove(resource.Resource):
     resources_key = "vmoves"
     base_path = "/notifications/%(notification_id)s/vmoves"
 
+    _min_microversion = '1.3'
+
     # capabilities
     # 1] GET /v1/notifications/{notification_uuid}/vmoves
     # 2] GET /v1/notifications/{notification_uuid}/vmoves/{vmove_uuid}

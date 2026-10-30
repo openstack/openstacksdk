@@ -28,6 +28,7 @@ class ResourceClass(resource.Resource):
     commit_opts = resource.CommitOpts(request_has_body=False)
 
     # Added in 1.2
+    _min_microversion = '1.2'
     _max_microversion = '1.2'
 
     name = resource.Body('name', alternate_id=True)

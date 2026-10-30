@@ -34,6 +34,7 @@ class ShareAccessRule(resource.Resource):
     _query_mapping = resource.QueryParameters("share_id")
 
     # Restricted access rules became available in 2.82
+    _min_microversion = '2.45'
     _max_microversion = '2.82'
 
     create_opts = resource.CreateOpts(

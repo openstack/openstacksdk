@@ -33,6 +33,7 @@ class Trait(resource.Resource):
     create_opts = resource.CreateOpts(method='PUT')
 
     # Added in 1.6
+    _min_microversion = '1.6'
     _max_microversion = '1.6'
 
     _query_mapping = resource.QueryParameters(

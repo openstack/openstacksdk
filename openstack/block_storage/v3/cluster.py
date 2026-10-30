@@ -27,6 +27,7 @@ class Cluster(resource.Resource):
     allow_fetch = True
     allow_list = True
 
+    _min_microversion = '3.7'
     _max_microversion = '3.26'
 
     _query_mapping = resource.QueryParameters(

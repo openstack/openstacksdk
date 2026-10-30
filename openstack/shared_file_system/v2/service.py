@@ -23,6 +23,8 @@ class Service(resource.Resource):
     resources_key = 'services'
     base_path = '/services'
 
+    _min_microversion = '2.7'
+
     # capabilities
     allow_create = False
     allow_fetch = False

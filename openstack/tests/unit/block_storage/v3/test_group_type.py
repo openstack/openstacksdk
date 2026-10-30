@@ -31,7 +31,7 @@ class TestGroupType(base.TestCase):
     def setUp(self):
         super().setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
-        self.sess.default_microversion = 1
+        self.sess.default_microversion = '3.11'
         self.sess._get_connection = mock.Mock(return_value=self.cloud)
 
     def test_basic(self):

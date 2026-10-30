@@ -27,6 +27,7 @@ class ShareExportLocation(resource.Resource):
     allow_delete = False
     allow_head = False
 
+    _min_microversion = '2.9'
     _max_microversion = '2.47'
 
     #: Properties

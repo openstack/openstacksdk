@@ -24,6 +24,8 @@ class ShareInstance(resource.Resource):
     resources_key = "share_instances"
     base_path = "/share_instances"
 
+    _min_microversion = '2.3'
+
     # capabilities
     allow_create = False
     allow_fetch = True

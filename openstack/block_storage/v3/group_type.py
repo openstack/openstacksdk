@@ -31,6 +31,7 @@ class GroupType(resource.Resource):
     allow_commit = True
     allow_list = True
 
+    _min_microversion = "3.11"
     _max_microversion = "3.11"
 
     _query_mapping = resource.QueryParameters(

@@ -19,6 +19,8 @@ class ShareNetworkSubnet(resource.Resource, metadata.MetadataMixin):
     resources_key = "share_network_subnets"
     base_path = "/share-networks/%(share_network_id)s/subnets"
 
+    _min_microversion = '2.51'
+
     # capabilities
     allow_create = True
     allow_fetch = True

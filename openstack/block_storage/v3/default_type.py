@@ -28,6 +28,7 @@ class DefaultType(resource.Resource):
 
     create_opts = resource.CreateOpts(method='PUT', requires_id=True)
 
+    _min_microversion = "3.62"
     _max_microversion = "3.67"
 
     # Properties

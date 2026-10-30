@@ -75,6 +75,7 @@ class ServerMigration(resource.Resource):
     #: The UUID of the migration (since microversion 2.59)
     uuid = resource.Body('uuid', alternate_id=True)
 
+    _min_microversion = '2.22'
     _max_microversion = '2.80'
 
     def _action(

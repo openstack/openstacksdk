@@ -31,7 +31,9 @@ class Conductor(resource.Resource):
         fields={'format': 'csv'},
     )
 
+    _min_microversion = '1.49'
     _max_microversion = '1.49'
+
     created_at = resource.Body('created_at')
     updated_at = resource.Body('updated_at')
     hostname = resource.Body('hostname')

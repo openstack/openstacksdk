@@ -18,6 +18,8 @@ class ShareSnapshotInstance(resource.Resource):
     resources_key = "snapshot_instances"
     base_path = "/snapshot-instances"
 
+    _min_microversion = '2.19'
+
     # capabilities
     allow_create = False
     allow_fetch = True

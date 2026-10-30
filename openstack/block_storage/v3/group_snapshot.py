@@ -64,6 +64,7 @@ class GroupSnapshot(resource.Resource):
     status = resource.Body("status")
 
     # Pagination support was added in microversion 3.29
+    _min_microversion = '3.14'
     _max_microversion = '3.29'
 
     def _action(

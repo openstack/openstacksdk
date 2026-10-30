@@ -34,6 +34,7 @@ class VolumeConnector(resource.Resource):
     )
 
     # Volume Connectors is available since 1.32
+    _min_microversion = '1.32'
     _max_microversion = '1.32'
 
     #: The identifier of Volume connector and this field depends on the "type"

@@ -27,4 +27,5 @@ class BlockStorageSummary(resource.Resource):
     #: Metadata of all the volumes
     metadata = resource.Body("metadata")
 
+    _min_microversion = "3.12"
     _max_microversion = "3.36"

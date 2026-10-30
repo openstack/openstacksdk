@@ -17,6 +17,7 @@ class AvailabilityZone(resource.Resource):
     resource_key = "availability_zone"
     resources_key = "availability_zones"
     base_path = "/availability-zones"
+    _min_microversion = "2.7"
     _max_microversion = "2.7"
 
     # capabilities

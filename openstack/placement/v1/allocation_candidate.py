@@ -40,6 +40,7 @@ class AllocationCandidate(resource.Resource):
     allow_list = True
 
     # Available from 1.10; 1.34 added mappings inside each allocation request.
+    _min_microversion = '1.10'
     _max_microversion = '1.34'
 
     # Properties

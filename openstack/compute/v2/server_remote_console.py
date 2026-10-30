@@ -37,6 +37,7 @@ class ServerRemoteConsole(resource.Resource):
     allow_delete = False
     allow_list = False
 
+    _min_microversion = '2.6'
     _max_microversion = '2.99'
 
     #: Protocol of the remote console.

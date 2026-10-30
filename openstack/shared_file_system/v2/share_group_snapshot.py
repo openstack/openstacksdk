@@ -44,6 +44,8 @@ class ShareGroupSnapshot(resource.Resource):
         'sort_dir',
     )
 
+    _min_microversion = '2.31'
+
     # The share group snapshot API is experimental until 2.55.
     _max_microversion = "2.55"
 

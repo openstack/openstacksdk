@@ -29,7 +29,8 @@ class Usage(resource.Resource):
     - ``resources`` — a dict of resource class name to total amount consumed
       across all consumers of that type.
 
-    Available from placement microversion 1.38. Call
+    Available from placement microversion 1.9. Before microversion 1.38,
+    usage is returned as a single entry without consumer type or count. Call
     :meth:`~openstack.placement.v1._proxy.Proxy.usages` to retrieve instances.
     """
 
@@ -40,7 +41,8 @@ class Usage(resource.Resource):
     requires_id = False
     allow_list = True
 
-    # Requires microversion 1.38 for the consumer-type-keyed response format.
+    _min_microversion = '1.9'
+    # Prefer microversion 1.38 for the consumer-type-keyed response format.
     _max_microversion = '1.38'
 
     # Properties
