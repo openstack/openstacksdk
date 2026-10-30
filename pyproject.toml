@@ -12,7 +12,7 @@ readme = {file = "README.rst", content-type = "text/x-rst"}
 license = "Apache-2.0"
 dynamic = ["version"]
 dependencies = [
-    "cryptography>=2.7", # BSD/Apache-2.0
+    "cryptography>=50.0.0", # BSD/Apache-2.0
     "decorator>=4.4.1", # BSD
     "dogpile.cache>=0.6.5", # BSD
     "iso8601>=0.1.11", # MIT
