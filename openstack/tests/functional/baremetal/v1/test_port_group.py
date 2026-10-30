@@ -136,7 +136,6 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         )
 
     def test_port_group_fields(self):
-        self.create_node()
         self.create_port_group(address='11:22:33:44:55:66')
         result = self.operator_cloud.baremetal.port_groups(
             fields=['uuid', 'name']
