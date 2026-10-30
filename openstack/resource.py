@@ -1495,16 +1495,46 @@ class Resource(dict[str, Any]):
         error_message: str | None = None,
         maximum: str | None = None,
     ) -> str:
-        """Enforce that the microversion for action satisfies the requirement.
+        """Check microversion to use for the given action.
 
-        :param session: :class`keystoneauth1.adapter.Adapter`
-        :param expected: Expected microversion.
-        :param error_message: Optional error message with details. Will be
-            prepended to the message generated here.
-        :param maximum: Maximum microversion.
-        :returns: resulting microversion as string.
-        :raises: :exc:`~openstack.exceptions.NotSupported` if the version
-            used for the action is lower than the expected one.
+        The base version uses the following logic:
+
+        1. Select a microversion using :meth:`_get_microversion`.
+        2. If no explicit microversion is selected, raise an error.
+        3. If ``expected`` is not ``None``, check that the selected version is
+           at least that version.
+        4. If ``maximum`` is not ``None``, use the minimum between it and the
+           selected version.
+        5. Otherwise use the selected version.
+
+        The minimum check is a local comparison against the version selected
+        by :meth:`_get_microversion`. The selected version is never upgraded to
+        satisfy ``expected``, including when a session default is configured.
+
+        Unlike :func:`~openstack.utils.supports_microversion` and
+        :func:`~openstack.utils.require_microversion`, this checks the version
+        the resource would actually use, not just whether the server and
+        adapter support the required version. Unlike
+        :func:`~openstack.utils.pick_microversion`, it preserves the resource's
+        version-selection policy.
+
+        A maximum microversion can be specified for actions that require
+        older API behaviour. The cap is applied after the minimum check and
+        assumes the server also supports that older version. Callers must
+        pass the returned version as the request's ``microversion`` argument.
+
+        :param session: The session to use for making the request.
+        :param expected: Minimum microversion required by the action, or
+            ``None`` to skip the minimum check. An explicit microversion must
+            still be selected even when this is ``None``.
+        :param error_message: Optional action-specific message to prepend to
+            errors raised by this helper.
+        :param maximum: Optional cap applied after checking ``expected``.
+            If both are supplied, this must not be lower than ``expected``.
+        :returns: Selected, optionally capped microversion as a string.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if no explicit
+            microversion is selected, the selected version is lower than
+            ``expected``, or the resource's minimum cannot be satisfied.
         """
 
         def _raise(message: str) -> NoReturn:
