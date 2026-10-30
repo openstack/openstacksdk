@@ -18,8 +18,7 @@ class TestAcceleratorRequest(base.BaseFunctionalTest):
     """Test accelerator requests (ARQs).
 
     ARQ creation requires a device profile to exist. The setUp creates
-    one for use by the tests. ARQ binding is not tested here because it
-    requires a Nova instance with an accelerator-aware flavor.
+    one for use by the tests.
     """
 
     def setUp(self):
@@ -75,3 +74,82 @@ class TestAcceleratorRequest(base.BaseFunctionalTest):
         )
         self.assertIsInstance(arq, _arq.AcceleratorRequest)
         self.operator_cloud.accelerator.delete_accelerator_request(arq)
+
+    def _delete_server(self, server_id):
+        self.user_cloud.compute.delete_server(server_id)
+        self.user_cloud.compute.wait_for_delete(
+            self.user_cloud.compute.get_server(server_id),
+            wait=self._wait_for_timeout,
+        )
+
+    def _create_accel_flavor(self, dp_name):
+        flavor = self.operator_cloud.compute.create_flavor(
+            name=self.getUniqueString('accel-'),
+            ram=256,
+            vcpus=1,
+            disk=1,
+        )
+        self.addCleanup(
+            self.operator_cloud.compute.delete_flavor,
+            flavor.id,
+        )
+        self.operator_cloud.compute.create_flavor_extra_specs(
+            flavor,
+            {'accel:device_profile': dp_name},
+        )
+        return flavor
+
+    def test_accelerator_request_binding(self):
+        """Test ARQ binding through a Nova instance boot.
+
+        The device profile must match Cyborg's fake driver, which
+        registers resource class FPGA and trait CUSTOM_FAKE_DEVICE.
+        """
+        self.require_service('compute')
+
+        dp_name = self.getUniqueString('bind-dp-')
+        dp = self.operator_cloud.accelerator.create_device_profile(
+            name=dp_name,
+            groups=[
+                {
+                    'resources:FPGA': '1',
+                    'trait:CUSTOM_FAKE_DEVICE': 'required',
+                }
+            ],
+        )
+        self.addCleanup(
+            self.operator_cloud.accelerator.delete_device_profile,
+            dp,
+        )
+        flavor = self._create_accel_flavor(dp_name)
+
+        server = self.user_cloud.compute.create_server(
+            name=self.getUniqueString('arq-bind-'),
+            flavor_id=flavor.id,
+            image_id=self.image.id,
+            networks='none',
+        )
+        self.addCleanup(
+            self._delete_server,
+            server.id,
+        )
+        # Use the admin client to get the server so we can access the compute
+        # host attribute for asserts.
+        server = self.operator_cloud.compute.wait_for_server(
+            server,
+            wait=self._wait_for_timeout,
+        )
+        self.assertEqual('ACTIVE', server.status)
+
+        # Find the ARQ bound to this server.
+        arqs = list(self.user_cloud.accelerator.accelerator_requests())
+        bound = [a for a in arqs if a.instance_uuid == server.id]
+        self.assertEqual(1, len(bound))
+        arq = bound[0]
+        self.assertEqual(server.id, arq.instance_uuid)
+        self.assertEqual(server.project_id, arq.project_id)
+        self.assertEqual('Bound', arq.state)
+        self.assertEqual(server.hypervisor_hostname, arq.hostname)
+        self.assertIsNotNone(arq.device_rp_uuid)
+        self.assertEqual('TEST_PCI', arq.attach_handle_type)
+        self.assertIsNotNone(arq.attach_handle_info)

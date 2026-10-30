@@ -48,6 +48,11 @@ class TestDeviceProfile(base.BaseFunctionalTest):
         self.assertIsInstance(dp, _device_profile.DeviceProfile)
         self.assertEqual(self.NAME, dp.name)
 
+        # Get by name available since microversion 2.2
+        dp = self.user_cloud.accelerator.get_device_profile(self.NAME)
+        self.assertIsInstance(dp, _device_profile.DeviceProfile)
+        self.assertEqual(self.NAME, dp.name)
+
         # List as regular user
         names = [
             dp.name for dp in self.user_cloud.accelerator.device_profiles()
@@ -59,6 +64,11 @@ class TestDeviceProfile(base.BaseFunctionalTest):
         dp = self.operator_cloud.accelerator.get_device_profile(
             self.device_profile.uuid
         )
+        self.assertIsInstance(dp, _device_profile.DeviceProfile)
+        self.assertEqual(self.NAME, dp.name)
+
+        # Get by name available since microversion 2.2
+        dp = self.operator_cloud.accelerator.get_device_profile(self.NAME)
         self.assertIsInstance(dp, _device_profile.DeviceProfile)
         self.assertEqual(self.NAME, dp.name)
 

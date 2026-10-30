@@ -217,7 +217,8 @@ class Proxy(proxy.Proxy):
     ) -> _device_profile.DeviceProfile:
         """Get a single device profile.
 
-        :param device_profile: The value can be the ID of a device profile or a
+        :param device_profile: The value can be the ID or name of a device
+            profile, or a
             `~openstack.accelerator.v2.device_profile.DeviceProfile` instance.
         :returns: One :class:
             `~openstack.accelerator.v2.device_profile.DeviceProfile`

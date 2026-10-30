@@ -27,6 +27,9 @@ class DeviceProfile(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    # Retrieval by 'name' is available since 2.2
+    _max_microversion = '2.2'
+
     #: The timestamp when this device_profile was created.
     created_at = resource.Body('created_at')
     #: The description of the device profile
