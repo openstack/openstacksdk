@@ -25,6 +25,7 @@ class Service(resource.Resource):
 
     # capabilities
     allow_list = True
+    commit_opts = resource.CommitOpts(request_key=None)
 
     _query_mapping = resource.QueryParameters(
         'binary',
@@ -132,21 +133,6 @@ class Service(resource.Resource):
             return None
         raise exceptions.NotFoundException(
             f"No {cls.__name__} found for {name_or_id}"
-        )
-
-    def commit(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Self:
-        # we need to set prepend_key to false
-        return super().commit(
-            session,
-            prepend_key,
-            *args,
-            **kwargs,
         )
 
     def _action(
