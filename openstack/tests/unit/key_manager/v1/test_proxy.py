@@ -222,7 +222,7 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
         self.verify_update(self.proxy.update_secret, secret.Secret)
 
     @mock.patch(
-        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        'openstack.key_manager.v1._proxy.utils.supports_microversion',
         return_value=True,
     )
     def test_migrate_secret_store(self, _mock_mv):
@@ -235,7 +235,7 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
         )
 
     @mock.patch(
-        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        'openstack.key_manager.v1._proxy.utils.supports_microversion',
         return_value=True,
     )
     def test_migrate_secret_store_href(self, _mock_mv):
@@ -250,7 +250,7 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
         )
 
     @mock.patch(
-        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        'openstack.key_manager.v1._proxy.utils.supports_microversion',
         return_value=True,
     )
     def test_migrate_secret_store_resource(self, _mock_mv):
@@ -266,7 +266,7 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
         )
 
     @mock.patch(
-        'openstack.key_manager.v1._proxy._microversion.supports_microversion',
+        'openstack.key_manager.v1._proxy.utils.supports_microversion',
         return_value=False,
     )
     def test_migrate_secret_store_requires_microversion(self, _mock_mv):

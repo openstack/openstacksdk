@@ -14,6 +14,7 @@ from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
+from keystoneauth1 import discover
 
 from openstack import exceptions
 from openstack.key_manager.v1 import secret
@@ -113,8 +114,10 @@ class TestSecret(base.TestCase):
     ):
         sess = mock.Mock(spec=adapter.Adapter)
         sess.default_microversion = default_microversion
-        # Pre-seed the probe cache so tests don't issue a discovery GET.
-        sess._key_manager_microversion_range = microversion_range
+        sess.get_endpoint_data.return_value = discover.EndpointData(
+            min_microversion=microversion_range[0],
+            max_microversion=microversion_range[1],
+        )
         return sess
 
     def test_fetch_metadata_only(self):
@@ -123,12 +126,11 @@ class TestSecret(base.TestCase):
             for key, value in EXAMPLE.items()
             if not key.startswith('payload')
         }
-        sess = self._session(microversion_range=('1.0', '1.3'))
+        sess = self._session(microversion_range=((1, 0), (1, 3)))
         sess.get.return_value.status_code = 200
         sess.get.return_value.headers = {}
         sess.get.return_value.json.return_value = metadata
         sot = secret.Secret(id=ID_VAL)
-
         self.assertIs(sot, sot.fetch(sess))
 
         sess.get.assert_called_once_with(
@@ -140,7 +142,7 @@ class TestSecret(base.TestCase):
         self.assertIsNone(sot.payload)
 
     def _test_payload(self, content_type, **attrs):
-        sess = self._session(microversion_range=('1.0', '1.3'))
+        sess = self._session(microversion_range=((1, 0), (1, 3)))
         sess.get.return_value.status_code = 200
         sess.get.return_value.content = b'secret info'
         sot = secret.Secret(secret_ref=IDENTIFIER, status='ACTIVE', **attrs)

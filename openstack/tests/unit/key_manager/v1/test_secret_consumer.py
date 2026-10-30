@@ -14,6 +14,7 @@ from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
+from keystoneauth1 import discover
 
 from openstack.key_manager.v1 import secret_consumer
 from openstack.tests.unit import base
@@ -37,6 +38,7 @@ class TestSecretConsumer(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.requires_id)
+        self.assertEqual('1.1', sot._min_microversion)
 
     def test_make_it(self):
         sot = secret_consumer.SecretConsumer(**EXAMPLE)
@@ -54,6 +56,10 @@ class TestSecretConsumer(base.TestCase):
         )
         session = mock.Mock(spec=adapter.Adapter)
         session.default_microversion = None
+        session.get_endpoint_data.return_value = discover.EndpointData(
+            min_microversion=(1, 0),
+            max_microversion=(1, 3),
+        )
         delete_resp = mock.Mock()
         delete_resp.status_code = 204
         delete_resp.headers = {}
@@ -61,9 +67,13 @@ class TestSecretConsumer(base.TestCase):
 
         sot._raw_delete(session)
 
-        session.delete.assert_called_once()
-        _, kwargs = session.delete.call_args
-        self.assertEqual(
-            {"service": "svc", "resource_type": "type", "resource_id": "rid"},
-            kwargs["json"],
+        session.delete.assert_called_once_with(
+            '/secrets/sid/consumers',
+            json={
+                "service": "svc",
+                "resource_type": "type",
+                "resource_id": "rid",
+            },
+            headers={},
+            microversion='1.1',
         )

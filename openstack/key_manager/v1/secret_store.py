@@ -10,10 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneauth1 import adapter
-
 from openstack.key_manager.v1 import _format
-from openstack.key_manager.v1 import _microversion
 from openstack import resource
 
 
@@ -31,11 +28,6 @@ class SecretStore(resource.Resource):
     # Explicit secret_store_id on catalogue responses was introduced in 1.3.
     # Older servers still expose the UUID via secret_store_ref + HREFToUUID.
     _max_microversion = '1.3'
-
-    @classmethod
-    def _get_microversion(cls, session: adapter.Adapter) -> str | None:
-        # Barbican's unversioned discovery has no min/max; use the probe.
-        return _microversion.get_microversion(session, cls._max_microversion)
 
     _query_mapping = resource.QueryParameters(
         "name",
