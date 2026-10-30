@@ -197,7 +197,6 @@ class TestBareMetalVolumeconnector(base.BaseBaremetalTest):
         )
 
     def test_volume_connector_fields(self):
-        self.create_node()
         self.operator_cloud.baremetal.set_node_provision_state(
             self.node, 'manage', wait=True
         )

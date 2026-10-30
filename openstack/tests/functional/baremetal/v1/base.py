@@ -46,13 +46,18 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
         node = self.operator_cloud.baremetal.create_node(
             driver=driver, **kwargs
         )
-        self.node_id = node.id
+        node_id = node.id
+        self.assertIsNotNone(node_id)
         self.addCleanup(
             lambda: self.operator_cloud.baremetal.delete_node(
-                self.node_id, ignore_missing=True
+                node_id, ignore_missing=True
             )
         )
-        self.assertIsNotNone(self.node_id)
+        # NOTE: the first node created in a test is the default node used by
+        # the create_port, create_port_group and create_volume_* helpers.
+        # Additional nodes must be passed to those helpers via node_id.
+        if getattr(self, 'node_id', None) is None:
+            self.node_id = node_id
         return node
 
     def create_port(self, node_id=None, **kwargs):
