@@ -503,7 +503,18 @@ class Resource(dict[str, Any]):
     #: override this to set per-resource defaults without overriding commit().
     commit_opts: ClassVar[CommitOpts] = CommitOpts()
 
-    #: Maximum microversion to use for getting/creating/updating the Resource
+    #: Minimum microversion required to use this resource. ``None`` means the
+    #: resource is available in the service's base API version.
+    _min_microversion: str | None = None
+
+    # TODO(stephenfin): Rename this to _preferred_microversion and introduce
+    # a new _max_microversion for the last version supporting a resource
+    # removed in a later microversion.
+    #: Preferred microversion to negotiate when no session default is set.
+    #: Negotiation caps this at the server's maximum. A configured session
+    #: default takes precedence, even when higher than this value: this is
+    #: not a hard upper bound on the resource's supported versions. ``None``
+    #: falls back to negotiating _min_microversion, if set.
     _max_microversion: str | None = None
 
     #: API microversion (string or None) this Resource was loaded with
@@ -1426,21 +1437,54 @@ class Resource(dict[str, Any]):
 
         1. If the session has a default microversion for the current service,
            just use it.
-        2. If ``self._max_microversion`` is not ``None``, use minimum between
+        2. If ``cls._max_microversion`` is not ``None``, use minimum between
            it and the maximum microversion supported by the server.
-        3. Otherwise use ``None``.
+        3. Otherwise, if ``cls._min_microversion`` is not ``None``, negotiate
+           that version with the server.
+        4. Otherwise use ``None``.
+
+        A configured session default takes precedence over
+        ``cls._max_microversion``. For clients created through the connection,
+        its compatibility with the server is checked during service client
+        construction, so that check does not need to be repeated here.
+
+        Without a session default, ``cls._max_microversion`` is a preference,
+        not a requirement: if it exceeds the server's maximum, the server's
+        maximum is selected instead.
+
+        If a minimum microversion is specified, the selected version must be
+        at least that version. This is a local comparison against the session
+        default or negotiated version; no additional capability check is
+        needed. An explicitly configured session default is never silently
+        upgraded.
 
         Subclasses can override this method if more complex logic is needed.
 
         :param session: The session to use for making the request.
         :returns: Microversion as string or ``None``
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the selected
+            version does not satisfy the resource's minimum microversion.
         """
+        microversion: str | None
         if session.default_microversion:
-            return session.default_microversion
+            microversion = session.default_microversion
+        else:
+            microversion = utils.maximum_supported_microversion(
+                session, cls._max_microversion or cls._min_microversion
+            )
 
-        return utils.maximum_supported_microversion(
-            session, cls._max_microversion
-        )
+        if cls._min_microversion is not None:
+            if microversion is None or (
+                discover.normalize_version_number(microversion)
+                < discover.normalize_version_number(cls._min_microversion)
+            ):
+                raise exceptions.NotSupported(
+                    f"{cls.__name__} requires API microversion "
+                    f"{cls._min_microversion}, but "
+                    f"{microversion or 'the base version'} would be used."
+                )
+
+        return microversion
 
     @classmethod
     def _assert_microversion_for(

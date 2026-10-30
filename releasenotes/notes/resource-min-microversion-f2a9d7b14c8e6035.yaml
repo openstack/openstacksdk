@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The SDK now checks client-side whether the selected API microversion meets
+    a resource's minimum requirements. If the version negotiated with the
+    server or the configured default microversion is too low, the SDK raises
+    the existing ``openstack.exceptions.NotSupported`` exception before sending
+    the resource request, rather than relying on the server to reject it.
