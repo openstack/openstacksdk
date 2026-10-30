@@ -120,6 +120,28 @@ class TestNode(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertEqual('PATCH', sot.commit_opts.method)
+        self.assertDictEqual(
+            {
+                'associated': 'associated',
+                'conductor_group': 'conductor_group',
+                'driver': 'driver',
+                'fault': 'fault',
+                'fields': {'format': 'csv'},
+                'include_children': 'include_children',
+                'instance_id': 'instance_uuid',
+                'instance_name': 'instance_name',
+                'is_maintenance': 'maintenance',
+                'limit': 'limit',
+                'marker': 'marker',
+                'parent_node': 'parent_node',
+                'provision_state': 'provision_state',
+                'resource_class': 'resource_class',
+                'shard': 'shard',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_instantiate(self):
         sot = node.Node(**FAKE)

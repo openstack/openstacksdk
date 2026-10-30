@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    The ``sort_key`` and ``sort_dir`` query parameters are now sent to the
+    Bare Metal service when listing allocations, chassis, conductors, deploy
+    templates, inspection rules, nodes, ports, port groups, runbooks, volume
+    connectors and volume targets. Previously they were not part of the
+    resources' query mappings and were instead applied as client-side
+    attribute filters, which typically caused the listing to return no
+    results rather than sorted results.
