@@ -15,6 +15,8 @@ from openstack import resource
 
 class QuotaClassSet(resource.Resource):
     base_path = '/quota-class-sets'
+
+    _min_microversion = '2.7'
     resource_key = 'quota_class_set'
 
     allow_create = False

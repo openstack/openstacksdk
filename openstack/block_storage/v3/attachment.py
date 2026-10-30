@@ -41,6 +41,7 @@ class Attachment(resource.Resource):
     allow_list = True
     allow_fetch = True
 
+    _min_microversion = "3.27"
     _max_microversion = "3.71"
 
     # Properties

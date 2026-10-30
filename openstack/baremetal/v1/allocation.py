@@ -44,6 +44,7 @@ class Allocation(resource.Resource):
     # Allocation update is available since 1.57
     # Backfilling allocations is available since 1.58
     # owner attribute is available since 1.60
+    _min_microversion = '1.52'
     _max_microversion = '1.60'
 
     #: The candidate nodes for this allocation.

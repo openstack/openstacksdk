@@ -18,6 +18,8 @@ class QuotaSet(quota_set.QuotaSet):
     resources_key = "quota_sets"
     base_path = "/quota-sets/%(project_id)s"
 
+    _min_microversion = '2.7'
+
     # capabilities
     allow_create = False
     allow_list = False

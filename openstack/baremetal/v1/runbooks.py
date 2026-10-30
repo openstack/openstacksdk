@@ -38,7 +38,9 @@ class Runbook(_common.Resource):
 
     # Runbooks is available since 1.92
     # The description and traits fields added in 1.112
+    _min_microversion = '1.92'
     _max_microversion = '1.112'
+
     name = resource.Body('name')
     #: Timestamp at which the runbook was created.
     created_at = resource.Body('created_at')

@@ -19,6 +19,8 @@ class Message(resource.Resource):
     resources_key = "messages"
     base_path = "/messages"
 
+    _min_microversion = '3.3'
+
     _query_mapping = resource.QueryParameters(
         'project_id', 'sort', 'limit', 'offset', 'marker'
     )

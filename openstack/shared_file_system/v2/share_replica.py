@@ -25,6 +25,8 @@ class ShareReplica(resource.Resource):
     resources_key = "share_replicas"
     base_path = "share-replicas"
 
+    _min_microversion = '2.11'
+
     # capbilities
     allow_create = True
     allow_fetch = True

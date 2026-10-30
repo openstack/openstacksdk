@@ -18,6 +18,8 @@ class ManageableVolume(resource.Resource):
     resources_key = 'manageable-volumes'
     base_path = '/manageable_volumes'
 
+    _min_microversion = '3.8'
+
     # capabilities
     allow_list = True
 

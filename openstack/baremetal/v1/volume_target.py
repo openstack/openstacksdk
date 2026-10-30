@@ -34,6 +34,7 @@ class VolumeTarget(resource.Resource):
     )
 
     # Volume Targets is available since 1.32
+    _min_microversion = '1.32'
     _max_microversion = '1.32'
 
     #: The boot index of the Volume target. “0” indicates that this volume is

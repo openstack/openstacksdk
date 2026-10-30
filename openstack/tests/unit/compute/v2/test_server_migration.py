@@ -47,6 +47,7 @@ class TestServerMigration(base.TestCase):
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.resp.status_code = 200
         self.sess = mock.Mock()
+        self.sess.default_microversion = '2.80'
         self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):

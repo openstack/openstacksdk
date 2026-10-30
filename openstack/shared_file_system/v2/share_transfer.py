@@ -21,6 +21,8 @@ class ShareTransfer(resource.Resource):
     resource_key = "transfer"
     base_path = "/share-transfers"
 
+    _min_microversion = '2.77'
+
     # capabilities
     allow_list = True
     allow_create = True

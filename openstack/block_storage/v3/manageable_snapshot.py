@@ -18,6 +18,8 @@ class ManageableSnapshot(resource.Resource):
     resources_key = 'manageable-snapshots'
     base_path = '/manageable_snapshots'
 
+    _min_microversion = '3.8'
+
     # capabilities
     allow_list = True
 

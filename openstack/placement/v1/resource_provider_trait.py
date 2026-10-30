@@ -50,6 +50,7 @@ class ResourceProviderTrait(resource.Resource):
     traits = resource.Body('traits', type=list, list_type=str)
 
     # Added in 1.6
+    _min_microversion = '1.6'
     _max_microversion = '1.6'
 
     def commit(

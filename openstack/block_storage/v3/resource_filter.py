@@ -28,6 +28,7 @@ class ResourceFilter(resource.Resource):
     allow_list = True
 
     # resource_filters introduced in 3.33
+    _min_microversion = '3.33'
     _max_microversion = '3.33'
 
     #: Properties

@@ -34,6 +34,7 @@ class PortGroup(_common.Resource):
     )
 
     # The mode and properties field introduced in 1.26.
+    _min_microversion = '1.23'
     _max_microversion = '1.26'
 
     #: The physical hardware address of the portgroup, typically the hardware

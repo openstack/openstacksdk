@@ -33,7 +33,9 @@ class InspectionRule(resource.Resource):
     )
 
     # Inspection rules is available since 1.96
+    _min_microversion = '1.96'
     _max_microversion = '1.96'
+
     #: The actions to be executed when the rule conditions are met.
     actions = resource.Body('actions', type=list)
     #: A brief explanation about the inspection rule.

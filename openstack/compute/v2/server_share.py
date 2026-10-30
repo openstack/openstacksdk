@@ -25,6 +25,7 @@ class ShareMapping(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _min_microversion = '2.97'
     _max_microversion = '2.97'
 
     #: The location of the share.
