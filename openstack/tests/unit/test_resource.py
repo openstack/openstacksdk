@@ -18,6 +18,7 @@ from typing import cast
 from unittest import mock
 
 from keystoneauth1 import adapter
+from keystoneauth1 import exceptions as ks_exceptions
 import requests
 
 from openstack import dns
@@ -3997,6 +3998,98 @@ class TestWaitForDelete(TestWait):
             res,
             0.1,
             0.3,
+        )
+
+
+class TestGetMicroversion(base.TestCase):
+    def test_get_microversion(self):
+        cases = (
+            # Resources without a minimum retain their existing behavior.
+            (None, None, None, '1.99', None),
+            (None, '1.42', None, '1.99', '1.42'),
+            (None, '1.42', None, '1.20', '1.20'),
+            (None, '1.42', '1.10', '1.99', '1.10'),
+            # A minimum can stand alone or accompany a higher default.
+            ('1.6', None, None, '1.99', '1.6'),
+            ('1.6', '1.42', None, '1.99', '1.42'),
+            ('1.6', '1.42', None, '1.10', '1.10'),
+            ('1.6', '1.42', None, '1.6', '1.6'),
+            ('1.6', '1.42', '1.6', '1.99', '1.6'),
+            ('1.6', '1.42', '1.10', '1.99', '1.10'),
+            ('1.6', '1.42', '1.99', '1.99', '1.99'),
+            ('1.6', '1.42', 'latest', '1.99', 'latest'),
+        )
+        for minimum, maximum, default, server_maximum, expected in cases:
+            with self.subTest(
+                minimum=minimum,
+                maximum=maximum,
+                default=default,
+                server_maximum=server_maximum,
+                expected=expected,
+            ):
+
+                class Test(resource.Resource):
+                    _min_microversion = minimum
+                    _max_microversion = maximum
+
+                session = mock.Mock(spec=adapter.Adapter)
+                session.default_microversion = default
+                session.get_endpoint_data.return_value = mock.Mock(
+                    min_microversion='1.0', max_microversion=server_maximum
+                )
+
+                self.assertEqual(expected, Test._get_microversion(session))
+                if default:
+                    session.get_endpoint_data.assert_not_called()
+
+    def test_minimum_not_supported(self):
+        cases = (
+            # An explicit default must not be upgraded.
+            ('1.5', '1.42', '1.99'),
+            # The server's maximum is too low.
+            (None, '1.42', '1.5'),
+            # The resource's preferred version is too low.
+            (None, '1.5', '1.99'),
+            # Microversions are not supported.
+            (None, '1.42', None),
+        )
+        for default, maximum, server_maximum in cases:
+            with self.subTest(
+                default=default,
+                maximum=maximum,
+                server_maximum=server_maximum,
+            ):
+
+                class Test(resource.Resource):
+                    _min_microversion = '1.6'
+                    _max_microversion = maximum
+
+                session = mock.Mock(spec=adapter.Adapter)
+                session.default_microversion = default
+                session.get_endpoint_data.return_value = mock.Mock(
+                    min_microversion='1.0', max_microversion=server_maximum
+                )
+
+                self.assertRaisesRegex(
+                    exceptions.NotSupported,
+                    'Test requires API microversion 1.6',
+                    Test._get_microversion,
+                    session,
+                )
+
+    def test_minimum_discovery_failure(self):
+        class Test(resource.Resource):
+            _min_microversion = '1.6'
+
+        session = mock.Mock(spec=adapter.Adapter)
+        session.default_microversion = None
+        session.service_type = 'test'
+        session.get_endpoint_data.side_effect = (
+            ks_exceptions.discovery.DiscoveryFailure()
+        )
+
+        self.assertRaises(
+            exceptions.NotSupported, Test._get_microversion, session
         )
 
 
