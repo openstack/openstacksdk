@@ -51,7 +51,7 @@ from openstack.network.v2 import network as _network
 from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
-from openstack import types
+from openstack.types import UNSET
 from openstack import utils
 from openstack import warnings as os_warnings
 
@@ -1523,7 +1523,7 @@ class Proxy(proxy.Proxy):
         server: str | _server.Server,
         *,
         host: str | None = None,
-        availability_zone: str | types.Unset | None = types.UNSET,
+        availability_zone: str | UNSET | None = UNSET,
     ) -> None:
         """Unshelves or restores a shelved server.
 

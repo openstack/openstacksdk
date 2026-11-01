@@ -24,7 +24,7 @@ from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import exceptions
 from openstack.image.v2 import image as _image
 from openstack import resource
-from openstack import types
+from openstack.types import UNSET
 from openstack import utils
 
 
@@ -429,19 +429,17 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self,
         session: adapter.Adapter,
         image: str | _image.Image,
-        name: str | types.Unset | None = types.UNSET,
-        admin_password: str | types.Unset | None = types.UNSET,
-        preserve_ephemeral: bool | types.Unset = types.UNSET,
-        access_ipv4: str | types.Unset | None = types.UNSET,
-        access_ipv6: str | types.Unset | None = types.UNSET,
-        metadata: dict[str, object] | types.Unset | None = types.UNSET,
-        user_data: str | types.Unset | None = types.UNSET,
-        key_name: str | types.Unset | None = types.UNSET,
-        description: str | types.Unset | None = types.UNSET,
-        trusted_image_certificates: (
-            list[str] | types.Unset | None
-        ) = types.UNSET,
-        hostname: str | types.Unset | None = types.UNSET,
+        name: str | UNSET | None = UNSET,
+        admin_password: str | UNSET | None = UNSET,
+        preserve_ephemeral: bool | UNSET = UNSET,
+        access_ipv4: str | UNSET | None = UNSET,
+        access_ipv6: str | UNSET | None = UNSET,
+        metadata: dict[str, object] | UNSET | None = UNSET,
+        user_data: str | UNSET | None = UNSET,
+        key_name: str | UNSET | None = UNSET,
+        description: str | UNSET | None = UNSET,
+        trusted_image_certificates: (list[str] | UNSET | None) = UNSET,
+        hostname: str | UNSET | None = UNSET,
     ) -> Self:
         """Rebuild the server with the given arguments.
 
@@ -470,27 +468,27 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :returns: The updated server.
         """
         action: dict[str, Any] = {'imageRef': resource.Resource._get_id(image)}
-        if preserve_ephemeral is not types.UNSET:
+        if preserve_ephemeral is not UNSET:
             action['preserve_ephemeral'] = preserve_ephemeral
-        if name is not types.UNSET:
+        if name is not UNSET:
             action['name'] = name
-        if admin_password is not types.UNSET:
+        if admin_password is not UNSET:
             action['adminPass'] = admin_password
-        if access_ipv4 is not types.UNSET:
+        if access_ipv4 is not UNSET:
             action['accessIPv4'] = access_ipv4
-        if access_ipv6 is not types.UNSET:
+        if access_ipv6 is not UNSET:
             action['accessIPv6'] = access_ipv6
-        if metadata is not types.UNSET:
+        if metadata is not UNSET:
             action['metadata'] = metadata
-        if user_data is not types.UNSET:
+        if user_data is not UNSET:
             action['user_data'] = user_data
-        if key_name is not types.UNSET:
+        if key_name is not UNSET:
             action['key_name'] = key_name
-        if description is not types.UNSET:
+        if description is not UNSET:
             action['description'] = description
-        if trusted_image_certificates is not types.UNSET:
+        if trusted_image_certificates is not UNSET:
             action['trusted_image_certificates'] = trusted_image_certificates
-        if hostname is not types.UNSET:
+        if hostname is not UNSET:
             action['hostname'] = hostname
 
         body = {'rebuild': action}
@@ -882,7 +880,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     def unshelve(
         self,
         session: adapter.Adapter,
-        availability_zone: str | types.Unset | None = types.UNSET,
+        availability_zone: str | UNSET | None = UNSET,
         host: str | None = None,
     ) -> None:
         """Unshelve the server.
@@ -901,7 +899,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         data: dict[str, object] = {}
         if host:
             data["host"] = host
-        if availability_zone is None or isinstance(availability_zone, str):
+        if availability_zone is not UNSET:
             data["availability_zone"] = availability_zone
         body = {'unshelve': data or None}
         self._action(session, body)
