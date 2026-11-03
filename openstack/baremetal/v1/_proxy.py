@@ -2377,7 +2377,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of conductor instances.
         """
         if details:
-            query['details'] = True
+            query['detail'] = True
         return self._list(_conductor.Conductor, **query)
 
     # NOTE(stephenfin): There is no 'find_conductor' since conductors are
@@ -2475,6 +2475,8 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_inspectionrules.InspectionRule, None, None]:
         """Retrieve a generator of inspection rules.
 
+        :param details: A boolean indicating whether the detailed
+            information for every inspection rule should be returned.
         :param query: Optional query parameters to be sent to
             restrict the inspection rules to be returned. Available
             parameters include:
@@ -2498,7 +2500,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of InspectionRule instances.
         """
         if details:
-            query['details'] = True
+            query['detail'] = True
         return self._list(_inspectionrules.InspectionRule, **query)
 
     def create_inspection_rule(

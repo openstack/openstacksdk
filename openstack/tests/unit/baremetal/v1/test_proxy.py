@@ -989,7 +989,7 @@ class TestConductor(TestBaremetalProxy):
         result = self.proxy.conductors(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
         mock_list.assert_called_once_with(
-            self.proxy, paginated=True, base_path=None, details=True, query=1
+            self.proxy, paginated=True, base_path=None, detail=True, query=1
         )
 
     @mock.patch.object(conductor.Conductor, 'list')
@@ -1185,7 +1185,7 @@ class TestInspectionRules(TestBaremetalProxy):
         result = self.proxy.inspection_rules(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
         mock_list.assert_called_once_with(
-            self.proxy, paginated=True, base_path=None, details=True, query=1
+            self.proxy, paginated=True, base_path=None, detail=True, query=1
         )
 
     @mock.patch.object(inspection_rules.InspectionRule, 'list')

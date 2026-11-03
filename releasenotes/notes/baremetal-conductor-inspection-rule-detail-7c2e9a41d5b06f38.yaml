@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Calling the bare metal ``conductors()`` or ``inspection_rules()`` proxy
+    methods with ``details=True`` now requests the detailed view from the
+    Bare Metal service. Previously the flag was passed as an unknown
+    ``details`` attribute and applied as a client-side filter instead of
+    being sent as the ``detail`` query parameter.
