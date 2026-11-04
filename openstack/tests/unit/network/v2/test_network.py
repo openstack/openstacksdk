@@ -46,6 +46,7 @@ EXAMPLE: dict[str, Any] = {
     'vlan_transparent': False,
     'vlan_qinq': False,
     'pvlan': False,
+    'l2_adjacency': False,
 }
 
 
@@ -103,6 +104,7 @@ class TestNetwork(base.TestCase):
         self.assertEqual(EXAMPLE['vlan_transparent'], sot.is_vlan_transparent)
         self.assertEqual(EXAMPLE['vlan_qinq'], sot.is_vlan_qinq)
         self.assertEqual(EXAMPLE['pvlan'], sot.pvlan)
+        self.assertEqual(EXAMPLE['l2_adjacency'], sot.is_l2_adjacent)
 
         self.assertDictEqual(
             {

@@ -123,6 +123,8 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     is_vlan_transparent = resource.Body('vlan_transparent', type=bool)
     #: Indicates the VLAN QinQ mode of the network
     is_vlan_qinq = resource.Body('vlan_qinq', type=bool)
+    #: Indicates whether this network is an L2 network for all segments
+    is_l2_adjacent = resource.Body('l2_adjacency', type=bool, default=False)
 
 
 class DHCPAgentHostingNetwork(Network):

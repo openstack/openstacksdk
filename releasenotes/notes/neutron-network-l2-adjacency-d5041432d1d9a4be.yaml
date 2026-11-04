@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add `is_l2_adjacent` flag to indicate if the network is L2 adjacent in
+    Neutron.
