@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``Log`` and ``LoggableResource`` for ``network``
+    Also add ``create_log``, ``delete_log``, ``find_log``, ``get_log``,
+    ``logs``, ``update_logs`` and ``loggable_resources`` to
+    network._proxy.Proxy
+

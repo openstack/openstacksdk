@@ -57,6 +57,7 @@ from openstack.network.v2 import metering_label_rule as _metering_label_rule
 from openstack.network.v2 import ndp_proxy as _ndp_proxy
 from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability
+from openstack.network.v2 import network_log as _network_log
 from openstack.network.v2 import (
     network_segment_range as _network_segment_range,
 )
@@ -3305,6 +3306,169 @@ class Proxy(proxy.Proxy):
         return self._update(
             _network.Network, network, if_revision=if_revision, **attrs
         )
+
+    # ====== Network logs ======
+
+    def create_log(self, **attrs: Any) -> _network_log.Log:
+        """Create a new network log from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.network_log.Log`,
+            comprised of the properties on the Log class.
+
+        :returns: The results of network log creation
+        :rtype: :class:`~openstack.network.v2.network_log.Log`
+        """
+        return self._create(_network_log.Log, **attrs)
+
+    def delete_log(
+        self,
+        log: str | _network_log.Log,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
+        """Delete a network log
+
+        :param log: The value can be either the ID of a network log or a
+            :class:`~openstack.network.v2.network_log.Log` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the network log does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent network log.
+        :param if_revision: Revision to put in If-Match header of delete
+            request to perform compare-and-swap delete.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _network_log.Log,
+            log,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
+
+    @overload
+    def find_log(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _network_log.Log: ...
+
+    @overload
+    def find_log(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _network_log.Log | None: ...
+
+    def find_log(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _network_log.Log | None:
+        """Find a single network log
+
+        :param name_or_id: The name or ID of a network log.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.network_log.Log` or None
+        """
+        return self._find(
+            _network_log.Log,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_log(
+        self,
+        log: str | _network_log.Log,
+        *,
+        fields: list[str] | None = None,
+    ) -> _network_log.Log:
+        """Get a single network log
+
+        :param log: The value can be the ID of a network log or a
+            :class:`~openstack.network.v2.network_log.Log` instance.
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: One :class:`~openstack.network.v2.network_log.Log`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get_with_fields(_network_log.Log, log, fields=fields)
+
+    def logs(
+        self,
+        **query: Any,
+    ) -> Generator[_network_log.Log, None, None]:
+        """Return a generator of network logs
+
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``name``: The name of the network log.
+            * ``description``: The description of the network log.
+            * ``project_id``: The ID of the project the log belongs to.
+            * ``event``: The type of events to log (``ACCEPT``, ``DROP`` or
+              ``ALL``).
+            * ``resource_type``: The resource log type (e.g.
+              ``security_group``).
+            * ``resource_id``: The ID of the resource to log.
+            * ``target_id``: The ID of the resource target to log.
+            * ``enabled``: Whether the log object is enabled or disabled.
+
+        :returns: A generator of network log objects
+        :rtype: :class:`~openstack.network.v2.network_log.Log`
+        """
+        return self._list(_network_log.Log, **query)
+
+    def update_log(
+        self,
+        log: str | _network_log.Log,
+        if_revision: int | None = None,
+        **attrs: Any,
+    ) -> _network_log.Log:
+        """Update a network log
+
+        :param log: Either the ID of a network log or a
+            :class:`~openstack.network.v2.network_log.Log` instance.
+        :param if_revision: Revision to put in If-Match header of update
+            request to perform compare-and-swap update.
+        :param attrs: The attributes to update on the network log represented
+            by ``log``.
+
+        :returns: The updated network log
+        :rtype: :class:`~openstack.network.v2.network_log.Log`
+        """
+        return self._update(
+            _network_log.Log, log, if_revision=if_revision, **attrs
+        )
+
+    def loggable_resources(
+        self,
+        **query: Any,
+    ) -> Generator[_network_log.LoggableResource, None, None]:
+        """Return a generator of loggable resources
+
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``type``: The resource log type (e.g. ``security_group``).
+
+        :returns: A generator of loggable resource objects
+        :rtype: :class:`~openstack.network.v2.network_log.LoggableResource`
+        """
+        return self._list(_network_log.LoggableResource, **query)
 
     # ====== Network IP Availabilities ======
 

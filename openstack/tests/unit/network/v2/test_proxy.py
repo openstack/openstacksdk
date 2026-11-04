@@ -43,6 +43,7 @@ from openstack.network.v2 import metering_label_rule
 from openstack.network.v2 import ndp_proxy
 from openstack.network.v2 import network
 from openstack.network.v2 import network_ip_availability
+from openstack.network.v2 import network_log
 from openstack.network.v2 import network_segment_range
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
@@ -633,6 +634,72 @@ class TestNetworkFlavor(TestNetworkProxy):
 
     def test_flavors(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor)
+
+
+class TestNetworkLog(TestNetworkProxy):
+    def test_log_create_attrs(self):
+        self.verify_create(self.proxy.create_log, network_log.Log)
+
+    def test_log_delete(self):
+        self.verify_delete(
+            self.proxy.delete_log,
+            network_log.Log,
+            False,
+            expected_kwargs={'if_revision': None},
+        )
+
+    def test_log_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_log,
+            network_log.Log,
+            True,
+            expected_kwargs={'if_revision': None},
+        )
+
+    def test_log_delete_if_revision(self):
+        self.verify_delete(
+            self.proxy.delete_log,
+            network_log.Log,
+            True,
+            method_kwargs={'if_revision': 42},
+            expected_kwargs={'if_revision': 42},
+        )
+
+    def test_log_find(self):
+        self.verify_find(self.proxy.find_log, network_log.Log)
+
+    def test_log_get(self):
+        self.verify_get(
+            self.proxy.get_log,
+            network_log.Log,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
+
+    def test_logs(self):
+        self.verify_list(self.proxy.logs, network_log.Log)
+
+    def test_log_update(self):
+        self.verify_update(
+            self.proxy.update_log,
+            network_log.Log,
+            expected_kwargs={'x': 1, 'y': 2, 'z': 3, 'if_revision': None},
+        )
+
+    def test_log_update_if_revision(self):
+        self.verify_update(
+            self.proxy.update_log,
+            network_log.Log,
+            method_kwargs={'x': 1, 'y': 2, 'z': 3, 'if_revision': 42},
+            expected_kwargs={'x': 1, 'y': 2, 'z': 3, 'if_revision': 42},
+        )
+
+
+class TestNetworkLoggableResource(TestNetworkProxy):
+    def test_loggable_resources(self):
+        self.verify_list(
+            self.proxy.loggable_resources, network_log.LoggableResource
+        )
 
 
 class TestNetworkLocalIp(TestNetworkProxy):
