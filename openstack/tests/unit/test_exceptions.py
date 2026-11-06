@@ -169,6 +169,7 @@ class TestRaiseFromResponse(base.TestCase):
         )
 
     def test_raise_compute_format(self):
+        # Named faults: Nova, Cinder, Manila, Masakari, and Trove.
         response = mock.Mock()
         response.status_code = 404
         response.headers = {
@@ -191,6 +192,7 @@ class TestRaiseFromResponse(base.TestCase):
         self.assertIn(self.message, str(exc))
 
     def test_raise_network_format(self):
+        # Neutron uses a fixed NeutronError envelope.
         response = mock.Mock()
         response.status_code = 404
         response.headers = {
@@ -214,6 +216,7 @@ class TestRaiseFromResponse(base.TestCase):
         self.assertIn(self.message, str(exc))
 
     def test_raise_placement_format(self):
+        # Placement, Octavia, and Magnum use errors[*].detail.
         response = mock.Mock()
         response.status_code = 409
         response.headers = {'content-type': 'application/json'}
@@ -234,6 +237,7 @@ class TestRaiseFromResponse(base.TestCase):
         self.assertIn(self.message, str(exc))
 
     def test_raise_placement_error_details(self):
+        # Robustness cases for errors[*].detail, not literal server responses.
         cases = [
             (
                 [
@@ -260,7 +264,8 @@ class TestRaiseFromResponse(base.TestCase):
                 )
                 self.assertEqual(expected, exc.details)
 
-    def test_raise_baremetal_old_format(self):
+    def test_raise_json_encoded_fault_format(self):
+        # Ironic, Cyborg, and Watcher wrap JSON text in error_message.
         response = mock.Mock()
         response.status_code = 404
         response.headers = {
@@ -285,7 +290,8 @@ class TestRaiseFromResponse(base.TestCase):
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))
 
-    def test_raise_baremetal_corrected_format(self):
+    def test_raise_object_wrapped_fault_format(self):
+        # Aodh uses an object-valued error_message; also accept it for Ironic.
         response = mock.Mock()
         response.status_code = 404
         response.headers = {
@@ -308,7 +314,179 @@ class TestRaiseFromResponse(base.TestCase):
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))
 
+    def test_raise_root_error_formats(self):
+        cases = [
+            # Designate's ordinary errors have a root message.
+            ({'message': self.message, 'code': 404}, self.message),
+            # Glance also uses a root message, but code is a status string.
+            (
+                {
+                    'message': self.message,
+                    'code': '404 Not Found',
+                    'title': 'Not Found',
+                },
+                self.message,
+            ),
+            # Mistral and Ironic's outer body-validation middleware.
+            (
+                {'faultstring': self.message, 'faultcode': 'Client'},
+                self.message,
+            ),
+            # Synthetic root-list variants; no audited service requires these.
+            ([{'message': self.message}], self.message),
+            (
+                [{'detail': self.message}, {'detail': 'Another error'}],
+                self.message + '\nAnother error',
+            ),
+        ]
+        for body, expected in cases:
+            with self.subTest(body=body):
+                response = fakes.FakeResponse(
+                    status_code=404,
+                    headers={'content-type': 'application/json'},
+                    data=body,
+                )
+                exc = self.assertRaises(
+                    exceptions.NotFoundException, self._do_raise, response
+                )
+                self.assertEqual(expected, exc.details)
+
+    def test_raise_nested_error_formats(self):
+        cases = [
+            # Designate nests its validation-error collection in errors.
+            {'errors': {'errors': [{'message': self.message}]}},
+            # Synthetic combinations below exercise permissive traversal,
+            # mixed entries, repeated encoding, and root-message precedence.
+            {
+                'error_message': json.dumps(
+                    {'error': {'message': self.message}}
+                )
+            },
+            {'errors': [None, 404, {}, {'detail': self.message}, 'metadata']},
+            json.dumps(json.dumps({'faultstring': self.message})),
+            {
+                'message': self.message,
+                'metadata': {'message': 'Not the principal error'},
+            },
+        ]
+        for body in cases:
+            with self.subTest(body=body):
+                response = fakes.FakeResponse(
+                    status_code=404,
+                    headers={'content-type': 'application/json'},
+                    data=body,
+                )
+                exc = self.assertRaises(
+                    exceptions.NotFoundException, self._do_raise, response
+                )
+                self.assertEqual(self.message, exc.details)
+
+    def test_raise_description_formats(self):
+        cases = [
+            # Barbican uses code/title/description.
+            {
+                'code': 400,
+                'title': 'Bad Request',
+                'description': self.message,
+            },
+            # Zaqar uses title/description; Gnocchi can use a text description.
+            {'title': 'Invalid API request', 'description': self.message},
+            # Keystone OAuth2 uses a string error code and error_description.
+            {'error': 'invalid_request', 'error_description': self.message},
+            # Heat may omit error.message for an unsafe exception.
+            {
+                'code': 400,
+                'explanation': self.message,
+                'error': {'type': 'Exception', 'traceback': None},
+            },
+            # Magnum preserves WebOb fields for some microversion errors.
+            {
+                'errors': [
+                    {
+                        'title': 'Requested microversion is unsupported',
+                        'explanation': self.message,
+                        'min_version': '1.1',
+                        'max_version': '1.14',
+                    }
+                ]
+            },
+            # Ironic, Cyborg, Watcher, and Aodh can wrap non-JSON text.
+            {'error_message': self.message},
+        ]
+        for body in cases:
+            with self.subTest(body=body):
+                response = fakes.FakeResponse(
+                    status_code=400,
+                    headers={'content-type': 'application/json'},
+                    data=body,
+                )
+                exc = self.assertRaises(
+                    exceptions.BadRequestException, self._do_raise, response
+                )
+                self.assertEqual(self.message, exc.details)
+
+    def test_extract_messages_prefers_structured_errors(self):
+        # Synthetic combinations ensure fallback text does not mask a more
+        # specific message or return an encoded fault verbatim.
+        cases = [
+            {
+                'description': 'Generic description',
+                'message': self.message,
+            },
+            {
+                'explanation': 'Generic explanation',
+                'error': {'message': self.message},
+            },
+            {
+                'description': 'Generic description',
+                'errors': [{'detail': self.message}],
+            },
+            {
+                'error_message': json.dumps({'faultstring': self.message}),
+            },
+            {
+                'error_message': {'faultstring': self.message},
+            },
+        ]
+        for body in cases:
+            with self.subTest(body=body):
+                self.assertEqual(
+                    self.message, exceptions._extract_messages(body)
+                )
+
+    def test_extract_messages_ignores_non_errors(self):
+        # Synthetic inputs ensure metadata/scalars are not treated as errors.
+        cases: list[object] = [
+            None,
+            True,
+            404,
+            '404',
+            'null',
+            'true',
+            'metadata',
+            json.dumps('metadata'),
+            [],
+            {},
+            {'code': 404, 'title': 'Not Found'},
+            {'errors': [None, {}, {'detail': ''}]},
+            {
+                'description': '',
+                'error_description': None,
+                'explanation': '',
+                'error_message': None,
+            },
+            {
+                'title': 'Not Found',
+                'request_id': 'request-id',
+                'traceback': 'Private debug information',
+            },
+        ]
+        for body in cases:
+            with self.subTest(body=body):
+                self.assertIsNone(exceptions._extract_messages(body))
+
     def test_raise_wsme_format(self):
+        # Mistral exposes WSME faults without an error_message wrapper.
         response = mock.Mock()
         response.status_code = 404
         response.headers = {
