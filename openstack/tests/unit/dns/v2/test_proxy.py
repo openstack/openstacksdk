@@ -24,6 +24,8 @@ from openstack.dns.v2 import zone_import
 from openstack.dns.v2 import zone_nameserver
 from openstack.dns.v2 import zone_share
 from openstack.dns.v2 import zone_transfer
+from openstack import exceptions
+from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
 
 
@@ -184,6 +186,57 @@ class TestDnsZoneImport(TestDnsProxy):
         )
 
 
+class TestDnsZoneExportText(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.use_designate()
+
+    def test_get_text(self):
+        text = (
+            'example.org. 3600 IN SOA ns.example.org. hostmaster.example.org.'
+        )
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://dns.example.com/v2/zones/tasks/exports/export-id/export',
+                    text=text,
+                    headers={'Content-Type': 'text/dns'},
+                    validate=dict(
+                        headers={'Accept': 'text/dns, application/json'},
+                    ),
+                ),
+            ]
+        )
+        exports: list[str | zone_export.ZoneExport] = [
+            'export-id',
+            zone_export.ZoneExport(id='export-id'),
+        ]
+        for export in exports:
+            self.assertEqual(text, self.cloud.dns.get_zone_export_text(export))
+
+    def test_get_text_error(self):
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://dns.example.com/v2/zones/tasks/exports/export-id/export',
+                    status_code=404,
+                    json={'message': 'Export not found'},
+                    validate=dict(
+                        headers={'Accept': 'text/dns, application/json'},
+                    ),
+                ),
+            ]
+        )
+        self.assertRaises(
+            exceptions.NotFoundException,
+            self.cloud.dns.get_zone_export_text,
+            'export-id',
+        )
+        self.assert_calls()
+
+
 class TestDnsZoneExport(TestDnsProxy):
     def test_zone_export_delete(self):
         self.verify_delete(
@@ -192,14 +245,6 @@ class TestDnsZoneExport(TestDnsProxy):
 
     def test_zone_export_get(self):
         self.verify_get(self.proxy.get_zone_export, zone_export.ZoneExport)
-
-    def test_zone_export_get_text(self):
-        self.verify_get(
-            self.proxy.get_zone_export_text,
-            zone_export.ZoneExport,
-            method_args=[{'id': 'zone_export_id_value'}],
-            expected_kwargs={'base_path': '/zones/tasks/export/%(id)s/export'},
-        )
 
     def test_zone_exports(self):
         self.verify_list(self.proxy.zone_exports, zone_export.ZoneExport)

@@ -21,7 +21,7 @@ class ZoneExport(_base.Resource):
 
     resource_key = ''
     resources_key = 'exports'
-    base_path = '/zones/tasks/export'
+    base_path = '/zones/tasks/exports'
 
     create_opts = resource.CreateOpts(request_key=None)
 

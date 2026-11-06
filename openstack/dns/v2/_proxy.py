@@ -28,8 +28,10 @@ from openstack.dns.v2 import zone_import as _zone_import
 from openstack.dns.v2 import zone_nameserver as _zone_nameserver
 from openstack.dns.v2 import zone_share as _zone_share
 from openstack.dns.v2 import zone_transfer as _zone_transfer
+from openstack import exceptions
 from openstack import proxy
 from openstack import resource
+from openstack import utils
 
 
 class Proxy(proxy.Proxy):
@@ -483,18 +485,20 @@ class Proxy(proxy.Proxy):
 
     def get_zone_export_text(
         self, zone_export: str | _zone_export.ZoneExport
-    ) -> _zone_export.ZoneExport:
-        """Get a zone export record as text
+    ) -> str:
+        """Get the exported zone file as text.
 
-        :param zone: The value can be the ID of a zone import
-            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
-        :returns: ZoneExport instance.
+        :param zone_export: The ID of a zone export or a
+            :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+        :returns: Zone file text.
         """
-        return self._get(
-            _zone_export.ZoneExport,
-            zone_export,
-            base_path='/zones/tasks/export/%(id)s/export',
+        export = self._get_resource(_zone_export.ZoneExport, zone_export)
+        response = self.get(
+            utils.urljoin('/zones/tasks/exports', export.id, 'export'),
+            headers={'Accept': 'text/dns, application/json'},
         )
+        exceptions.raise_from_response(response)
+        return response.text
 
     # TODO(stephenfin): This method should return None
     def delete_zone_export(
