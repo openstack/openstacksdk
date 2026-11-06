@@ -1281,11 +1281,15 @@ class Resource(dict[str, Any]):
                 self._original_body
             )
 
-        # NOTE(gtema) sort result, since we might need validate it in tests
-        return sorted(
+        # make_patch generates dict operations, though JsonPatch.patch is
+        # typed to also accept arbitrary mappings.
+        # https://github.com/stefankoegl/python-json-patch/pull/255
+        patch = cast(
+            list[dict[str, Any]],
             list(jsonpatch.make_patch(original_body, new).patch),
-            key=operator.itemgetter('path'),
         )
+        # NOTE(gtema) sort result, since we might need validate it in tests
+        return sorted(patch, key=operator.itemgetter('path'))
 
     def _prepare_request(
         self,
