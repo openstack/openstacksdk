@@ -67,6 +67,69 @@ class FakeResource(resource.Resource):
     resources_key = 'fakes'
 
 
+class TestProxyAccept(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.sot = proxy.Proxy(
+            self.cloud.session,
+            endpoint_override='https://example.com',
+            service_type='test',
+        )
+        self.sot._connection = self.cloud
+
+    def test_accept(self):
+        cases = [
+            (None, {}, 'application/json'),
+            ({'accept': 'text/plain'}, {}, 'text/plain'),
+            ({'Accept': ''}, {}, ''),
+            (None, {'accept': 'text/html'}, 'text/html'),
+            ({'accept': 'text/plain'}, {'Accept': 'text/html'}, 'text/plain'),
+        ]
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://example.com/resource',
+                    text='response',
+                    validate=dict(headers={'Accept': expected}),
+                )
+                for _, _, expected in cases
+            ]
+        )
+        for headers, additional, expected in cases:
+            with self.subTest(headers=headers, additional=additional):
+                self.sot.additional_headers = additional.copy()
+                original = copy.deepcopy(headers)
+                response = self.sot.get('/resource', headers=headers)
+                self.assertEqual(expected, response.request.headers['Accept'])
+                self.assertEqual(original, headers)
+                self.assertEqual(additional, self.sot.additional_headers)
+        self.assert_calls()
+
+    def test_service_default(self):
+        self.patch(proxy.Proxy, '_default_accept', '*/*')
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://example.com/resource',
+                    text='response',
+                    validate=dict(headers={'Accept': '*/*'}),
+                ),
+            ]
+        )
+        self.sot.get('/resource')
+        self.assert_calls()
+
+    def test_no_default(self):
+        self.patch(proxy.Proxy, '_default_accept', None)
+        # Authenticate before mocking the transport used for API requests.
+        self.cloud.session.get_project_id()
+        with mock.patch.object(session.Session, 'request') as request:
+            self.sot.get('/resource')
+        self.assertNotIn('Accept', request.call_args.kwargs['headers'])
+
+
 class TestProxyPrivate(base.TestCase):
     def setUp(self):
         super().setUp()
@@ -644,7 +707,25 @@ class TestProxyCache(base.TestCase):
         self.sot.service_type = 'srv'
 
     def _get_key(self, id):
-        return f"srv.fake.fake/{id}.{{'microversion': None, 'params': {{}}}}"
+        return (
+            f"srv.fake.fake/{id}.{{'microversion': None, 'params': {{}}, "
+            "'headers': {'Accept': 'application/json'}}"
+        )
+
+    def test_cache_accept(self):
+        self.cloud._cache_expirations['srv.fake'] = 5
+        self.sot.get('fake/1')
+        self.sot.get('fake/1', headers={'Accept': 'text/plain'})
+        self.sot.get('fake/1')
+        self.assertEqual(2, self.session.request.call_count)
+
+    def test_cache_additional_accept(self):
+        self.cloud._cache_expirations['srv.fake'] = 5
+        self.sot.get('fake/1')
+        self.sot.additional_headers['accept'] = 'text/plain'
+        self.sot.get('fake/1')
+        self.sot.get('fake/1')
+        self.assertEqual(2, self.session.request.call_count)
 
     def test_get_not_in_cache(self):
         self.cloud._cache_expirations['srv.fake'] = 5

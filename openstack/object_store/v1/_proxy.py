@@ -46,6 +46,10 @@ def _get_expiration(expiration: float) -> int:
 
 
 class Proxy(proxy.Proxy):
+    # Objects may have any stored media type. Resource.list explicitly asks
+    # for JSON for account/container listings.
+    _default_accept = '*/*'
+
     api_version: ClassVar[Literal['1']] = '1'
 
     _resource_registry = {

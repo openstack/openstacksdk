@@ -92,18 +92,6 @@ class Proxy(proxy.Proxy):
     _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
     _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
-    def request(
-        self, url: str, method: str, *args: Any, **kwargs: Any
-    ) -> requests.Response:
-        # Glance otherwise defaults HTTP errors to HTML on older deployments.
-        # Preserve explicit choices, including binary download representations.
-        headers = requests.structures.CaseInsensitiveDict(
-            self.additional_headers
-        )
-        headers.update(kwargs.pop('headers', None) or {})
-        headers.setdefault('Accept', 'application/json')
-        return super().request(url, method, *args, headers=headers, **kwargs)
-
     # ====== Caches ======
 
     def get_image_cache(self) -> _cache.Cache:
