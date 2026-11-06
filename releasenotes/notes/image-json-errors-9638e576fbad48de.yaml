@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Image API v2 requests now default to ``Accept: application/json``,
+    including image uploads, staging, and metadata updates. This requests JSON
+    error responses from existing Glance deployments instead of their HTML
+    default. Explicit response-format choices are preserved. Image downloads
+    accept both binary image data and JSON errors.

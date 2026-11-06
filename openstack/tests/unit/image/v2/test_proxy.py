@@ -33,6 +33,7 @@ from openstack.image.v2 import schema as _schema
 from openstack.image.v2 import service_info as _service_info
 from openstack.image.v2 import task as _task
 from openstack import proxy as proxy_base
+from openstack.tests.unit import base
 from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
@@ -48,6 +49,95 @@ class FakeResponse:
 
     def json(self):
         return self.body
+
+
+class TestImageAccept(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.use_glance()
+
+    def test_fetch_json_error(self):
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images/missing',
+                    status_code=404,
+                    json={
+                        'message': 'No image found with ID missing',
+                        'code': '404 Not Found',
+                        'title': 'Not Found',
+                    },
+                    validate=dict(headers={'Accept': 'application/json'}),
+                ),
+            ]
+        )
+        exc = self.assertRaises(
+            exceptions.NotFoundException,
+            self.cloud.image.get_image,
+            'missing',
+        )
+        self.assertIn('No image found with ID missing', str(exc))
+        self.assert_calls()
+
+    def test_explicit_accept(self):
+        headers = {'accept': 'text/html'}
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    text='',
+                    validate=dict(headers={'Accept': 'text/html'}),
+                ),
+            ]
+        )
+        self.cloud.image.get('/images', headers=headers)
+        self.assertEqual({'accept': 'text/html'}, headers)
+        self.assert_calls()
+
+    def test_additional_accept(self):
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    text='',
+                    validate=dict(headers={'Accept': 'text/plain'}),
+                ),
+            ]
+        )
+        self.cloud.image.additional_headers['Accept'] = 'text/plain'
+        self.cloud.image.get('/images')
+        self.assert_calls()
+
+    def test_download_accept(self):
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images/image-id',
+                    json={'id': 'image-id'},
+                    validate=dict(headers={'Accept': 'application/json'}),
+                ),
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images/image-id/file',
+                    content=b'image data',
+                    headers={'Content-Type': 'application/octet-stream'},
+                    validate=dict(
+                        headers={
+                            'Accept': (
+                                'application/octet-stream, application/json'
+                            ),
+                        }
+                    ),
+                ),
+            ]
+        )
+        response = _image.Image(id='image-id').download(self.cloud.image)
+        self.assertEqual(b'image data', response.content)
+        self.assert_calls()
 
 
 class TestImageProxy(test_proxy_base.TestProxyBase):
