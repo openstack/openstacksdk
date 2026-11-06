@@ -10,11 +10,48 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
 from openstack.workflow.v2 import _proxy
 from openstack.workflow.v2 import cron_trigger
 from openstack.workflow.v2 import execution
 from openstack.workflow.v2 import workflow
+
+
+class TestWorkflowAccept(base.TestCase):
+    def test_definition_writes(self):
+        sot = _proxy.Proxy(
+            self.cloud.session,
+            service_type='workflow',
+            endpoint_override='https://workflow.example.com/v2',
+        )
+        sot._connection = self.cloud
+        cases = [('POST', 'create'), ('PUT', 'commit')]
+        self.register_uris(
+            [
+                dict(
+                    method=method,
+                    uri='https://workflow.example.com/v2/workflows?scope=private',
+                    text='{}',
+                    headers={'Content-Type': 'text/plain'},
+                    validate=dict(
+                        headers={
+                            'Content-Type': 'text/plain',
+                            'Accept': 'text/plain, application/json',
+                        }
+                    ),
+                )
+                for method, _ in cases
+            ]
+        )
+        for method, operation in cases:
+            with self.subTest(method=method, operation=operation):
+                definition = workflow.Workflow(
+                    definition='version: "2.0"',
+                    scope='private',
+                )
+                getattr(definition, operation)(sot)
+        self.assert_calls()
 
 
 class TestWorkflowProxy(test_proxy_base.TestProxyBase):

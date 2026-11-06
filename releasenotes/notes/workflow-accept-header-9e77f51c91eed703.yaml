@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Workflow definition writes explicitly accept both text and JSON responses.

@@ -61,7 +61,12 @@ class Workflow(resource.Resource):
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
 
-        headers = {"Content-Type": 'text/plain'}
+        # Mistral exposes definition create/update responses as text/plain,
+        # while errors and other API responses may be JSON.
+        headers = {
+            "Content-Type": "text/plain",
+            "Accept": "text/plain, application/json",
+        }
         kwargs = {
             "data": self.definition,
         }
