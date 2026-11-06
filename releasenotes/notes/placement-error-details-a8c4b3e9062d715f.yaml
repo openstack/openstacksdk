@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    HTTP exceptions now include the error details returned by the Placement
+    API, rather than falling back to the generic HTTP reason. When the response
+    contains multiple errors, their details are joined with newlines.

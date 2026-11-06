@@ -213,6 +213,53 @@ class TestRaiseFromResponse(base.TestCase):
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))
 
+    def test_raise_placement_format(self):
+        response = mock.Mock()
+        response.status_code = 409
+        response.headers = {'content-type': 'application/json'}
+        response.json.return_value = {
+            'errors': [
+                {
+                    'status': 409,
+                    'title': 'Conflict',
+                    'detail': self.message,
+                }
+            ]
+        }
+        exc = self.assertRaises(
+            exceptions.ConflictException, self._do_raise, response
+        )
+        self.assertEqual(409, exc.status_code)
+        self.assertEqual(self.message, exc.details)
+        self.assertIn(self.message, str(exc))
+
+    def test_raise_placement_error_details(self):
+        cases = [
+            (
+                [
+                    {'detail': self.message},
+                    {'detail': 'Another error\nwith more detail'},
+                    {'title': 'No detail'},
+                    {'detail': ''},
+                    None,
+                ],
+                self.message + '\nAnother error\nwith more detail',
+            ),
+            ([], 'Conflict'),
+            ([{}, {'detail': None}, None], 'Conflict'),
+        ]
+        for errors, expected in cases:
+            with self.subTest(errors=errors):
+                response = mock.Mock()
+                response.status_code = 409
+                response.reason = 'Conflict'
+                response.headers = {'content-type': 'application/json'}
+                response.json.return_value = {'errors': errors}
+                exc = self.assertRaises(
+                    exceptions.ConflictException, self._do_raise, response
+                )
+                self.assertEqual(expected, exc.details)
+
     def test_raise_baremetal_old_format(self):
         response = mock.Mock()
         response.status_code = 404
