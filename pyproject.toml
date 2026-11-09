@@ -67,7 +67,7 @@ test = [
     "testtools>=2.8.0", # MIT
     "keyring>=24.0.0", # MIT
 ]
-typing = [
+types = [
     "mypy", # MIT
     "types-decorator", # Apache-2.0
     "types-jmespath", # Apache-2.0
