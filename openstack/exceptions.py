@@ -191,7 +191,7 @@ class InvalidResourceQuery(SDKException):
     """Invalid query params for resource."""
 
 
-def _extract_message(obj: Any) -> str | None:
+def _extract_message(obj: object) -> str | None:
     if isinstance(obj, dict):
         # Most of services: compute, network
         if obj.get('message'):
@@ -199,6 +199,14 @@ def _extract_message(obj: Any) -> str | None:
         # Ironic starting with Stein
         elif obj.get('faultstring'):
             return str(obj['faultstring'])
+    elif isinstance(obj, list):
+        # Placement uses {"errors": [{"detail": "...", ...}]}.
+        messages = [
+            str(error['detail'])
+            for error in obj
+            if isinstance(error, dict) and error.get('detail')
+        ]
+        return '\n'.join(messages) or None
     elif isinstance(obj, str):
         # Ironic before Stein has double JSON encoding, nobody remembers why.
         try:
