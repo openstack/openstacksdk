@@ -1154,7 +1154,23 @@ class TestMisc(TestImageProxy):
             method_args=[],
             method_kwargs={},
             expected_args=[_service_info.Import],
-            expected_kwargs={'requires_id': False},
+            expected_kwargs={
+                'requires_id': False,
+                'base_path': '/info/import',
+            },
+        )
+
+    def test_import_info_detail(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_import_info,
+            method_args=[],
+            method_kwargs={'detail': True},
+            expected_args=[_service_info.Import],
+            expected_kwargs={
+                'requires_id': False,
+                'base_path': '/info/import/detail',
+            },
         )
 
 
