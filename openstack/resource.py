@@ -420,6 +420,8 @@ class CreateOpts:
     # similar?
     #: Whether an ID is required or not. If unset, derived from the method.
     requires_id: bool | types.Unset = types.UNSET
+    #: Whether the request includes a body.
+    request_has_body: bool = True
     #: Whether the response includes a body. If unset, defaults to True.
     response_has_body: bool = True
 
@@ -438,8 +440,8 @@ class CommitOpts:
     #: Method to use for commit requests. This must be PATCH if allow_patch is
     #: True.
     method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
-    #: Whether the request includes a body. If False, the commit can happen
-    #: without header or body being dirty.
+    #: Whether the request includes a body. If False, no body is sent and
+    #: the commit can happen without header or body being dirty.
     request_has_body: bool = True
     #: Whether the response includes a body. If unset, defaults to True.
     response_has_body: bool = True
@@ -1676,7 +1678,9 @@ class Resource(dict[str, Any]):
         if method == 'PUT':
             response = session.put(
                 request.url,
-                json=request.body,
+                json=request.body
+                if self.create_opts.request_has_body
+                else None,
                 headers=request.headers,
                 microversion=microversion,
                 params=params,
@@ -1684,7 +1688,9 @@ class Resource(dict[str, Any]):
         else:  # method == 'POST'
             response = session.post(
                 request.url,
-                json=request.body,
+                json=request.body
+                if self.create_opts.request_has_body
+                else None,
                 headers=request.headers,
                 microversion=microversion,
                 params=params,
@@ -2030,10 +2036,11 @@ class Resource(dict[str, Any]):
                 f"Invalid commit method: {method}"
             )
 
+        body = request.body if self.commit_opts.request_has_body else None
         if method == 'POST':
             response = session.post(
                 request.url,
-                json=request.body,
+                json=body,
                 headers=request.headers,
                 microversion=microversion,
                 **kwargs,
@@ -2041,7 +2048,7 @@ class Resource(dict[str, Any]):
         elif method == 'PATCH':
             response = session.patch(
                 request.url,
-                json=request.body,
+                json=body,
                 headers=request.headers,
                 microversion=microversion,
                 **kwargs,
@@ -2049,7 +2056,7 @@ class Resource(dict[str, Any]):
         else:  # method == 'PUT'
             response = session.put(
                 request.url,
-                json=request.body,
+                json=body,
                 headers=request.headers,
                 microversion=microversion,
                 **kwargs,

@@ -30,7 +30,7 @@ class Trait(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    create_opts = resource.CreateOpts(method='PUT')
+    create_opts = resource.CreateOpts(method='PUT', request_has_body=False)
 
     # Added in 1.6
     _min_microversion = '1.6'
@@ -43,25 +43,6 @@ class Trait(resource.Resource):
     )
 
     name = resource.Body('name', alternate_id=True)
-
-    def create(
-        self,
-        session: resource.AdapterT,
-        prepend_key: bool = True,
-        base_path: str | None = None,
-        *,
-        microversion: str | None = None,
-        **kwargs: Any,
-    ) -> 'Trait':
-        # placement expects an empty request body
-        self._body._dirty.discard('name')
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            microversion=microversion,
-            **kwargs,
-        )
 
     @classmethod
     def list(
