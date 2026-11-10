@@ -15,6 +15,7 @@
 
 from typing import Any
 
+from openstack.network.v2 import _base
 from openstack.network.v2 import network_segment_range
 from openstack.tests.unit import base
 
@@ -32,6 +33,7 @@ EXAMPLE: dict[str, Any] = {
     'maximum': 6,
     'used': {},
     'available': [],
+    'tags': ['tag1', 'tag2'],
 }
 
 
@@ -50,6 +52,12 @@ class TestNetworkSegmentRange(base.TestCase):
         self.assertTrue(test_seg_range.allow_delete)
         self.assertTrue(test_seg_range.allow_list)
 
+    def test_is_taggable(self):
+        self.assertIsInstance(
+            network_segment_range.NetworkSegmentRange(),
+            _base.TagMixinNetwork,
+        )
+
     def test_make_it(self):
         test_seg_range = network_segment_range.NetworkSegmentRange(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], test_seg_range.id)
@@ -65,3 +73,4 @@ class TestNetworkSegmentRange(base.TestCase):
         self.assertEqual(EXAMPLE['maximum'], test_seg_range.maximum)
         self.assertEqual(EXAMPLE['used'], test_seg_range.used)
         self.assertEqual(EXAMPLE['available'], test_seg_range.available)
+        self.assertEqual(EXAMPLE['tags'], test_seg_range.tags)
