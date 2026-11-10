@@ -13,6 +13,8 @@
 from typing import Any
 from unittest import mock
 
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack.network.v2 import trunk
 from openstack.tests.unit import base
@@ -57,6 +59,22 @@ class TestTrunk(base.TestCase):
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['sub_ports'], sot.sub_ports)
+
+    def test_add_tags(self):
+        sot = trunk.Trunk(**EXAMPLE)
+        response = mock.Mock()
+        response.ok = True
+        response.status_code = 201
+        sess = mock.Mock(spec=adapter.Adapter)
+        sess.post = mock.Mock(return_value=response)
+
+        result = sot.add_tags(sess, ['tag1', 'tag2'])
+
+        sess.post.assert_called_once_with(
+            'trunks/IDENTIFIER/tags', json={'tags': ['tag1', 'tag2']}
+        )
+        self.assertIs(sot, result)
+        self.assertEqual(['tag1', 'tag2'], sot.tags)
 
     def test_add_subports_4xx(self):
         # Neutron may return 4xx for example if a port does not exist

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``Trunk`` resource now supports the ``add_tags`` method, which
+    creates (POST) tags on a trunk without replacing the existing ones, as
+    already supported by other network resources.
