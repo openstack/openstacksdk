@@ -19,6 +19,7 @@ from openstack.baremetal.v1 import chassis
 from openstack.baremetal.v1 import conductor
 from openstack.baremetal.v1 import deploy_templates
 from openstack.baremetal.v1 import driver
+from openstack.baremetal.v1 import history
 from openstack.baremetal.v1 import inspection_rules
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
@@ -1225,4 +1226,46 @@ class TestInspectionRules(TestBaremetalProxy):
             self.proxy.delete_inspection_rule,
             inspection_rules.InspectionRule,
             True,
+        )
+
+
+class TestHistory(TestBaremetalProxy):
+    def test_history_events(self):
+        self.verify_list(
+            self.proxy.history_events,
+            history.History,
+            method_args=["87654321-4321-8765-4321-876543218765"],
+            expected_args=[],
+            expected_kwargs={
+                "node_id": "87654321-4321-8765-4321-876543218765",
+            },
+        )
+
+    def test_history_events_detailed(self):
+        self.verify_list(
+            self.proxy.history_events,
+            history.History,
+            method_args=["87654321-4321-8765-4321-876543218765"],
+            method_kwargs={"details": True},
+            expected_args=[],
+            expected_kwargs={
+                "node_id": "87654321-4321-8765-4321-876543218765",
+                "detail": True,
+            },
+        )
+
+    def test_get_history(self):
+        self.verify_get(
+            self.proxy.get_history_event,
+            history.History,
+            method_args=[
+                "87654321-4321-8765-4321-876543218765",
+                "12345678-1234-5678-1234-567812345678",
+            ],
+            expected_args=[
+                "12345678-1234-5678-1234-567812345678",
+            ],
+            expected_kwargs={
+                "node_id": "87654321-4321-8765-4321-876543218765",
+            },
         )

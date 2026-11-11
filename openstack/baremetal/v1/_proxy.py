@@ -23,6 +23,7 @@ from openstack.baremetal.v1 import chassis as _chassis
 from openstack.baremetal.v1 import conductor as _conductor
 from openstack.baremetal.v1 import deploy_templates as _deploytemplates
 from openstack.baremetal.v1 import driver as _driver
+from openstack.baremetal.v1 import history as _history
 from openstack.baremetal.v1 import inspection_rules as _inspectionrules
 from openstack.baremetal.v1 import node as _node
 from openstack.baremetal.v1 import port as _port
@@ -56,6 +57,7 @@ class Proxy(proxy.Proxy):
         "volume_connector": _volumeconnector.VolumeConnector,
         "volume_target": _volumetarget.VolumeTarget,
         "inspection_rules": _inspectionrules.InspectionRule,
+        "history": _history.History,
     }
 
     def _get_with_fields(
@@ -2583,3 +2585,43 @@ class Proxy(proxy.Proxy):
         return self._patch(
             _inspectionrules.InspectionRule, inspection_rule, patch
         )
+
+    # ====== Node History ======
+
+    def history_events(
+        self,
+        node: str | _node.Node,
+        *,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_history.History, None, None]:
+        """Retrieve a generator of histories for a node
+
+        :param node: The ID or UUID of the node, or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param details: A boolean indicating whether the detailed information
+            for each history event should be returned.
+        :param query: Optional query parameters to be sent to limit the
+            resources being returned.
+        :returns: A generator of history events.
+        """
+        if details:
+            query['detail'] = True
+        res = self._get_resource(_node.Node, node)
+        return self._list(_history.History, node_id=res.id, **query)
+
+    def get_history_event(
+        self,
+        node: str | _node.Node,
+        history: str | _history.History,
+    ) -> _history.History:
+        """Get a specific history event
+
+        :param node: The ID or UUID of the node, or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param history: The ID of the history event, or a
+            :class:`~openstack.baremetal.v1.history.History` instance.
+        :returns: One history event.
+        """
+        res = self._get_resource(_node.Node, node)
+        return self._get(_history.History, history, node_id=res.id)
