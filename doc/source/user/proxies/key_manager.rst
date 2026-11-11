@@ -20,7 +20,7 @@ Secret Operations
 .. autoclass:: openstack.key_manager.v1._proxy.Proxy
   :noindex:
   :members: create_secret, update_secret, delete_secret, get_secret,
-            find_secret, secrets
+            fetch_secret_payload, find_secret, secrets
 
 Container Operations
 ^^^^^^^^^^^^^^^^^^^^

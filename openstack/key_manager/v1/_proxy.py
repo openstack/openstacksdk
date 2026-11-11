@@ -328,6 +328,8 @@ class Proxy(proxy.Proxy):
         self,
         name_or_id: str,
         ignore_missing: Literal[False],
+        *,
+        get_payload: bool = False,
     ) -> _secret.Secret: ...
 
     @overload
@@ -335,12 +337,16 @@ class Proxy(proxy.Proxy):
         self,
         name_or_id: str,
         ignore_missing: bool = True,
+        *,
+        get_payload: bool = False,
     ) -> _secret.Secret | None: ...
 
     def find_secret(
         self,
         name_or_id: str,
         ignore_missing: bool = True,
+        *,
+        get_payload: bool = False,
     ) -> _secret.Secret | None:
         """Find a single secret
 
@@ -350,25 +356,85 @@ class Proxy(proxy.Proxy):
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
+        :param get_payload: When set to ``True``, also fetch the secret's
+            payload. Defaults to ``False``.
         :returns: One :class:`~openstack.key_manager.v1.secret.Secret` or
             None
         """
-        return self._find(
+        secret = self._find(
             _secret.Secret, name_or_id, ignore_missing=ignore_missing
         )
+        if secret is not None and get_payload:
+            secret = secret.fetch_payload(self)
+        return secret
 
-    def get_secret(self, secret: str | _secret.Secret) -> _secret.Secret:
+    def get_secret(
+        self, secret: str | _secret.Secret, *, get_payload: bool = True
+    ) -> _secret.Secret:
         """Get a single secret
 
         :param secret: The value can be the ID of a secret or a
             :class:`~openstack.key_manager.v1.secret.Secret`
             instance.
+        :param get_payload: When set to ``True``, also fetch the secret's
+            payload. Defaults to ``True``. Set to ``False`` to retrieve
+            only the metadata.
 
         :returns: One :class:`~openstack.key_manager.v1.secret.Secret`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_secret.Secret, secret)
+        secret = self._get(_secret.Secret, secret)
+        if get_payload:
+            secret = secret.fetch_payload(self)
+        return secret
+
+    @overload
+    def fetch_secret_payload(
+        self,
+        secret: str,
+        *,
+        content_type: str,
+    ) -> _secret.Secret: ...
+
+    @overload
+    def fetch_secret_payload(
+        self,
+        secret: _secret.Secret,
+        *,
+        content_type: str | None = None,
+    ) -> _secret.Secret: ...
+
+    def fetch_secret_payload(
+        self,
+        secret: str | _secret.Secret,
+        *,
+        content_type: str | None = None,
+    ) -> _secret.Secret:
+        """Fetch a secret's payload and populate its payload field.
+
+        Makes only a payload request, without fetching the secret's metadata.
+
+        :param secret: The ID of a secret or a
+            :class:`~openstack.key_manager.v1.secret.Secret` instance
+            with its content type information populated.
+        :param content_type: The media type to request in the Accept header.
+            Required when secret is an ID. When given a resource, overrides
+            its payload content type; if omitted, uses the resource's
+            payload content type or its default content type.
+        :returns: The secret with its payload populated.
+        :raises ValueError: if secret is an ID and content_type is missing.
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        if isinstance(secret, str) and not content_type:
+            raise ValueError(
+                "content_type must be specified when secret is an ID"
+            )
+        secret = self._get_resource(_secret.Secret, secret)
+        if content_type is not None:
+            secret.payload_content_type = content_type
+        return secret.fetch_payload(self)
 
     def secrets(self, **query: Any) -> Generator[_secret.Secret, None, None]:
         """Return a generator of secrets
