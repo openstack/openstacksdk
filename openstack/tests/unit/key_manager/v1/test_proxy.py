@@ -94,11 +94,125 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
 
     def test_secret_find(self):
         self.verify_find(self.proxy.find_secret, secret.Secret)
+        with mock.patch.object(self.proxy, '_find') as find:
+            result = self.proxy.find_secret('name')
+        find.assert_called_once_with(
+            secret.Secret, 'name', ignore_missing=True
+        )
+        find.return_value.fetch_payload.assert_not_called()
+        self.assertIs(find.return_value, result)
+
+    def test_secret_find_with_payload(self):
+        with mock.patch.object(self.proxy, '_find') as find:
+            result = self.proxy.find_secret(
+                'name', ignore_missing=False, get_payload=True
+            )
+        find.assert_called_once_with(
+            secret.Secret, 'name', ignore_missing=False
+        )
+        find.return_value.fetch_payload.assert_called_once_with(self.proxy)
+        self.assertIs(find.return_value.fetch_payload.return_value, result)
+
+    def test_secret_find_without_payload(self):
+        with mock.patch.object(self.proxy, '_find') as find:
+            result = self.proxy.find_secret('name', get_payload=False)
+        find.assert_called_once_with(
+            secret.Secret, 'name', ignore_missing=True
+        )
+        find.return_value.fetch_payload.assert_not_called()
+        self.assertIs(find.return_value, result)
+
+    def test_secret_find_missing_with_payload(self):
+        with mock.patch.object(self.proxy, '_find', return_value=None) as find:
+            self.assertIsNone(self.proxy.find_secret('name', get_payload=True))
+        find.assert_called_once_with(
+            secret.Secret, 'name', ignore_missing=True
+        )
 
     def test_secret_get(self):
-        self.verify_get(self.proxy.get_secret, secret.Secret)
-        self.verify_get_overrided(
-            self.proxy, secret.Secret, 'openstack.key_manager.v1.secret.Secret'
+        with mock.patch.object(self.proxy, '_get') as get:
+            result = self.proxy.get_secret('id')
+        get.assert_called_once_with(secret.Secret, 'id')
+        get.return_value.fetch_payload.assert_called_once_with(self.proxy)
+        self.assertIs(get.return_value.fetch_payload.return_value, result)
+
+    def test_secret_get_metadata(self):
+        with mock.patch.object(self.proxy, '_get') as get:
+            result = self.proxy.get_secret('id', get_payload=False)
+        get.assert_called_once_with(secret.Secret, 'id')
+        get.return_value.fetch_payload.assert_not_called()
+        self.assertIs(get.return_value, result)
+
+    def test_secret_payload_flags_keyword_only(self):
+        self.assertRaises(TypeError, self.proxy.get_secret, 'id', False)
+        self.assertRaises(TypeError, self.proxy.find_secret, 'id', True, True)
+
+    def test_secret_fetch_payload(self):
+        resource = secret.Secret(
+            id='id', content_types={'default': 'application/octet-stream'}
+        )
+        with mock.patch.object(self.proxy, '_get') as get:
+            self._verify(
+                'openstack.key_manager.v1.secret.Secret.fetch_payload',
+                self.proxy.fetch_secret_payload,
+                method_args=[resource],
+                expected_args=[self.proxy],
+                expected_kwargs={},
+            )
+        get.assert_not_called()
+        self.assertEqual(
+            {'default': 'application/octet-stream'}, resource.content_types
+        )
+
+    def test_secret_fetch_payload_by_id(self):
+        with (
+            mock.patch.object(
+                secret.Secret, 'fetch_payload', autospec=True
+            ) as fetch,
+            mock.patch.object(self.proxy, '_get') as get,
+        ):
+            result = self.proxy.fetch_secret_payload(
+                'id', content_type='application/octet-stream'
+            )
+        get.assert_not_called()
+        fetched_secret = fetch.call_args.args[0]
+        self.assertEqual('id', fetched_secret.id)
+        self.assertEqual(
+            'application/octet-stream', fetched_secret.payload_content_type
+        )
+        fetch.assert_called_once_with(fetched_secret, self.proxy)
+        self.assertIs(fetch.return_value, result)
+
+    def test_secret_fetch_payload_by_id_requires_content_type(self):
+        for content_type in (None, ''):
+            with self.subTest(content_type=content_type):
+                self.assertRaises(
+                    ValueError,
+                    self.proxy.fetch_secret_payload,
+                    'id',
+                    content_type=content_type,
+                )
+
+    def test_secret_fetch_payload_content_type_override(self):
+        resource = secret.Secret(
+            id='id', payload_content_type='application/octet-stream'
+        )
+        with mock.patch.object(
+            secret.Secret, 'fetch_payload', autospec=True
+        ) as fetch:
+            result = self.proxy.fetch_secret_payload(
+                resource, content_type='text/plain'
+            )
+        fetch.assert_called_once_with(resource, self.proxy)
+        self.assertEqual('text/plain', resource.payload_content_type)
+        self.assertIs(fetch.return_value, result)
+
+    def test_secret_fetch_payload_content_type_keyword_only(self):
+        self.assertRaises(
+            TypeError,
+            self.proxy.fetch_secret_payload,
+            'id',
+            'application/octet-stream',
         )
 
     def test_secrets(self):

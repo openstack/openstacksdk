@@ -13,6 +13,9 @@
 from typing import Any
 from unittest import mock
 
+from keystoneauth1 import adapter
+
+from openstack import exceptions
 from openstack.key_manager.v1 import secret
 from openstack.tests.unit import base
 
@@ -108,99 +111,124 @@ class TestSecret(base.TestCase):
         default_microversion=None,
         microversion_range=(None, None),
     ):
-        sess = mock.Mock()
+        sess = mock.Mock(spec=adapter.Adapter)
         sess.default_microversion = default_microversion
         # Pre-seed the probe cache so tests don't issue a discovery GET.
         sess._key_manager_microversion_range = microversion_range
         return sess
 
-    def test_get_no_payload(self):
-        sot = secret.Secret(id="id")
-
-        sess = self._session()
-        rv = mock.Mock()
-        return_body = {"status": "cool"}
-        rv.json = mock.Mock(return_value=return_body)
-        sess.get = mock.Mock(return_value=rv)
-
-        sot.fetch(sess)
-
-        sess.get.assert_called_once_with("secrets/id", microversion=None)
-
-    def test_get_negotiates_microversion(self):
-        sot = secret.Secret(id="id")
-
+    def test_fetch_metadata_only(self):
+        metadata = {
+            key: value
+            for key, value in EXAMPLE.items()
+            if not key.startswith('payload')
+        }
         sess = self._session(microversion_range=('1.0', '1.3'))
-        rv = mock.Mock()
-        return_body = {"status": "cool", "secret_store_id": STORE_ID}
-        rv.json = mock.Mock(return_value=return_body)
-        sess.get = mock.Mock(return_value=rv)
+        sess.get.return_value.status_code = 200
+        sess.get.return_value.headers = {}
+        sess.get.return_value.json.return_value = metadata
+        sot = secret.Secret(id=ID_VAL)
 
-        sot.fetch(sess)
+        self.assertIs(sot, sot.fetch(sess))
 
-        sess.get.assert_called_once_with("secrets/id", microversion='1.3')
-        self.assertEqual(STORE_ID, sot.secret_store_id)
+        sess.get.assert_called_once_with(
+            'secrets/123', microversion='1.3', params={}, skip_cache=False
+        )
+        self.assertEqual(EXAMPLE['status'], sot.status)
+        self.assertEqual(EXAMPLE['secret_store_id'], sot.secret_store_id)
+        self.assertEqual(EXAMPLE['content_types'], sot.content_types)
+        self.assertIsNone(sot.payload)
 
-    def _test_payload(self, sot, metadata, content_type="some/type"):
-        metadata_response = mock.Mock()
-        # Use copy because the dict gets consumed.
-        metadata_response.json = mock.Mock(return_value=metadata.copy())
+    def _test_payload(self, content_type, **attrs):
+        sess = self._session(microversion_range=('1.0', '1.3'))
+        sess.get.return_value.status_code = 200
+        sess.get.return_value.content = b'secret info'
+        sot = secret.Secret(secret_ref=IDENTIFIER, status='ACTIVE', **attrs)
 
-        payload_response = mock.Mock()
-        payload = b"secret info"
-        payload_response.content = payload
+        self.assertIs(sot, sot.fetch_payload(sess))
 
-        sess = self._session()
-        sess.get = mock.Mock(side_effect=[metadata_response, payload_response])
+        sess.get.assert_called_once_with(
+            'secrets/123/payload',
+            headers={'Accept': content_type},
+            microversion='1.3',
+        )
+        expected = (
+            'secret info' if content_type == 'text/plain' else b'secret info'
+        )
+        self.assertEqual(expected, sot.payload)
+        self.assertEqual('ACTIVE', sot.status)
+        self.assertFalse(sot._body.dirty)
 
-        rv = sot.fetch(sess)
-
-        sess.get.assert_has_calls(
-            [
-                mock.call(
-                    "secrets/id",
-                    microversion=None,
-                ),
-                mock.call(
-                    "secrets/id/payload",
-                    headers={"Accept": content_type},
-                    skip_cache=False,
-                    microversion=None,
-                ),
-            ]
+    def test_fetch_payload_explicit_content_type(self):
+        self._test_payload(
+            'some/type',
+            payload_content_type='some/type',
+            content_types={'default': 'other/type'},
         )
 
-        expected_payload: str | bytes
-        if content_type == "text/plain":
-            expected_payload = payload.decode("utf-8")
-        else:
-            expected_payload = payload
-        self.assertEqual(rv.payload, expected_payload)
-        self.assertEqual(rv.status, metadata["status"])
+    def test_fetch_payload_default_content_type(self):
+        self._test_payload(
+            'application/octet-stream',
+            content_types={'default': 'application/octet-stream'},
+        )
 
-    def test_get_with_payload_from_argument(self):
-        metadata = {"status": "great"}
-        content_type = "some/type"
-        sot = secret.Secret(id="id", payload_content_type=content_type)
-        self._test_payload(sot, metadata, content_type)
+    def test_fetch_payload_text(self):
+        self._test_payload(
+            'text/plain', content_types={'default': 'text/plain'}
+        )
 
-    def test_get_with_payload_from_content_types(self):
-        content_type = "some/type"
-        metadata = {
-            "status": "fine",
-            "content_types": {"default": content_type},
-        }
-        sot = secret.Secret(id="id")
-        self._test_payload(sot, metadata, content_type)
+    def test_fetch_payload_no_content_type(self):
+        sess = self._session()
+        sot = secret.Secret(id=ID_VAL)
 
-    def test_get_with_text_payload(self):
-        content_type = "text/plain"
-        metadata = {
-            "status": "fine",
-            "content_types": {"default": content_type},
-        }
-        sot = secret.Secret(id="id")
-        self._test_payload(sot, metadata, content_type)
+        self.assertIs(sot, sot.fetch_payload(sess))
+
+        self.assertIsNone(sot.payload)
+        sess.get.assert_not_called()
+
+    def test_fetch_payload_missing_default_content_type(self):
+        sess = self._session()
+        sot = secret.Secret(id=ID_VAL, content_types={})
+
+        self.assertIs(sot, sot.fetch_payload(sess))
+
+        self.assertIsNone(sot.payload)
+        sess.get.assert_not_called()
+
+    def test_fetch_payload_not_found(self):
+        sess = self._session()
+        sess.get.return_value.status_code = 404
+        sess.get.return_value.headers = {}
+        sess.get.return_value.json.return_value = {}
+        sess.get.return_value.content = b''
+        sot = secret.Secret(
+            id=ID_VAL, payload_content_type='application/octet-stream'
+        )
+
+        self.assertRaises(
+            exceptions.NotFoundException, sot.fetch_payload, sess
+        )
+
+        sess.get.assert_called_once_with(
+            'secrets/123/payload',
+            headers={'Accept': 'application/octet-stream'},
+            microversion=None,
+        )
+        self.assertIsNone(sot.payload)
+
+    def test_fetch_payload_explicit_microversion(self):
+        sot = secret.Secret(
+            id=ID_VAL, payload_content_type='application/octet-stream'
+        )
+        sess = self._session()
+        sess.get.return_value.status_code = 200
+        sess.get.return_value.content = b'secret info'
+        sot.fetch_payload(sess, microversion='1.1')
+        sess.get.assert_called_once_with(
+            'secrets/123/payload',
+            headers={'Accept': 'application/octet-stream'},
+            microversion='1.1',
+        )
 
     def test_migrate_store(self):
         sot = secret.Secret(id=ID_VAL)

@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
+from typing import Self
 
 from keystoneauth1 import adapter
 
+from openstack import exceptions
 from openstack.key_manager.v1 import _format
 from openstack.key_manager.v1 import _microversion
 from openstack import resource
@@ -108,56 +109,48 @@ class Secret(resource.Resource):
     #: (required if payload is encoded)
     payload_content_encoding = resource.Body('payload_content_encoding')
 
-    def fetch(
+    def fetch_payload(
         self,
         session: adapter.Adapter,
-        requires_id: bool = True,
-        base_path: str | None = None,
-        error_message: str | None = None,
-        skip_cache: bool = False,
         *,
-        resource_response_key: str | None = None,
         microversion: str | None = None,
-        **params: Any,
     ) -> Self:
-        request = self._prepare_request(
-            requires_id=requires_id, base_path=base_path
-        )
+        """Fetch the secret's payload.
 
+        Uses ``payload_content_type`` if set, otherwise the default from
+        ``content_types``. If neither is available, no request is made.
+        Fetch the secret's metadata first to populate ``content_types``.
+
+        :param session: The session to use for making this request.
+        :param microversion: API microversion to use. Defaults to the
+            negotiated microversion for this resource.
+        :returns: The secret with its payload populated. Text/plain payloads
+            are decoded as UTF-8; other payloads are returned as bytes.
+        """
+        content_type = self.payload_content_type
+        if content_type is None and self.content_types:
+            content_type = self.content_types.get('default')
+        if content_type is None:
+            return self
+
+        # The alternate resource ID is a full reference, not a UUID.
+        url = utils.urljoin(
+            self.base_path, self.secret_id or self.id, 'payload'
+        )
         if microversion is None:
             microversion = self._get_microversion(session)
-        response = session.get(request.url, microversion=microversion).json()
-
-        content_type = None
-        if self.payload_content_type is not None:
-            content_type = self.payload_content_type
-        elif "content_types" in response:
-            content_type = response["content_types"]["default"]
-
-        # Only try to get the payload if a content type has been explicitly
-        # specified or if one was found in the metadata response
-        if content_type is not None:
-            payload = session.get(
-                utils.urljoin(request.url, "payload"),
-                headers={"Accept": content_type},
-                skip_cache=skip_cache,
-                microversion=microversion,
-            )
-            # NOTE(pas-ha): do not return payload.text here,
-            # as it will be decoded to whatever requests and chardet detected,
-            # and if they are wrong, there'd be no way of getting original
-            # bytes back and try to re-decode.
-            # At least this way, the encoding is always the same,
-            # so SDK user can always get original bytes back and fix things.
-            # Besides, this is exactly what python-barbicanclient does.
-            if content_type == "text/plain":
-                response["payload"] = payload.content.decode("UTF-8")
-            else:
-                response["payload"] = payload.content
-
-        # We already have the JSON here so don't call into _translate_response
-        self._update_from_body_attrs(response)
-
+        response = session.get(
+            url,
+            headers={"Accept": content_type},
+            microversion=microversion,
+        )
+        exceptions.raise_from_response(response)
+        # Do not use response.text: automatic encoding detection could corrupt
+        # the payload. Text payloads use UTF-8, matching barbicanclient.
+        payload = response.content
+        if content_type == "text/plain":
+            payload = payload.decode("UTF-8")
+        self._update_from_body_attrs({'payload': payload})
         return self
 
     def migrate_store(
