@@ -13,13 +13,13 @@ from typing import Any, Self
 
 from keystoneauth1 import adapter
 
-from openstack.common import tag
 from openstack import exceptions
+from openstack.network.v2 import _base
 from openstack import resource
 from openstack import utils
 
 
-class Trunk(resource.Resource, tag.TagMixin):
+class Trunk(resource.Resource, _base.TagMixinNetwork):
     resource_key = 'trunk'
     resources_key = 'trunks'
     base_path = '/trunks'
@@ -42,7 +42,7 @@ class Trunk(resource.Resource, tag.TagMixin):
         'sub_ports',
         'project_id',
         is_admin_state_up='admin_state_up',
-        **tag.TagMixin._tag_query_parameters,
+        **_base.TagMixinNetwork._tag_query_parameters,
     )
 
     # Properties
