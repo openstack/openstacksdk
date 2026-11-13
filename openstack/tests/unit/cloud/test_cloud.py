@@ -11,13 +11,16 @@
 # under the License.
 
 import gc
+import os
 from unittest import mock
 import uuid
 import weakref
 
+import fixtures
 import keystoneauth1.session as ks_session
 import requests
 
+from openstack import config as cloud_config
 from openstack import connection
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -102,15 +105,23 @@ class TestCloud(base.TestCase):
 
     def test_close_releases_session(self):
         # Accessing the session property creates the keystoneauth
-        # session. In the SDK-managed flow, keystoneauth creates the
-        # underlying requests session itself, so close() should
+        # session. In the SDK-managed flow (region built by the
+        # connection itself from the cloud name), keystoneauth creates
+        # the underlying requests session itself, so close() should
         # release it.
-        ks = self.cloud.session
+        config_file = os.path.join(
+            self.fixtures_directory, 'clouds', self.CLOUD_CONFIG_FIXTURE
+        )
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_CLIENT_CONFIG_FILE', config_file)
+        )
+        conn = connection.Connection(cloud='_test_cloud_')
+        ks = conn.session
         self.assertIs(ks._session, ks.session)
         with mock.patch.object(
             ks.session, 'close', wraps=ks.session.close
         ) as close_mock:
-            self.cloud.close()
+            conn.close()
         close_mock.assert_called_once()
 
     def test_close_keeps_external_session(self):
@@ -127,16 +138,78 @@ class TestCloud(base.TestCase):
             conn.close()
         close_mock.assert_not_called()
 
+    def test_close_keeps_config_provided_session(self):
+        # A caller-created CloudRegion caches one keystoneauth session
+        # shared by every Connection built from it, so closing one
+        # connection must not drain the pools of the others: the region
+        # and its session belong to the caller.
+        config_file = os.path.join(
+            self.fixtures_directory, 'clouds', self.CLOUD_CONFIG_FIXTURE
+        )
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_CLIENT_CONFIG_FILE', config_file)
+        )
+        region = cloud_config.get_cloud_region(cloud='_test_cloud_')
+        conn_a = connection.Connection(config=region)
+        conn_b = connection.Connection(config=region)
+
+        # Touching the session property on both connections makes each
+        # holder reference the shared cached session
+        session_a = conn_a.session
+        session_b = conn_b.session
+        self.assertIs(session_a, session_b)
+
+        requests_session = session_b._session
+        assert requests_session is not None
+        with mock.patch.object(
+            requests_session, 'close', wraps=requests_session.close
+        ) as close_mock:
+            conn_a.close()
+        close_mock.assert_not_called()
+
+    def test_close_releases_supplied_session(self):
+        # Connection(session=...) routes the caller-supplied keystoneauth
+        # session into the CloudRegion; proxies get it from
+        # config.get_session(), bypassing the ``session`` property. The
+        # holder must still be populated in __init__, or close() and the
+        # weakref finalizer release nothing even for sessions whose
+        # requests.Session keystoneauth created itself.
+        ks = ks_session.Session()
+        conn = connection.Connection(session=ks)
+        requests_session = ks._session
+        assert requests_session is not None
+        # deliberately do NOT touch conn.session before closing
+        with mock.patch.object(
+            requests_session, 'close', wraps=requests_session.close
+        ) as close_mock:
+            conn.close()
+        close_mock.assert_called_once()
+
+    def test_session_sets_sdk_connection_on_supplied_session(self):
+        # Proxy._get_connection falls back to the ``_sdk_connection``
+        # attribute on the session. The property must set it on every
+        # access, including for caller-supplied sessions that populate
+        # the holder in __init__ (their branch does not create the
+        # session, so it must not depend on that code path).
+        ks = ks_session.Session()
+        conn = connection.Connection(session=ks)
+        self.assertIs(conn.session, ks)
+        self.assertEqual(getattr(ks, '_sdk_connection', None), conn)
+
     def test_close_swallows_session_close_error(self):
         # close() also runs from the finalizer at interpreter shutdown and
         # from the context manager exit, so a failure while tearing down idle
         # pooled connections must not propagate to the caller.
         ks = self.cloud.session
+        # The fixture's connection borrows its config and does not close
+        # its session. Use a connection that owns its config instead.
+        conn = connection.Connection(session=ks)
+        self.addCleanup(conn.close)
         for exc in (OSError('boom'), requests.exceptions.RequestException):
             with mock.patch.object(
                 ks.session, 'close', side_effect=exc
             ) as close_mock:
-                self.cloud.close()  # must not raise
+                conn.close()  # must not raise
             close_mock.assert_called_once()
 
     @mock.patch('openstack.cloud.openstackcloud._run_close')
@@ -191,15 +264,19 @@ class TestCloud(base.TestCase):
             ]
         )
         ks = self.cloud.session
+        # The fixture's connection borrows its config and does not close
+        # its session. Use a connection that owns its config instead.
+        conn = connection.Connection(session=ks)
+        self.addCleanup(conn.close)
         with mock.patch.object(
             ks.session, 'close', wraps=ks.session.close
         ) as close_mock:
-            self.assertEqual(self.cloud.list_servers(), [])
-            self.cloud.close()
+            self.assertEqual(conn.list_servers(), [])
+            conn.close()
             close_mock.assert_called_once()
 
-            self.assertEqual(self.cloud.list_servers(), [])
-            self.cloud.close()
+            self.assertEqual(conn.list_servers(), [])
+            conn.close()
             self.assertEqual(2, close_mock.call_count)
         self.assert_calls()
 

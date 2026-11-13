@@ -62,9 +62,11 @@ def _run_close(
     config: cloud_region.CloudRegion,
     pool_executor_holder: list[concurrent.futures.Executor | None],
     session_holder: list['ks_session.Session | None'],
+    owns_config: bool = True,
 ) -> None:
     config.set_auth_cache()
-    _close_requests_session(session_holder[0])
+    if owns_config:
+        _close_requests_session(session_holder[0])
     pool_executor = pool_executor_holder[0]
     if pool_executor:
         pool_executor.shutdown()
@@ -203,6 +205,14 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             for service in extra_services:
                 self._extra_services[service.service_type] = service
 
+        # Whether this connection owns its CloudRegion, and therefore
+        # the keystoneauth session lazily created inside it. A
+        # caller-provided config remains the caller's responsibility:
+        # the region caches one session for every connection built
+        # from it, so closing it here would drain the pools of all the
+        # others.
+        self._owns_config: bool = not config
+
         if config:
             self.config = config
         else:
@@ -239,6 +249,16 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         self._pool_executor_holder: list[
             concurrent.futures.Executor | None
         ] = [pool_executor]
+        if session is not None and not config:
+            # A caller-supplied session is the session every proxy will
+            # actually use: from_session/from_conf route it into the
+            # CloudRegion and config.get_session() returns it, which
+            # bypasses the ``session`` property below. Without this the
+            # holder stays None and neither close() nor the weakref
+            # finalizer can release the underlying requests.Session. The
+            # keystoneauth session ownership rules still apply: an
+            # externally supplied requests.Session is left untouched.
+            self._session_holder[0] = session
         self._proxies: dict[str, proxy.Proxy] = {}
         self._global_request_id = global_request_id
         self.use_direct_get = use_direct_get or False
@@ -301,6 +321,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             self.config,
             self._pool_executor_holder,
             self._session_holder,
+            self._owns_config,
         )
 
     @property
@@ -315,10 +336,12 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     def session(self) -> 'ks_session.Session':
         if not self._session:
             self._session = self.config.get_session()
-            # Hide a reference to the connection on the session to help with
-            # backwards compatibility for folks trying to just pass
-            # conn.session to a Resource method's session argument.
-            setattr(self.session, '_sdk_connection', weakref.proxy(self))
+        # Hide a reference to the connection on the session to help with
+        # backwards compatibility for folks trying to just pass
+        # conn.session to a Resource method's session argument. Done on
+        # every access so a caller-supplied session, which populates the
+        # holder in __init__, also gets the attribute.
+        setattr(self._session, '_sdk_connection', weakref.proxy(self))
         return self._session
 
     @property
@@ -333,7 +356,10 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         """Release any resources held open."""
         self._finalizer.detach()
         _run_close(
-            self.config, self._pool_executor_holder, self._session_holder
+            self.config,
+            self._pool_executor_holder,
+            self._session_holder,
+            self._owns_config,
         )
 
     def __enter__(self) -> Self:
