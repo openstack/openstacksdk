@@ -42,7 +42,7 @@ class TestZoneExport(base.TestCase):
         sot = zone_export.ZoneExport()
         self.assertEqual('', sot.resource_key)
         self.assertEqual('exports', sot.resources_key)
-        self.assertEqual('/zones/tasks/export', sot.base_path)
+        self.assertEqual('/zones/tasks/exports', sot.base_path)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)

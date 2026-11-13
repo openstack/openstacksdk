@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Fixed ``connection.dns.get_zone_export_text()`` to request the DNS zone-file
+    representation and return its contents as a string. Previously, this method
+    attempted to decode the zone file as JSON, causing downloads to fail. Its
+    documented return type has been corrected from ``ZoneExport`` to ``str``;
+    callers needing the export metadata should continue to use
+    ``connection.dns.get_zone_export()``.
