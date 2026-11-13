@@ -59,6 +59,10 @@ class Secret(resource.Resource):
     #: Metadata provided by a user or system for informational purposes.
     #: Value must be greater than zero.
     bit_length = resource.Body('bit_length')
+    #: Consumers registered for this secret, as a list of dictionaries with
+    #: ``service``, ``resource_type``, and ``resource_id`` keys.
+    #: Available in API microversion 1.1 and later.
+    consumers = resource.Body('consumers', type=list)
     #: A list of content types
     content_types = resource.Body('content_types', type=dict)
     #: Once this timestamp has past, the secret will no longer be available.

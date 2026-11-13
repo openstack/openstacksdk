@@ -23,6 +23,13 @@ STORE_REF = f'http://localhost:9311/v1/secret-stores/{STORE_ID}'
 EXAMPLE: dict[str, Any] = {
     'algorithm': '1',
     'bit_length': '2',
+    'consumers': [
+        {
+            'service': 'image',
+            'resource_type': 'image',
+            'resource_id': '123e4567-e89b-12d3-a456-426614174000',
+        },
+    ],
     'content_types': {'default': '3'},
     'expiration': '2017-03-09T12:14:57.233772',
     'mode': '5',
@@ -75,6 +82,7 @@ class TestSecret(base.TestCase):
         sot = secret.Secret(**EXAMPLE)
         self.assertEqual(EXAMPLE['algorithm'], sot.algorithm)
         self.assertEqual(EXAMPLE['bit_length'], sot.bit_length)
+        self.assertEqual(EXAMPLE['consumers'], sot.consumers)
         self.assertEqual(EXAMPLE['content_types'], sot.content_types)
         self.assertEqual(EXAMPLE['expiration'], sot.expires_at)
         self.assertEqual(EXAMPLE['mode'], sot.mode)
