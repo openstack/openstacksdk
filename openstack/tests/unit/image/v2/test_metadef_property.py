@@ -59,6 +59,30 @@ class TestMetadefProperty(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+    def test_encoded_paths(self):
+        namespace = 'namespace?#%2Fé'
+        name = 'property?#%2Fé'
+        endpoint = self.get_mock_url('image', base_url_append='v2')
+        self.register_uris(
+            [
+                self.get_glance_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=endpoint
+                    + '/metadefs/namespaces/namespace%3F%23%252F%C3%A9'
+                    '/properties/property%3F%23%252F%C3%A9',
+                    json={'name': name, 'type': 'string'},
+                ),
+            ]
+        )
+        sot = metadef_property.MetadefProperty(
+            name=name, namespace_name=namespace
+        )
+        sot.fetch(self.cloud.image)
+        self.assertEqual(name, sot.name)
+        self.assertEqual(namespace, sot.namespace_name)
+        self.assert_calls()
+
     def test_make_it(self):
         sot = metadef_property.MetadefProperty(**EXAMPLE)
         self.assertEqual(EXAMPLE['namespace_name'], sot.namespace_name)

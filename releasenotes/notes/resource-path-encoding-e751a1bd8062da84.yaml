@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Shared resource request preparation and listing now URL-encode raw resource
+    IDs and URI attributes before inserting them into request paths. Reserved
+    characters and literal percent escapes in name-based identifiers, such as
+    Image metadata definitions and Identity federation resources, are no longer
+    interpreted as URL syntax. Resource attributes retain their original values.

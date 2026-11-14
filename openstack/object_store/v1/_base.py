@@ -74,21 +74,10 @@ class BaseResource(resource.Resource):
         requires_id = kwargs.pop('requires_id', None)
         if requires_id is None:
             requires_id = self.requires_id
-        base_path = kwargs.pop('base_path', None) or self.base_path
         params = kwargs.pop('params', None)
-        # Swift names are arbitrary strings, not already-escaped URL paths.
-        # Prepare the body/headers separately so reserved characters and
-        # literal percent escapes in names cannot become URL syntax.
-        request = super()._prepare_request(
-            *args, requires_id=False, base_path='/', **kwargs
-        )
-        request.url = base_path % {
-            'id': parse.quote(str(self.id), safe='()'),
-            **{
-                key: parse.quote(str(value), safe='()')
-                for key, value in self._uri.attributes.items()
-            },
-        }
+        # Let the shared layer encode URI attributes, but append Swift names
+        # separately: slashes are significant, including at either boundary.
+        request = super()._prepare_request(*args, requires_id=False, **kwargs)
         if requires_id:
             if self.id is None:
                 raise exceptions.InvalidRequest(

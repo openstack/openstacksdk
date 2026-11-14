@@ -937,6 +937,34 @@ class TestResource(base.TestCase):
         self.assertEqual({"x": body_value, "id": the_id}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
 
+    def test__prepare_request_encodes_path_components(self):
+        class Test(resource.Resource):
+            base_path = '/parents/%(parent)s/children'
+            parent = resource.URI('parent')
+
+        raw = '/a ?#%2Fé/'
+        encoded = '%2Fa%20%3F%23%252F%C3%A9%2F'
+        sot = Test(id=raw, parent=raw)
+        request = sot._prepare_request(params={'filter': raw})
+        self.assertEqual(
+            f'parents/{encoded}/children/{encoded}'
+            '?filter=%2Fa+%3F%23%252F%C3%A9%2F',
+            request.url,
+        )
+        self.assertEqual(raw, sot.id)
+        self.assertEqual(raw, sot.parent)
+        assert isinstance(request.body, dict)
+        self.assertEqual(raw, request.body['id'])
+
+    def test__prepare_request_encodes_template_id(self):
+        sot = resource.Resource(id='a?#%2F')
+        request = sot._prepare_request(
+            base_path='/things/%(id)s/action?enabled=true', requires_id=False
+        )
+        self.assertEqual(
+            '/things/a%3F%23%252F/action?enabled=true', request.url
+        )
+
     def test__prepare_request_with_id_marked_clean(self):
         class Test(resource.Resource):
             base_path = "/something"
@@ -2795,7 +2823,7 @@ class TestResourceActions(base.TestCase):
 
         self.assertEqual(
             self.session.get.call_args_list[0][0][0],
-            Test.base_path % {"something": uri_param},
+            "/uri%20param%21/blah",
         )
 
     def test_list_with_injected_headers(self):
@@ -2858,7 +2886,7 @@ class TestResourceActions(base.TestCase):
             )
         )
         self.session.get.assert_called_once_with(
-            f"/{uri_param}/blah",
+            "/uri%20param%21/blah",
             headers={'Accept': 'application/json'},
             microversion=None,
             params={qp_name: qp},
@@ -2899,7 +2927,7 @@ class TestResourceActions(base.TestCase):
             )
         )
         self.session.get.assert_called_once_with(
-            f"/{uri_param}/blah",
+            "/uri%20param%21/blah",
             headers={'Accept': 'application/json'},
             microversion=None,
             params={'a': '1'},
@@ -2950,7 +2978,7 @@ class TestResourceActions(base.TestCase):
 
         self.assertEqual(
             self.session.get.call_args_list[0][0][0],
-            Test.base_path % {"something": uri_param},
+            "/uri%20param%21/blah",
         )
 
     def test_values_as_list_params_precedence(self):
@@ -2998,7 +3026,7 @@ class TestResourceActions(base.TestCase):
 
         self.assertEqual(
             self.session.get.call_args_list[0][0][0],
-            Test.base_path % {"something": uri_param},
+            "/uri%20param%21/blah",
         )
 
     def test_list_multi_page_response_paginated(self):
