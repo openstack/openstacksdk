@@ -52,6 +52,9 @@ class Object(_base.BaseResource):
     _query_mapping = resource.QueryParameters(
         'prefix',
         'format',
+        'end_marker',
+        'delimiter',
+        'path',
         'temp_url_sig',
         'temp_url_expires',
         'filename',
@@ -71,6 +74,8 @@ class Object(_base.BaseResource):
     container = resource.URI("container")
     #: The unique name for the object.
     name = resource.Body("name", alternate_id=True)
+    #: Common prefix returned by a delimiter listing.
+    subdir = resource.Body("subdir")
 
     # Object details
     # Make these private because they should only matter in the case where
@@ -211,6 +216,8 @@ class Object(_base.BaseResource):
     )
 
     def __init__(self, data: Any = None, **attrs: Any) -> None:
+        if attrs.get('subdir') and not attrs.get('name'):
+            attrs['name'] = attrs['subdir']
         super().__init__(**attrs)
         self.data = data
 

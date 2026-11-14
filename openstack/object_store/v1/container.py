@@ -42,7 +42,7 @@ class Container(_base.BaseResource):
     allow_list = True
     allow_head = True
 
-    _query_mapping = resource.QueryParameters('prefix', 'format')
+    _query_mapping = resource.QueryParameters('prefix', 'format', 'end_marker')
 
     # Container body data (when id=None)
     #: The name of the container.

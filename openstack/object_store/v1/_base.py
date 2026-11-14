@@ -15,6 +15,7 @@ from collections.abc import Iterable
 from typing import Any, Self
 
 from keystoneauth1 import adapter
+import requests
 
 from openstack import exceptions
 from openstack import resource
@@ -44,6 +45,26 @@ class BaseResource(resource.Resource):
                     self.metadata[self._custom_metadata_prefix + k] = v
                 else:
                     self.metadata[k] = v
+
+    @classmethod
+    def _get_next_link(
+        cls,
+        uri: str,
+        response: requests.Response,
+        data: dict[str, Any],
+        marker: str | None,
+        limit: str | None,
+        total_yielded: int,
+    ) -> tuple[str | None, dict[str, str]]:
+        # Swift's count headers describe the entire account/container, not
+        # the filtered listing. Continue until an empty page is returned,
+        # including when the server omits the optional count headers.
+        if marker is None:
+            return None, {}
+        params = {'marker': marker}
+        if limit:
+            params['limit'] = limit
+        return uri, params
 
     def _prepare_request(self, *args: Any, **kwargs: Any) -> resource._Request:
         request = super()._prepare_request(*args, **kwargs)

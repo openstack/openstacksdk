@@ -69,6 +69,9 @@ class TestObject(base_test_object.BaseTestObject):
 
         self.assertDictEqual(
             {
+                'delimiter': 'delimiter',
+                'end_marker': 'end_marker',
+                'path': 'path',
                 'filename': 'filename',
                 'format': 'format',
                 'limit': 'limit',
