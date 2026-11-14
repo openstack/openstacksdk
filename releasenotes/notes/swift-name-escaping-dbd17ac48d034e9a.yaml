@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Object-store resource requests now URL-encode container and object names
+    correctly, including reserved characters, literal percent escapes, and
+    leading or trailing slashes in object names.
