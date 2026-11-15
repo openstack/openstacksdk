@@ -1,3 +1,5 @@
+# Copyright (c) 2018 Red Hat, Inc.
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -10,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import exceptions
+
 from openstack.placement.v1 import _proxy
 from openstack.placement.v1 import allocation
 from openstack.placement.v1 import allocation_candidate
@@ -19,7 +23,108 @@ from openstack.placement.v1 import resource_provider_allocation
 from openstack.placement.v1 import resource_provider_inventory
 from openstack.placement.v1 import resource_provider_trait
 from openstack.placement.v1 import usage
+from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base as test_proxy_base
+
+
+class TestPlacementRest(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.use_placement()
+
+    def _register_uris(self, status_code=None, count=1):
+        uri = dict(
+            method='GET',
+            uri=self.get_mock_url(
+                'placement', 'public', append=['allocation_candidates']
+            ),
+            json={},
+        )
+        if status_code is not None:
+            uri['status_code'] = status_code
+        self.register_uris([uri.copy() for _ in range(count)])
+
+    def _validate_resp(self, resp, status_code):
+        self.assertEqual(status_code, resp.status_code)
+        self.assertEqual(
+            'https://placement.example.com/allocation_candidates', resp.url
+        )
+
+    def test_discovery(self):
+        cases = [{}, {'raise_exc': False}, {'raise_exc': True}]
+        self._register_uris(count=len(cases))
+        for get_kwargs in cases:
+            with self.subTest(get_kwargs=get_kwargs):
+                # Regardless of raise_exc, a <400 response doesn't raise.
+                rs = self.cloud.placement.get(
+                    '/allocation_candidates', **get_kwargs
+                )
+                self._validate_resp(rs, 200)
+        self.assert_calls()
+
+    def test_discovery_err(self):
+        cases = [{}, {'raise_exc': False}]
+        self._register_uris(status_code=500, count=len(cases))
+        for get_kwargs in cases:
+            with self.subTest(get_kwargs=get_kwargs):
+                # >=400 doesn't raise by default or with raise_exc=False.
+                rs = self.cloud.placement.get(
+                    '/allocation_candidates', **get_kwargs
+                )
+                self._validate_resp(rs, 500)
+        self.assert_calls()
+
+    def test_discovery_exc(self):
+        self._register_uris(status_code=500)
+        # raise_exc=True raises a ksa exception appropriate to the status code
+        ex = self.assertRaises(
+            exceptions.InternalServerError,
+            self.cloud.placement.get,
+            '/allocation_candidates',
+            raise_exc=True,
+        )
+        self._validate_resp(ex.response, 500)
+        self.assert_calls()
+
+    def test_microversion_discovery(self):
+        endpoint_data = self.cloud.placement.get_endpoint_data()
+        assert endpoint_data is not None  # narrow type for mypy
+        self.assertEqual((1, 17), endpoint_data.max_microversion)
+        self.assert_calls()
+
+
+class TestBadPlacementRest(base.TestCase):
+    def setUp(self):
+        self.skipTest('Need to re-add support for broken placement versions')
+        super().setUp()
+        # The bad-placement.json is for older placement that was
+        # missing the status field from its discovery doc. This
+        # lets us show that we can talk to such a placement.
+        self.use_placement(discovery_fixture='bad-placement.json')
+
+    def _register_uris(self, status_code=None):
+        uri = dict(
+            method='GET',
+            uri=self.get_mock_url(
+                'placement', 'public', append=['allocation_candidates']
+            ),
+            json={},
+        )
+        if status_code is not None:
+            uri['status_code'] = status_code
+        self.register_uris([uri])
+
+    def _validate_resp(self, resp, status_code):
+        self.assertEqual(status_code, resp.status_code)
+        self.assertEqual(
+            'https://placement.example.com/allocation_candidates', resp.url
+        )
+        self.assert_calls()
+
+    def test_discovery(self):
+        self._register_uris()
+        rs = self.cloud.placement.get('/allocation_candidates')
+        self._validate_resp(rs, 200)
 
 
 class TestPlacementProxy(test_proxy_base.TestProxyBase):
