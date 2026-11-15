@@ -117,7 +117,11 @@ class DownloadMixin:
         url = utils.urljoin(self.base_path, self.id, 'file')
         if store_preferences:
             url = f'{url}?prefer={",".join(store_preferences)}'
-        resp = session.get(url, stream=stream)
+        resp = session.get(
+            url,
+            stream=stream,
+            headers={'Accept': 'application/octet-stream, application/json'},
+        )
 
         hasher = None
         expected_hash = None

@@ -390,7 +390,10 @@ class TestImage(base.TestCase):
         self.sess.put.assert_called_with(
             'images/IDENTIFIER/file',
             data=sot.data,
-            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+            headers={
+                "Content-Type": "application/octet-stream",
+                "Accept": "application/json",
+            },
         )
 
     def test_upload_with_size(self):
@@ -402,7 +405,7 @@ class TestImage(base.TestCase):
             data=sot.data,
             headers={
                 "Content-Type": "application/octet-stream",
-                "Accept": "",
+                "Accept": "application/json",
                 "X-OpenStack-Image-Size": "1024",
             },
         )
@@ -426,7 +429,7 @@ class TestImage(base.TestCase):
                 data=sot.data,
                 headers={
                     "Content-Type": "application/octet-stream",
-                    "Accept": "",
+                    "Accept": "application/json",
                     "X-OpenStack-Image-Size": "9",
                 },
             )
@@ -438,7 +441,10 @@ class TestImage(base.TestCase):
         self.sess.put.assert_called_with(
             'images/IDENTIFIER/stage',
             data=sot.data,
-            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+            headers={
+                "Content-Type": "application/octet-stream",
+                "Accept": "application/json",
+            },
         )
 
     def test_stage_with_size(self):
@@ -450,7 +456,7 @@ class TestImage(base.TestCase):
             data=sot.data,
             headers={
                 "Content-Type": "application/octet-stream",
-                "Accept": "",
+                "Accept": "application/json",
                 "X-OpenStack-Image-Size": "2048",
             },
         )
@@ -468,7 +474,7 @@ class TestImage(base.TestCase):
                 data=sot.data,
                 headers={
                     "Content-Type": "application/octet-stream",
-                    "Accept": "",
+                    "Accept": "application/json",
                     "X-OpenStack-Image-Size": "1024",
                 },
             )
@@ -492,7 +498,7 @@ class TestImage(base.TestCase):
                 data=sot.data,
                 headers={
                     "Content-Type": "application/octet-stream",
-                    "Accept": "",
+                    "Accept": "application/json",
                     "X-OpenStack-Image-Size": "9",
                 },
             )
@@ -526,7 +532,13 @@ class TestImage(base.TestCase):
                     params={},
                     skip_cache=False,
                 ),
-                mock.call('images/IDENTIFIER/file', stream=False),
+                mock.call(
+                    'images/IDENTIFIER/file',
+                    stream=False,
+                    headers={
+                        'Accept': 'application/octet-stream, application/json',
+                    },
+                ),
             ]
         )
 
@@ -571,7 +583,13 @@ class TestImage(base.TestCase):
                     params={},
                     skip_cache=False,
                 ),
-                mock.call('images/IDENTIFIER/file', stream=False),
+                mock.call(
+                    'images/IDENTIFIER/file',
+                    stream=False,
+                    headers={
+                        'Accept': 'application/octet-stream, application/json',
+                    },
+                ),
             ]
         )
 
@@ -613,7 +631,13 @@ class TestImage(base.TestCase):
                     params={},
                     skip_cache=False,
                 ),
-                mock.call('images/IDENTIFIER/file', stream=False),
+                mock.call(
+                    'images/IDENTIFIER/file',
+                    stream=False,
+                    headers={
+                        'Accept': 'application/octet-stream, application/json',
+                    },
+                ),
             ]
         )
 
@@ -660,7 +684,16 @@ class TestImage(base.TestCase):
                             params={},
                             skip_cache=False,
                         ),
-                        mock.call(data['mock_call'], stream=True),
+                        mock.call(
+                            data['mock_call'],
+                            stream=True,
+                            headers={
+                                'Accept': (
+                                    'application/octet-stream, '
+                                    'application/json'
+                                ),
+                            },
+                        ),
                     ]
                 )
 
@@ -844,7 +877,7 @@ class TestImage(base.TestCase):
         resp.content = b"abc"
         headers = {
             'Content-Type': 'application/openstack-images-v2.1-json-patch',
-            'Accept': '',
+            'Accept': 'application/json',
         }
         resp.headers = headers
         resp.status_code = 200
@@ -863,6 +896,7 @@ class TestImage(base.TestCase):
         call = self.sess.patch.call_args
         call_args, call_kwargs = call
         self.assertEqual(url, call_args[0])
+        self.assertEqual(headers, call_kwargs['headers'])
         self.assertEqual(
             sorted(value, key=operator.itemgetter('value')),
             sorted(call_kwargs['json'], key=operator.itemgetter('value')),

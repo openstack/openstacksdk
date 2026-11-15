@@ -306,7 +306,10 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         if data:
             self.data = data
 
-        headers = {"Content-Type": "application/octet-stream", "Accept": ""}
+        headers = {
+            "Content-Type": "application/octet-stream",
+            "Accept": "application/json",
+        }
 
         # Calculate size if not provided and data is available
         if size is None and self.data:
@@ -347,7 +350,10 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         if data:
             self.data = data
 
-        headers = {"Content-Type": "application/octet-stream", "Accept": ""}
+        headers = {
+            "Content-Type": "application/octet-stream",
+            "Accept": "application/json",
+        }
 
         # Calculate size if not provided and data is available
         if size is None and self.data:
@@ -460,7 +466,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         if patch:
             headers = {
                 'Content-Type': 'application/openstack-images-v2.1-json-patch',
-                'Accept': '',
+                'Accept': 'application/json',
             }
             request.headers.update(headers)
 
