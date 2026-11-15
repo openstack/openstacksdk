@@ -43,6 +43,7 @@ import iso8601
 import jmespath
 from keystoneauth1 import adapter
 from keystoneauth1 import session
+from requests import structures
 
 from openstack import _log
 from openstack import exceptions
@@ -77,24 +78,24 @@ class CleanupDependency(TypedDict):
 class Proxy(adapter.Adapter):
     """Represents a service."""
 
+    #: Default response representation; ``None`` leaves it unspecified.
+    _default_accept: ClassVar[str | None] = "application/json"
+
+    #: The API version.
+    #:
+    #: This is used as a discriminating attribute for type checking.
     api_version: ClassVar[str]
-    """The API version.
 
-    This is used as a descriminating attribute for type checking.
-    """
-
+    #: HTTP status codes that should be retried by default.
+    #:
+    #: The number of retries is defined by the configuration in parameters
+    #: called ``<service-type>_status_code_retries``.
     retriable_status_codes: list[int] | None = None
-    """HTTP status codes that should be retried by default.
 
-    The number of retries is defined by the configuration in parameters called
-    ``<service-type>_status_code_retries``.
-    """
-
+    #: Registry of the supported resources.
+    #:
+    #: Dictionary of resource names (key) types (value).
     _resource_registry: dict[str, type[resource.Resource]] = {}
-    """Registry of the supported resourses.
-
-    Dictionary of resource names (key) types (value).
-    """
 
     _connection: connection.Connection
 
@@ -225,6 +226,15 @@ class Proxy(adapter.Adapter):
         if not global_request_id:
             # Per-request setting should take precedence
             global_request_id = conn._global_request_id
+
+        # Normalize before building the cache key: different representations
+        # of the same URL must not share cached responses. Copy the headers
+        # so neither caller-owned mappings nor additional_headers are mutated.
+        headers = structures.CaseInsensitiveDict(self.additional_headers)
+        headers.update(kwargs.pop('headers', None) or {})
+        if self._default_accept is not None:
+            headers.setdefault('Accept', self._default_accept)
+        kwargs['headers'] = headers
 
         key = None
         key_prefix = self._get_cache_key_prefix(url)

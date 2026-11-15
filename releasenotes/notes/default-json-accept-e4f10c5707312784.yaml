@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Service proxies now default to requesting JSON responses, improving error
+    details on services that otherwise return HTML. Explicit Accept headers,
+    including empty values and proxy-level additional headers, are preserved.
+    Object storage continues to accept arbitrary object media types.
