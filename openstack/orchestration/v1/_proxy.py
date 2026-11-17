@@ -45,8 +45,9 @@ class Proxy(proxy.Proxy):
         "stack_template": _stack_template.StackTemplate,
     }
 
+    @classmethod
     def _extract_name_consume_url_parts(
-        self, url_parts: list[str]
+        cls, url_parts: list[str]
     ) -> list[str]:
         if (
             len(url_parts) == 3
