@@ -30,6 +30,8 @@ class VolumeTarget(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'node',
         'detail',
+        'sort_dir',
+        'sort_key',
         fields={'format': 'csv'},
     )
 

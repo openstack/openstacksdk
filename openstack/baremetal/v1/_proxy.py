@@ -114,19 +114,11 @@ class Proxy(proxy.Proxy):
               ``limit`` parameter to make an initial limited request and
               use the ID of the last-seen chassis from the response as
               the ``marker`` value in a subsequent limited request.
-            * ``sort_dir``: Sorts the response by the requested sort direction.
+            * ``sort_dir``: Sorts the response in the requested direction.
               A valid value is ``asc`` (ascending) or ``desc``
-              (descending). Default is ``asc``. You can specify multiple
-              pairs of sort key and sort direction query parameters. If
-              you omit the sort direction in a pair, the API uses the
-              natural sorting direction of the server attribute that is
-              provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-              Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query parameters. If you omit the
-              sort direction in a pair, the API uses the natural sorting
-              direction of the server attribute that is provided as the
-              ``sort_key``.
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of chassis instances.
         """
@@ -367,19 +359,11 @@ class Proxy(proxy.Proxy):
             * ``resource_class``: Only return those with the specified
               ``resource_class``.
             * ``shard``: Only return nodes matching the supplied shard key.
-            * ``sort_dir``: Sorts the response by the requested sort direction.
+            * ``sort_dir``: Sorts the response in the requested direction.
               A valid value is ``asc`` (ascending) or ``desc``
-              (descending). Default is ``asc``. You can specify multiple
-              pairs of sort key and sort direction query parameters. If
-              you omit the sort direction in a pair, the API uses the
-              natural sorting direction of the server attribute that is
-              provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-              Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query pa rameters. If you omit the
-              sort direction in a pair, the API uses the natural sorting
-              direction of the server attribute that is provided as the
-              ``sort_key``.
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of :class:`~openstack.baremetal.v1.node.Node`
         """
@@ -1061,19 +1045,11 @@ class Proxy(proxy.Proxy):
             * ``portgroup``: only return the ports associated with this
               specific Portgroup (name or UUID), or an empty set if not
               found.  Added in API microversion 1.24.
-            * ``sort_dir``: Sorts the response by the requested sort direction.
+            * ``sort_dir``: Sorts the response in the requested direction.
               A valid value is ``asc`` (ascending) or ``desc``
-              (descending). Default is ``asc``. You can specify multiple
-              pairs of sort key and sort direction query parameters. If
-              you omit the sort direction in a pair, the API uses the
-              natural sorting direction of the server attribute that is
-              provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-              Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query parameters. If you omit the
-              sort direction in a pair, the API uses the natural sorting
-              direction of the server attribute that is provided as the
-              ``sort_key``.
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of port instances.
         """
@@ -1227,19 +1203,11 @@ class Proxy(proxy.Proxy):
               the ``marker`` value in a subsequent limited request.
             * ``node``:only return the ones associated with this specific node
               (name or UUID), or an empty set if not found.
-            * ``sort_dir``: Sorts the response by the requested sort direction.
+            * ``sort_dir``: Sorts the response in the requested direction.
               A valid value is ``asc`` (ascending) or ``desc``
-              (descending). Default is ``asc``. You can specify multiple
-              pairs of sort key and sort direction query parameters. If
-              you omit the sort direction in a pair, the API uses the
-              natural sorting direction of the server attribute that is
-              provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-              Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query parameters. If you omit the
-              sort direction in a pair, the API uses the natural sorting
-              direction of the server attribute that is provided as the
-              ``sort_key``.
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of port group instances.
         """
@@ -1536,19 +1504,11 @@ class Proxy(proxy.Proxy):
               ``limit`` parameter to make an initial limited request and
               use the ID of the last-seen allocation from the response as
               the ``marker`` value in a subsequent limited request.
-            * ``sort_dir``: Sorts the response by the requested sort direction.
+            * ``sort_dir``: Sorts the response in the requested direction.
               A valid value is ``asc`` (ascending) or ``desc``
-              (descending). Default is ``asc``. You can specify multiple
-              pairs of sort key and sort direction query parameters. If
-              you omit the sort direction in a pair, the API uses the
-              natural sorting direction of the server attribute that is
-              provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-              Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query parameters. If you omit the
-              sort direction in a pair, the API uses the natural sorting
-              direction of the server attribute that is provided as the
-              ``sort_key``.
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of allocation instances.
         """
@@ -1681,19 +1641,11 @@ class Proxy(proxy.Proxy):
               response as the ``marker`` value in subsequent limited request.
             * ``node``:only return the ones associated with this specific node
               (name or UUID), or an empty set if not found.
-            * ``sort_dir``:Sorts the response by the requested sort direction.
+            * ``sort_dir``: Sorts the response in the requested direction.
               A valid value is ``asc`` (ascending) or ``desc``
-              (descending). Default is ``asc``. You can specify multiple
-              pairs of sort key and sort direction query parameters. If
-              you omit the sort direction in a pair, the API uses the
-              natural sorting direction of the server attribute that is
-              provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-              Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query parameters. If you omit the
-              sort direction in a pair, the API uses the natural sorting
-              direction of the server attribute that is provided as the
-              ``sort_key``.
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of volume_connector instances.
         """
@@ -1880,19 +1832,11 @@ class Proxy(proxy.Proxy):
               response as the ``marker`` value in subsequent limited request.
             * ``node``:only return the ones associated with this specific node
               (name or UUID), or an empty set if not found.
-            * ``sort_dir``:Sorts the response by the requested sort direction.
+            * ``sort_dir``: Sorts the response in the requested direction.
               A valid value is ``asc`` (ascending) or ``desc``
-              (descending). Default is ``asc``. You can specify multiple
-              pairs of sort key and sort direction query parameters. If
-              you omit the sort direction in a pair, the API uses the
-              natural sorting direction of the server attribute that is
-              provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-              Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query parameters. If you omit the
-              sort direction in a pair, the API uses the natural sorting
-              direction of the server attribute that is provided as the
-              ``sort_key``.
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of volume_target instances.
         """
@@ -2057,7 +2001,24 @@ class Proxy(proxy.Proxy):
         :param details: A boolean indicating whether the detailed information
             for every deploy_templates should be returned.
         :param query: Optional query parameters to be sent to
-            restrict the deploy_templates to be returned.
+            restrict the deploy_templates to be returned. Available
+            parameters include:
+
+            * ``fields``: A list containing one or more fields to be returned
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
+            * ``limit``: Requests at most the specified number of items be
+              returned from the query.
+            * ``marker``: Specifies the ID of the last-seen deploy template.
+              Use the ``limit`` parameter to make an initial limited request
+              and use the ID of the last-seen deploy template from the
+              response as the ``marker`` value in a subsequent limited
+              request.
+            * ``sort_dir``: Sorts the response in the requested direction.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of Deploy templates instances.
         """
@@ -2229,7 +2190,23 @@ class Proxy(proxy.Proxy):
         :param details: A boolean indicating whether the detailed information
             for every runbook should be returned.
         :param query: Optional query parameters to be sent to
-            restrict the runbooks to be returned.
+            restrict the runbooks to be returned. Available parameters
+            include:
+
+            * ``fields``: A list containing one or more fields to be returned
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
+            * ``limit``: Requests at most the specified number of items be
+              returned from the query.
+            * ``marker``: Specifies the ID of the last-seen runbook. Use
+              the ``limit`` parameter to make an initial limited request
+              and use the ID of the last-seen runbook from the response
+              as the ``marker`` value in a subsequent limited request.
+            * ``sort_dir``: Sorts the response in the requested direction.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of Runbooks instances.
         """
@@ -2377,6 +2354,25 @@ class Proxy(proxy.Proxy):
 
         :param details: A boolean indicating whether the detailed
             information for every conductor should be returned.
+        :param query: Optional query parameters to be sent to
+            restrict the conductors to be returned. Available parameters
+            include:
+
+            * ``fields``: A list containing one or more fields to be returned
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
+            * ``limit``: Requests at most the specified number of items be
+              returned from the query.
+            * ``marker``: Specifies the hostname of the last-seen conductor.
+              Use the ``limit`` parameter to make an initial limited request
+              and use the hostname of the last-seen conductor from the
+              response as the ``marker`` value in a subsequent limited
+              request.
+            * ``sort_dir``: Sorts the response in the requested direction.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of conductor instances.
         """
@@ -2480,7 +2476,24 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of inspection rules.
 
         :param query: Optional query parameters to be sent to
-            restrict the inspection rules to be returned.
+            restrict the inspection rules to be returned. Available
+            parameters include:
+
+            * ``fields``: A list containing one or more fields to be returned
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
+            * ``limit``: Requests at most the specified number of items be
+              returned from the query.
+            * ``marker``: Specifies the ID of the last-seen inspection rule.
+              Use the ``limit`` parameter to make an initial limited request
+              and use the ID of the last-seen inspection rule from the
+              response as the ``marker`` value in a subsequent limited
+              request.
+            * ``sort_dir``: Sorts the response in the requested direction.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``.
+            * ``sort_key``: Sorts the response by this attribute. Default
+              is ``id``. Only a single sort key is supported.
 
         :returns: A generator of InspectionRule instances.
         """

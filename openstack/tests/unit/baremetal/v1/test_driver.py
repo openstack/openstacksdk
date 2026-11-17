@@ -58,6 +58,14 @@ class TestDriver(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertDictEqual(
+            {
+                'details': 'detail',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_instantiate(self):
         sot = driver.Driver(**FAKE)

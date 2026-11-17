@@ -56,6 +56,20 @@ class TestAllocation(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertDictEqual(
+            {
+                'fields': {'format': 'csv'},
+                'limit': 'limit',
+                'marker': 'marker',
+                'node': 'node',
+                'owner': 'owner',
+                'resource_class': 'resource_class',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
+                'state': 'state',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_instantiate(self):
         sot = allocation.Allocation(**FAKE)

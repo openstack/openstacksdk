@@ -56,6 +56,22 @@ class TestPort(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertEqual('PATCH', sot.commit_opts.method)
+        self.assertDictEqual(
+            {
+                'address': 'address',
+                'conductor_groups': 'conductor_groups',
+                'fields': {'format': 'csv'},
+                'limit': 'limit',
+                'marker': 'marker',
+                'node': 'node',
+                'node_id': 'node_uuid',
+                'portgroup': 'portgroup',
+                'shard': 'shard',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_instantiate(self):
         sot = port.PortDetail(**FAKE)
