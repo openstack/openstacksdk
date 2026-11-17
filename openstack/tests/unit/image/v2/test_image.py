@@ -109,8 +109,7 @@ class FakeResponse:
         self.status_code = status_code
         headers = headers if headers else {'content-type': 'application/json'}
         self.headers = requests.structures.CaseInsensitiveDict(headers)
-        if reason:
-            self.reason = reason
+        self.reason = reason
         # for the sake of "list" response faking
         self.links = []
 
@@ -507,7 +506,10 @@ class TestImage(base.TestCase):
         sot = image.Image(**EXAMPLE)
 
         self.sess.put.return_value = FakeResponse("dummy", status_code=400)
-        self.assertRaises(exceptions.SDKException, sot.stage, self.sess)
+        exc = self.assertRaises(
+            exceptions.BadRequestException, sot.stage, self.sess
+        )
+        self.assertEqual("dummy", exc.details)
 
     def test_download_checksum_match(self):
         expected_hash = hashlib.sha512(b"abc").hexdigest()

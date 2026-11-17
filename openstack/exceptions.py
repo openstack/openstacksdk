@@ -191,32 +191,46 @@ class InvalidResourceQuery(SDKException):
     """Invalid query params for resource."""
 
 
-def _extract_message(obj: object) -> str | None:
+def _extract_messages(obj: object) -> str | None:
     if isinstance(obj, dict):
-        # Most of services: compute, network
+        # Most services, including compute and network.
         if obj.get('message'):
             return str(obj['message'])
-        # Ironic starting with Stein
+        # WSME-style faults: workflow, baremetal, alarm, accelerator, and
+        # resource-optimization.
         elif obj.get('faultstring'):
             return str(obj['faultstring'])
+        # Error items from placement, load-balancer, and
+        # container-infrastructure-management
+        elif obj.get('detail'):
+            return str(obj['detail'])
+        # Traverse arbitrary envelopes, including {"errors": [{...}]}.
+        messages = [_extract_messages(value) for value in obj.values()]
+        if not any(messages):
+            # Prefer nested messages over these fallback descriptions. Only
+            # accept plain text under known error fields, not arbitrary leaves.
+            for key in (
+                'description',
+                'error_description',
+                'explanation',
+                'error_message',
+            ):
+                value = obj.get(key)
+                if isinstance(value, str) and value:
+                    return value
     elif isinstance(obj, list):
-        # Placement uses {"errors": [{"detail": "...", ...}]}.
-        messages = [
-            str(error['detail'])
-            for error in obj
-            if isinstance(error, dict) and error.get('detail')
-        ]
-        return '\n'.join(messages) or None
+        messages = [_extract_messages(value) for value in obj]
     elif isinstance(obj, str):
-        # Ironic before Stein has double JSON encoding, nobody remembers why.
+        # Some services wrap faults in JSON-encoded strings.
         try:
             obj = json.loads(obj)
-        except Exception:  # noqa: S110
+        except Exception:
             # This is best effort. Ignore any errors.
-            pass
-        else:
-            return _extract_message(obj)
-    return None
+            return None
+        return _extract_messages(obj)
+    else:
+        return None
+    return '\n'.join(msg for msg in messages if msg) or None
 
 
 def raise_from_response(
@@ -245,18 +259,8 @@ def raise_from_response(
     content_type = response.headers.get('content-type', '')
     if response.content and 'application/json' in content_type:
         # Iterate over the nested objects to retrieve "message" attribute.
-        # TODO(shade) Add exception handling for times when the content type
-        # is lying.
-
         try:
-            content = response.json()
-            messages = [_extract_message(obj) for obj in content.values()]
-            if not any(messages):
-                # Exception dict may be the root dict in projects that use WSME
-                messages = [_extract_message(content)]
-            # Join all of the messages together nicely and filter out any
-            # objects that don't have a "message" attr.
-            details = '\n'.join(msg for msg in messages if msg)
+            details = _extract_messages(response.json())
         except Exception:
             details = response.text
     elif response.content and 'text/html' in content_type:
