@@ -136,7 +136,7 @@ class Proxy(adapter.Adapter):
         prometheus_histogram: prometheus_client.Histogram | None = None,
         influxdb_config: dict[str, Any] | None = None,
         influxdb_client: influxdb_client.InfluxDBClient | None = None,
-    ):
+    ) -> None:
         # NOTE(dtantsur): keystoneauth defaults retriable_status_codes to None,
         # override it with a class-level value.
         if retriable_status_codes is None:

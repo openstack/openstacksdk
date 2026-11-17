@@ -165,7 +165,7 @@ class _BaseComponent(abc.ABC):
         coerce_to_default: bool = False,
         deprecated: bool = False,
         deprecation_reason: str | None = None,
-    ):
+    ) -> None:
         """A typed descriptor for a component that makes up a Resource
 
         :param name: The name this component exists as on the server

@@ -594,7 +594,7 @@ class TinyDAG:
 class Munch(dict[str, Any]):
     """A slightly stripped version of munch.Munch class"""
 
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.update(*args, **kwargs)
 
     # only called if k not found in normal places

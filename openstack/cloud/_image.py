@@ -59,7 +59,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         strict_proxies: bool = False,
         pool_executor: Optional['concurrent.futures.Executor'] = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         super().__init__(
             cloud=cloud,
             config=config,

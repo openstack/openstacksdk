@@ -448,7 +448,7 @@ def range_filter(
 class FileSegment:
     """File-like object to pass to requests."""
 
-    def __init__(self, filename: str, offset: int, length: int):
+    def __init__(self, filename: str, offset: int, length: int) -> None:
         self.filename = filename
         self.offset = offset
         self.length = length

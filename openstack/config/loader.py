@@ -190,7 +190,7 @@ class OpenStackConfig:
         statsd_prefix: str | None = None,
         statsd_config: types.StatsdConfig | None = None,
         influxdb_config: types.InfluxDBConfig | None = None,
-    ):
+    ) -> None:
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
         self._app_name = app_name

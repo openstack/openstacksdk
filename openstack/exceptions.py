@@ -33,7 +33,9 @@ if TYPE_CHECKING:
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
 
-    def __init__(self, message: str | None = None, extra_data: Any = None):
+    def __init__(
+        self, message: str | None = None, extra_data: Any = None
+    ) -> None:
         self.message = self.__class__.__name__ if message is None else message
         self.extra_data = extra_data
         super().__init__(self.message)
@@ -42,21 +44,21 @@ class SDKException(Exception):
 class EndpointNotFound(SDKException):
     """A mismatch occurred between what the client and server expect."""
 
-    def __init__(self, message: str | None = None):
+    def __init__(self, message: str | None = None) -> None:
         super().__init__(message)
 
 
 class InvalidResponse(SDKException):
     """The response from the server is not valid for this request."""
 
-    def __init__(self, message: str | None = None):
+    def __init__(self, message: str | None = None) -> None:
         super().__init__(message)
 
 
 class InvalidRequest(SDKException):
     """The request to the server is not valid."""
 
-    def __init__(self, message: str | None = None):
+    def __init__(self, message: str | None = None) -> None:
         super().__init__(message)
 
 
@@ -73,7 +75,7 @@ class HttpException(SDKException, _rex.HTTPError):
         http_status: int | None = None,
         details: str | None = None,
         request_id: str | None = None,
-    ):
+    ) -> None:
         if http_status is not None:
             warnings.warn(
                 "The 'http_status' parameter is unnecessary and will be "
@@ -161,7 +163,7 @@ class MethodNotSupported(SDKException):
         self,
         resource: Union['resource.Resource', type['resource.Resource']],
         method: str,
-    ):
+    ) -> None:
         # This needs to work with both classes and instances.
         try:
             name = resource.__name__
