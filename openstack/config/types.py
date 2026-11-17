@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
 class ClientConfig(TypedDict):
     force_ipv4: bool
-    ...
 
 
 class StatsdConfig(TypedDict, total=False):

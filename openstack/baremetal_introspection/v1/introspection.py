@@ -108,7 +108,7 @@ class Introspection(resource.Resource):
     def wait(
         self,
         session: adapter.Adapter,
-        timeout: int | float | None = None,
+        timeout: float | None = None,
         ignore_error: bool = False,
     ) -> Self:
         """Wait for the node to reach the expected state.

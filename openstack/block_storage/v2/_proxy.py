@@ -64,7 +64,7 @@ class Proxy(proxy.Proxy):
         container_format: str | None,
         disk_format: str | None,
         wait: bool,
-        timeout: int | float,
+        timeout: float,
     ) -> _image.Image:
         if not disk_format:
             disk_format = self._connection.config.config['image_format']
@@ -2375,7 +2375,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         status: str = 'available',
         failures: list[str] | None = None,
-        interval: int | float | None = 2,
+        interval: float | None = 2,
         wait: int | None = None,
         attribute: str = 'status',
         callback: Callable[[int], None] | None = None,
@@ -2415,7 +2415,7 @@ class Proxy(proxy.Proxy):
     def wait_for_delete(
         self,
         res: resource.ResourceT,
-        interval: int | float | None = 2,
+        interval: float | None = 2,
         wait: int | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
