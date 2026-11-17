@@ -74,7 +74,7 @@ import requests
 from openstack import _log
 from openstack import exceptions
 from openstack import fields
-from openstack import types
+from openstack.types import UNSET
 from openstack import utils
 from openstack import warnings as os_warnings
 
@@ -409,17 +409,17 @@ class CreateOpts:
     #: Key to use when enveloping requests. If unset, defaults to the
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: enveloping.
-    request_key: str | types.Unset | None = types.UNSET
+    request_key: str | UNSET | None = UNSET
     #: Key to use when de-enveloping responses. If unset, defaults to the
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: de-enveloping.
-    response_key: str | types.Unset | None = types.UNSET
+    response_key: str | UNSET | None = UNSET
     #: Method to use for create requests. If unset, defaults to POST.
     method: Literal['POST', 'PUT'] = 'POST'
     # TODO(stephenfin): Could we drop this in favour of a SingletonResource or
     # similar?
     #: Whether an ID is required or not. If unset, derived from the method.
-    requires_id: bool | types.Unset = types.UNSET
+    requires_id: bool | UNSET = UNSET
     #: Whether the request includes a body.
     request_has_body: bool = True
     #: Whether the response includes a body. If unset, defaults to True.
@@ -432,11 +432,11 @@ class CommitOpts:
     #: Key to use when enveloping requests. If unset, defaults to the
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: enveloping.
-    request_key: str | types.Unset | None = types.UNSET
+    request_key: str | UNSET | None = UNSET
     #: Key to use when de-enveloping responses. If unset, defaults to the
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: de-enveloping.
-    response_key: str | types.Unset | None = types.UNSET
+    response_key: str | UNSET | None = UNSET
     #: Method to use for commit requests. This must be PATCH if allow_patch is
     #: True.
     method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
@@ -1647,12 +1647,12 @@ class Resource(dict[str, Any]):
         if microversion is None:
             microversion = self._get_microversion(session)
 
-        if not isinstance(self.create_opts.requires_id, types.Unset):
+        if self.create_opts.requires_id is not UNSET:
             requires_id = self.create_opts.requires_id
         else:
             requires_id = bool(method == 'PUT')
 
-        if not isinstance(self.create_opts.request_key, types.Unset):
+        if self.create_opts.request_key is not UNSET:
             prepend_key = self.create_opts.request_key is not None
             request_key = self.create_opts.request_key
         else:
@@ -1660,7 +1660,7 @@ class Resource(dict[str, Any]):
 
         response_key = (
             self.create_opts.response_key
-            if not isinstance(self.create_opts.response_key, types.Unset)
+            if self.create_opts.response_key is not UNSET
             else resource_response_key
         )
 
@@ -1760,7 +1760,7 @@ class Resource(dict[str, Any]):
         if microversion is None:
             microversion = cls._get_microversion(session)
 
-        if not isinstance(cls.create_opts.requires_id, types.Unset):
+        if cls.create_opts.requires_id is not UNSET:
             requires_id = cls.create_opts.requires_id
         else:
             requires_id = bool(method == 'PUT')
@@ -1983,7 +1983,7 @@ class Resource(dict[str, Any]):
         if not self.requires_commit:
             return self
 
-        if not isinstance(self.commit_opts.request_key, types.Unset):
+        if self.commit_opts.request_key is not UNSET:
             prepend_key = self.commit_opts.request_key is not None
             request_key = self.commit_opts.request_key
         else:

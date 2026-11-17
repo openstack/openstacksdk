@@ -48,7 +48,7 @@ from openstack import proxy as proxy_base
 from openstack.shared_file_system.v2 import share
 from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
-from openstack import types
+from openstack.types import UNSET
 from openstack import warnings as os_warnings
 
 
@@ -1412,7 +1412,7 @@ class TestCompute(TestComputeProxy):
             expected_args=[self.proxy],
             expected_kwargs={
                 "host": None,
-                "availability_zone": types.UNSET,
+                "availability_zone": UNSET,
             },
         )
 

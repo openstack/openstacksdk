@@ -10,16 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import enum
+"""Miscellaneous shared types."""
+
+import sys
+
+if sys.version_info < (3, 15):
+    from typing_extensions import sentinel
 
 
-class Unset(enum.Enum):
-    """Sentinel for values that have not been explicitly set."""
-
-    UNSET = 'UNSET'
-
-    def __bool__(self) -> bool:
-        return False
-
-
-UNSET = Unset.UNSET
+# Sentinel for values that have not been explicitly set.
+UNSET = sentinel('UNSET')
