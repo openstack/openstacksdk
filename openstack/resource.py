@@ -273,6 +273,7 @@ class QueryParameters:
         self,
         *names: str,
         include_pagination_defaults: bool = True,
+        include_sorting_defaults: bool = False,
         **mappings: str | QueryMapping,
     ) -> None:
         """Create a dict of accepted query parameters
@@ -282,7 +283,11 @@ class QueryParameters:
             expected by the server.
         :param include_pagination_defaults: If true, include default pagination
             parameters, ``limit`` and ``marker``. These are the most common
-            query parameters used for listing resources in OpenStack APIs.
+            query parameters used for paginating resources in OpenStack APIs.
+        :param include_sorting_defaults: If true, include default sorting
+            parameters, ``sort_dir`` and ``sort_key``. These are the most
+            common query parameters used for sorting resources in OpenStack
+            APIs.
         :param mappings: Key-value pairs where the key is the client-side
             name we'll accept here and the value is the name
             the server expects, e.g, ``changes_since=changes-since``.
@@ -295,6 +300,10 @@ class QueryParameters:
         self._mapping: dict[str, str | QueryMapping] = {}
         if include_pagination_defaults:
             self._mapping.update({"limit": "limit", "marker": "marker"})
+        if include_sorting_defaults:
+            self._mapping.update(
+                {"sort_dir": "sort_dir", "sort_key": "sort_key"}
+            )
         self._mapping.update({name: name for name in names})
         self._mapping.update(mappings)
 
