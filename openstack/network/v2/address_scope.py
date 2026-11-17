@@ -34,8 +34,7 @@ class AddressScope(resource.Resource):
         'name',
         'ip_version',
         'project_id',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
         is_shared='shared',
     )
 

@@ -35,8 +35,7 @@ class SecurityGroup(_base.NetworkResource, _base.TagMixinNetwork):
         'project_id',
         'tenant_id',
         'revision_number',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
         is_shared='shared',
         **_base.TagMixinNetwork._tag_query_parameters,
     )

@@ -38,8 +38,7 @@ class Log(_base.NetworkResource):
         'target_id',
         'enabled',
         'revision_number',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
     )
 
     # Properties

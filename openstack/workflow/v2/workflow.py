@@ -29,6 +29,8 @@ class Workflow(resource.Resource):
     allow_fetch = True
     allow_delete = True
 
+    # NOTE: Mistral uses plural sort_keys/sort_dirs, not sort_key/sort_dir,
+    # so we cannot use include_sorting_defaults here.
     _query_mapping = resource.QueryParameters(
         'marker', 'limit', 'sort_keys', 'sort_dirs', 'fields'
     )

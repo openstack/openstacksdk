@@ -42,9 +42,8 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         "name",
         "status",
         "volume_id",
-        "sort_key",
-        "sort_dir",
         "sort",
+        include_sorting_defaults=True,
         all_projects="all_tenants",
     )
 

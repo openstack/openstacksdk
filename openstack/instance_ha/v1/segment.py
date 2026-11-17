@@ -55,8 +55,7 @@ class Segment(resource.Resource):
     is_enabled = resource.Body("enabled", type=bool)
 
     _query_mapping = resource.QueryParameters(
-        "sort_key",
-        "sort_dir",
+        include_sorting_defaults=True,
         recovery_method="recovery_method",
         service_type="service_type",
         is_enabled="enabled",

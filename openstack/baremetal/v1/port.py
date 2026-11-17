@@ -33,8 +33,7 @@ class Port(_common.Resource):
         'node',
         'portgroup',
         'shard',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
         fields={'format': 'csv'},
         node_id='node_uuid',
     )

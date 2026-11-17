@@ -29,8 +29,6 @@ class NDPProxy(resource.Resource):
     _allow_unknown_attrs_in_body = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key",
-        "sort_dir",
         'name',
         'description',
         'fields',
@@ -38,6 +36,7 @@ class NDPProxy(resource.Resource):
         'router_id',
         'port_id',
         'ip_address',
+        include_sorting_defaults=True,
     )
 
     # Properties

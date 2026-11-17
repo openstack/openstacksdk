@@ -30,8 +30,7 @@ class StackEvent(resource.Resource):
         "resource_name",
         "resource_type",
         "nested_depth",
-        "sort_key",
-        "sort_dir",
+        include_sorting_defaults=True,
     )
 
     # Properties

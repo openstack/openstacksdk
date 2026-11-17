@@ -34,8 +34,7 @@ class NetworkIPAvailability(resource.Resource):
         'network_id',
         'network_name',
         'project_id',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
     )
 
     # Properties

@@ -38,8 +38,7 @@ class DefaultSecurityGroupRule(_base.NetworkResource):
         'remote_ip_prefix',
         'used_in_default_sg',
         'used_in_non_default_sg',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
         ether_type='ethertype',
     )
 

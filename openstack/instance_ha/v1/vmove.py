@@ -29,10 +29,9 @@ class VMove(resource.Resource):
     allow_fetch = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key",
-        "sort_dir",
         "type",
         "status",
+        include_sorting_defaults=True,
     )
 
     #: A ID of representing this vmove

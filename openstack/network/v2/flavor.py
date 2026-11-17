@@ -37,8 +37,7 @@ class Flavor(resource.Resource):
         'fields',
         'name',
         'service_type',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
         is_enabled='enabled',
     )
 

@@ -81,8 +81,7 @@ class Notification(resource.Resource):
     )
 
     _query_mapping = resource.QueryParameters(
-        "sort_key",
-        "sort_dir",
+        include_sorting_defaults=True,
         source_host_uuid="source_host_uuid",
         type="type",
         status="status",

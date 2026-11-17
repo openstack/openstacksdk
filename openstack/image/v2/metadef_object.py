@@ -27,8 +27,7 @@ class MetadefObject(resource.Resource):
     _query_mapping = resource.QueryParameters(
         "visibility",
         "resource_types",
-        "sort_key",
-        "sort_dir",
+        include_sorting_defaults=True,
     )
 
     created_at = resource.Body('created_at')

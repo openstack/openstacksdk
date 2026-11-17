@@ -40,10 +40,9 @@ class ResourceLock(resource.Resource):
         "lock_context",
         "lock_reason",
         "lock_reason~",
-        "sort_key",
-        "sort_dir",
         "with_count",
         "all_projects",
+        include_sorting_defaults=True,
     )
     # resource locks were introduced in 2.81
     _min_microversion = '2.81'

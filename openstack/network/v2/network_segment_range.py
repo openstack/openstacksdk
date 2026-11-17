@@ -43,8 +43,7 @@ class NetworkSegmentRange(resource.Resource, _base.TagMixinNetwork):
         'maximum',
         'used',
         'available',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
         **_base.TagMixinNetwork._tag_query_parameters,
     )
 

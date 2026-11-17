@@ -38,8 +38,7 @@ class Allocation(resource.Resource):
         'resource_class',
         'state',
         'owner',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
         fields={'format': 'csv'},
     )
 

@@ -53,12 +53,11 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         "size_max",
         "protected",
         "is_hidden",
-        "sort_key",
-        "sort_dir",
         "sort",
         "tag",
         "created_at",
         "updated_at",
+        include_sorting_defaults=True,
         is_hidden="os_hidden",
     )
 

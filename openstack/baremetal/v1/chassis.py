@@ -31,8 +31,7 @@ class Chassis(_common.Resource):
     commit_opts = resource.CommitOpts(method='PATCH')
 
     _query_mapping = resource.QueryParameters(
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
         fields={'format': 'csv'},
     )
 

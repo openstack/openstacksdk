@@ -34,9 +34,8 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
         "limit",
         "marker",
         "resource_types",
-        "sort_dir",
-        "sort_key",
         "visibility",
+        include_sorting_defaults=True,
     )
 
     created_at = resource.Body('created_at')

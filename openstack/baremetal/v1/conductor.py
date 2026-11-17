@@ -28,8 +28,7 @@ class Conductor(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'detail',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
         fields={'format': 'csv'},
     )
 

@@ -43,8 +43,7 @@ class SecurityGroupRule(_base.NetworkResource, _base.TagMixinNetwork):
         'revision_number',
         'project_id',
         'tenant_id',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
         ether_type='ethertype',
         **_base.TagMixinNetwork._tag_query_parameters,
     )

@@ -37,8 +37,7 @@ class LocalIPAssociation(resource.Resource):
         'fixed_port_id',
         'fixed_ip',
         'host',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
     )
 
     # Properties

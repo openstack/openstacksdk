@@ -38,8 +38,7 @@ class Backup(resource.Resource):
         'name',
         'status',
         'volume_id',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
     )
 
     # capabilities
