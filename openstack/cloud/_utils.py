@@ -19,7 +19,7 @@ import inspect
 import ipaddress
 import re
 import socket
-from typing import Any, Literal, ParamSpec, Protocol, TypeVar, cast
+from typing import Any, Literal, ParamSpec, TypeVar, cast
 import uuid
 import warnings
 
@@ -34,10 +34,6 @@ from openstack import warnings as os_warnings
 _P = ParamSpec('_P')
 _R = TypeVar('_R')
 _T = TypeVar('_T', bound=Mapping[str, Any])
-
-
-class _CloudMixin(Protocol):
-    use_direct_get: bool
 
 
 def _filter_list(
@@ -143,62 +139,6 @@ def _filter_list(
         if _dict_filter(filters, e):
             filtered.append(e)
     return filtered
-
-
-def _get_entity(
-    cloud: _CloudMixin,
-    resource: str | Callable[..., Any],
-    name_or_id: Any,
-    filters: Mapping[str, Any] | str | None,
-    **kwargs: Any,
-) -> Any:
-    """Return a single entity from the list returned by a given method.
-
-    :param cloud: The controller class (Example: the main OpenStackCloud
-        object).
-    :param resource: The string that identifies the resource to use to lookup
-        the get_<>_by_id or search_<resource>s methods
-        (Example: network) or a callable to invoke.
-    :param name_or_id: The name or ID of the entity being filtered or an
-        object or dict. If this is an object/dict with an 'id' attr/key, we
-        return it and bypass resource lookup.
-    :param filters: A dictionary of meta data to use for further filtering.
-        OR A string containing a jmespath expression for further filtering.
-        Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
-    """
-
-    # Sometimes in the control flow of openstacksdk, we already have an object
-    # fetched. Rather than then needing to pull the name or id out of that
-    # object, pass it in here and rely on caching to prevent us from making
-    # an additional call, it's simple enough to test to see if we got an
-    # object and just short-circuit return it.
-
-    if hasattr(name_or_id, 'id') or (
-        isinstance(name_or_id, dict) and 'id' in name_or_id
-    ):
-        return name_or_id
-
-    # If a uuid is passed short-circuit it calling the
-    # get_<resource_name>_by_id method
-    if getattr(cloud, 'use_direct_get', False) and _is_uuid_like(name_or_id):
-        get_resource = getattr(cloud, f'get_{resource}_by_id', None)
-        if get_resource:
-            return get_resource(name_or_id)
-
-    search = (
-        resource
-        if callable(resource)
-        else getattr(cloud, f'search_{resource}s', None)
-    )
-    if search:
-        entities = search(name_or_id, filters, **kwargs)
-        if entities:
-            if len(entities) > 1:
-                raise exceptions.SDKException(
-                    f"Multiple matches found for {name_or_id}"
-                )
-            return entities[0]
-    return None
 
 
 def localhost_supports_ipv6() -> bool:

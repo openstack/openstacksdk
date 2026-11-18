@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, cast
+from typing import Any
 import warnings
 
 from openstack.cloud import _utils
@@ -83,10 +83,14 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         :returns: A container infrastructure management ``Cluster`` object if
             found, else None.
         """
-        return cast(
-            '_cluster.Cluster | None',
-            _utils._get_entity(self, 'coe_cluster', name_or_id, filters),
-        )
+        entities = self.search_coe_clusters(name_or_id, filters)
+        if not entities:
+            return None
+        if len(entities) > 1:
+            raise exceptions.SDKException(
+                f"Multiple matches found for {name_or_id}"
+            )
+        return entities[0]
 
     def create_coe_cluster(
         self,
