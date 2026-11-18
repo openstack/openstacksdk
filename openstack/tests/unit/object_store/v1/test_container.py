@@ -204,6 +204,7 @@ class TestContainer(base.TestCase):
                 'meta_temp_url_key': None,
                 'meta_temp_url_key_2': None,
                 'timestamp': None,
+                'transaction_id': None,
                 'versions_location': None,
                 'history_location': None,
                 'write_ACL': None,

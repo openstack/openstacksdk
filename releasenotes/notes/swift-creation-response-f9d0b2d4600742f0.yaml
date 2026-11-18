@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Object-store resources expose the ``transaction_id`` response header.
+    The ``create_object`` method's ``data`` argument now explicitly accepts
+    binary file streams for single-request uploads without segmentation.

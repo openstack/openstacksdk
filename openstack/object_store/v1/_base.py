@@ -25,6 +25,9 @@ class BaseResource(resource.Resource):
     create_opts = resource.CreateOpts(method='PUT')
     commit_opts = resource.CommitOpts(method='POST')
 
+    #: Transaction identifier returned by Object Storage.
+    transaction_id = resource.Header('x-trans-id')
+
     #: Metadata stored for this resource. *Type: dict*
     metadata: dict[str, Any] = {}
 
