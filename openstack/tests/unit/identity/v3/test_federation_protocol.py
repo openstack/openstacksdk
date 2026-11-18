@@ -50,6 +50,36 @@ class TestFederationProtocol(base.TestCase):
             sot._query_mapping._mapping,
         )
 
+    def test_encoded_paths(self):
+        raw = 'name?#%2Fé'
+        encoded = 'name%3F%23%252F%C3%A9'
+        endpoint = self.get_mock_url('identity', base_url_append='v3')
+        path = f'/OS-FEDERATION/identity_providers/{encoded}/protocols'
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=endpoint + path,
+                    json={'protocols': [{'id': raw}]},
+                ),
+                dict(
+                    method='GET',
+                    uri=endpoint + path + '/' + encoded,
+                    json={'protocol': {'id': raw}},
+                ),
+            ]
+        )
+        protocols = list(
+            federation_protocol.FederationProtocol.list(
+                self.cloud.identity, idp_id=raw, paginated=False
+            )
+        )
+        self.assertEqual(raw, protocols[0].idp_id)
+        protocols[0].fetch(self.cloud.identity)
+        self.assertEqual(raw, protocols[0].id)
+        self.assertEqual(raw, protocols[0].idp_id)
+        self.assert_calls()
+
     def test_make_it(self):
         sot = federation_protocol.FederationProtocol(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)

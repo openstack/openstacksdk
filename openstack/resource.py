@@ -1302,6 +1302,18 @@ class Resource(dict[str, Any]):
         # NOTE(gtema) sort result, since we might need validate it in tests
         return sorted(patch, key=operator.itemgetter('path'))
 
+    @staticmethod
+    def _format_path(base_path: str, params: dict[str, Any]) -> str:
+        # IDs and URI attributes are raw values, not URL syntax. Quote each
+        # substitution rather than the entire path, leaving separators and
+        # any query string in the template intact.
+        return base_path % {
+            key: urllib.parse.quote(value, safe='')
+            if isinstance(value, str)
+            else value
+            for key, value in params.items()
+        }
+
     def _prepare_request(
         self,
         *,
@@ -1351,14 +1363,16 @@ class Resource(dict[str, Any]):
 
         if base_path is None:
             base_path = self.base_path
-        uri = base_path % {'id': self.id, **self._uri.attributes}
+        uri = self._format_path(
+            base_path, {'id': self.id, **self._uri.attributes}
+        )
         if requires_id:
             if self.id is None:
                 raise exceptions.InvalidRequest(
                     "Request requires an ID but none was found"
                 )
 
-            uri = utils.urljoin(uri, self.id)
+            uri = utils.urljoin(uri, urllib.parse.quote(str(self.id), safe=''))
 
         if params:
             uri += '?' + urllib.parse.urlencode(params)
@@ -2317,7 +2331,7 @@ class Resource(dict[str, Any]):
             ):
                 client_filters[k] = v
         query_params = cls._query_mapping._transpose(api_filters, cls)
-        uri = base_path % params
+        uri = cls._format_path(base_path, params)
         uri_params = {}
 
         if max_items and not query_params.get('limit'):

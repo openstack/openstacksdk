@@ -271,7 +271,7 @@ class Proxy(proxy.Proxy):
 
         for obj in self._list(
             _obj.Object,
-            container=parse.quote(container, safe='()'),
+            container=container,
             paginated=paginated,
             format='json',
             **query,
