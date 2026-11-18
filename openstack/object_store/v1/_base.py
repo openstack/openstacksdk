@@ -13,6 +13,7 @@
 
 from collections.abc import Iterable
 from typing import Any, Self
+from urllib import parse
 
 from keystoneauth1 import adapter
 import requests
@@ -70,7 +71,37 @@ class BaseResource(resource.Resource):
         return uri, params
 
     def _prepare_request(self, *args: Any, **kwargs: Any) -> resource._Request:
-        request = super()._prepare_request(*args, **kwargs)
+        requires_id = kwargs.pop('requires_id', None)
+        if requires_id is None:
+            requires_id = self.requires_id
+        base_path = kwargs.pop('base_path', None) or self.base_path
+        params = kwargs.pop('params', None)
+        # Swift names are arbitrary strings, not already-escaped URL paths.
+        # Prepare the body/headers separately so reserved characters and
+        # literal percent escapes in names cannot become URL syntax.
+        request = super()._prepare_request(
+            *args, requires_id=False, base_path='/', **kwargs
+        )
+        request.url = base_path % {
+            'id': parse.quote(str(self.id), safe='()'),
+            **{
+                key: parse.quote(str(value), safe='()')
+                for key, value in self._uri.attributes.items()
+            },
+        }
+        if requires_id:
+            if self.id is None:
+                raise exceptions.InvalidRequest(
+                    'Request requires an ID but none was found'
+                )
+            # Keep leading/trailing slashes, including directory markers.
+            request.url = (
+                request.url.rstrip('/')
+                + '/'
+                + parse.quote(self.id, safe='/()')
+            )
+        if params:
+            request.url += '?' + parse.urlencode(params)
         request.headers.update(self._calculate_headers(self.metadata))
         return request
 
