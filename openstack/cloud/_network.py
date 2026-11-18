@@ -11,6 +11,7 @@
 # limitations under the License.
 
 from typing import Any
+import warnings
 
 from openstack.cloud import _network_common
 from openstack.cloud import _utils
@@ -37,6 +38,7 @@ from openstack.network.v2 import router as _router
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
@@ -296,7 +298,6 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             filters = {}
         return list(self.network.qos_rule_types(**filters))
 
-    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_qos_rule_type_details(
         self,
         rule_type: str,
@@ -305,18 +306,15 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         """Get a QoS rule type details by rule type name.
 
         :param rule_type: Name of the QoS rule type.
-        :param filters: A dictionary of meta data to use for further filtering.
-            Elements of this dictionary may, themselves, be dictionaries.
-            Example::
-
-                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
-
-            OR
-            A string containing a jmespath expression for further filtering.
-            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
-
+        :param filters: **DEPRECATED** This parameter no longer does anything.
         :returns: A network ``QoSRuleType`` object if found, else None.
         """
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated and no longer does "
+                "anything; consider removing it from calls",
+                os_warnings.RemovedInSDK50Warning,
+            )
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud'
@@ -503,22 +501,22 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _network.Network:
         """Create a network.
 
-        :param string name: Name of the network being created.
-        :param bool shared: Set the network as shared.
-        :param bool admin_state_up: Set the network administrative state to up.
-        :param bool external: Whether this network is externally accessible.
-        :param dict provider: A dict of network provider options. Example::
+        :param name: Name of the network being created.
+        :param shared: Set the network as shared.
+        :param admin_state_up: Set the network administrative state to up.
+        :param external: Whether this network is externally accessible.
+        :param provider: A dict of network provider options. Example::
 
             {'network_type': 'vlan', 'segmentation_id': 'vlan1'}
 
-        :param string project_id: Specify the project ID this network
+        :param project_id: Specify the project ID this network
             will be created on (admin-only).
-        :param types.ListType availability_zone_hints: A list of availability
+        :param availability_zone_hints: A list of availability
             zone hints.
-        :param bool port_security_enabled: Enable / Disable port security
-        :param int mtu_size: maximum transmission unit value to address
+        :param port_security_enabled: Enable / Disable port security
+        :param mtu_size: maximum transmission unit value to address
             fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
-        :param string dns_domain: Specify the DNS domain associated with
+        :param dns_domain: Specify the DNS domain associated with
             this network.
         :returns: The created network ``Network`` object.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -611,19 +609,19 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _network.Network:
         """Update a network.
 
-        :param string name_or_id: Name or ID of the network being updated.
-        :param string name: New name of the network.
-        :param bool shared: Set the network as shared.
-        :param bool admin_state_up: Set the network administrative state to up.
-        :param bool external: Whether this network is externally accessible.
-        :param dict provider: A dict of network provider options. Example::
+        :param name_or_id: Name or ID of the network being updated.
+        :param name: New name of the network.
+        :param shared: Set the network as shared.
+        :param admin_state_up: Set the network administrative state to up.
+        :param external: Whether this network is externally accessible.
+        :param provider: A dict of network provider options. Example::
 
             {'network_type': 'vlan', 'segmentation_id': 'vlan1'}
 
-        :param int mtu_size: New maximum transmission unit value to address
+        :param mtu_size: New maximum transmission unit value to address
             fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
-        :param bool port_security_enabled: Enable or disable port security.
-        :param string dns_domain: Specify the DNS domain associated with
+        :param port_security_enabled: Enable or disable port security.
+        :param dns_domain: Specify the DNS domain associated with
             this network.
 
         :returns: The updated network ``Network`` object.
@@ -785,14 +783,14 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param destination_firewall_group_id: ID of destination firewall group.
         :param destination_ip_address: IPv4-, IPv6 address or CIDR.
         :param destination_port: Port or port range (e.g. 80:90)
-        :param bool enabled: Status of firewall rule. You can disable rules
+        :param enabled: Status of firewall rule. You can disable rules
             without disassociating them from firewall policies. Defaults to
             True.
-        :param int ip_version: IP Version. Valid values: 4, 6 Defaults to 4.
+        :param ip_version: IP Version. Valid values: 4, 6 Defaults to 4.
         :param name: Human-readable name.
         :param project_id: Project id.
         :param protocol: IP protocol. Valid values: icmp, tcp, udp, null
-        :param bool shared: Visibility to other projects. Defaults to False.
+        :param shared: Visibility to other projects. Defaults to False.
         :param source_firewall_group_id: ID of source firewall group.
         :param source_ip_address: IPv4-, IPv6 address or CIDR.
         :param source_port: Port or port range (e.g. 80:90)
@@ -955,8 +953,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         Used by `create_firewall_policy` and `update_firewall_policy`.
 
-        :param list[str] name_or_id_list: firewall rule name or id list
-        :param dict filters: optional filters
+        :param name_or_id_list: firewall rule name or id list
+        :param filters: optional filters
         :raises: DuplicateResource on multiple matches
         :raises: NotFoundException if resource is not found
         :return: list of firewall rule ids
@@ -987,14 +985,14 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         Create firewall policy.
 
-        :param bool audited: Status of audition of firewall policy.
+        :param audited: Status of audition of firewall policy.
             Set to False each time the firewall policy or the associated
             firewall rules are changed.  Has to be explicitly set to True.
         :param description: Human-readable description.
-        :param list[str] firewall_rules: List of associated firewall rules.
+        :param firewall_rules: List of associated firewall rules.
         :param name: Human-readable name.
         :param project_id: Project id.
-        :param bool shared: Visibility to other projects.
+        :param shared: Visibility to other projects.
             Defaults to False.
         :raises: BadRequestException if parameters are malformed
         :raises: NotFoundException if a resource from firewall_list not found
@@ -1167,7 +1165,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param rule_name_or_id: firewall rule name or id
         :param insert_after: rule name or id that should precede added rule
         :param insert_before: rule name or id that should succeed added rule
-        :param dict filters: optional filters
+        :param filters: optional filters
         :raises: DuplicateResource on multiple matches
         :raises: NotFoundException if firewall policy or any of the firewall
             rules (inserted, after, before) is not found.
@@ -1221,7 +1219,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         :param name_or_id: firewall policy name or id
         :param rule_name_or_id: firewall rule name or id
-        :param dict filters: optional filters
+        :param filters: optional filters
         :raises: DuplicateResource on multiple matches
         :raises: NotFoundException if firewall policy is not found
         :return: updated firewall policy
@@ -1276,13 +1274,13 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         Port name or ids list is transformed to port ids list before the POST
         request.
 
-        :param bool admin_state_up: State of firewall group.
+        :param admin_state_up: State of firewall group.
             Will block all traffic if set to False. Defaults to True.
         :param description: Human-readable description.
         :param egress_firewall_policy: Name or id of egress firewall policy.
         :param ingress_firewall_policy: Name or id of ingress firewall policy.
         :param name: Human-readable name.
-        :param list[str] ports: List of associated ports (name or id)
+        :param ports: List of associated ports (name or id)
         :param project_id: Project id.
         :param shared: Visibility to other projects. Defaults to False.
         :raises: BadRequestException if parameters are malformed
@@ -1306,7 +1304,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         Prints debug message in case to-be-deleted resource was not found.
 
         :param name_or_id: firewall group name or id
-        :param dict filters: optional filters
+        :param filters: optional filters
         :raises: DuplicateResource on multiple matches
         :returns: True if resource is successfully deleted, False otherwise.
         :rtype: bool
@@ -1337,7 +1335,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         Retrieves firewall group.
 
         :param name_or_id: firewall group name or id
-        :param dict filters: optional filters
+        :param filters: optional filters
         :raises: DuplicateResource on multiple matches
         :returns: A network ``FirewallGroup`` object if found, else None.
         """
@@ -1383,7 +1381,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         which will skip the policy lookups.
 
         :param name_or_id: firewall group name or id
-        :param dict filters: optional filters
+        :param filters: optional filters
         :param kwargs: firewall group update parameters
             See create_firewall_group docstring for valid parameters.
         :returns: The updated network ``FirewallGroup`` object.
@@ -1413,7 +1411,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         ingress_firewall_policy_id. Old keys which were used for the lookup
         are deleted.
 
-        :param dict firewall_group: firewall group dict
+        :param firewall_group: firewall group dict
         :raises: DuplicateResource on multiple matches
         :raises: NotFoundException if a firewall policy is not found
         """
@@ -1435,11 +1433,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     def create_qos_policy(self, **kwargs: Any) -> _qos_policy.QoSPolicy:
         """Create a QoS policy.
 
-        :param string name: Name of the QoS policy being created.
-        :param string description: Description of created QoS policy.
-        :param bool shared: Set the QoS policy as shared.
-        :param bool default: Set the QoS policy as default for project.
-        :param string project_id: Specify the project ID this QoS policy
+        :param name: Name of the QoS policy being created.
+        :param description: Description of created QoS policy.
+        :param shared: Set the QoS policy as shared.
+        :param default: Set the QoS policy as default for project.
+        :param project_id: Specify the project ID this QoS policy
             will be created on (admin-only).
 
         :returns: The created network ``QosPolicy`` object.
@@ -1470,11 +1468,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_policy.QoSPolicy | None:
         """Update an existing QoS policy.
 
-        :param string name_or_id: Name or ID of the QoS policy to update.
-        :param string policy_name: The new name of the QoS policy.
-        :param string description: The new description of the QoS policy.
-        :param bool shared: If True, the QoS policy will be set as shared.
-        :param bool default: If True, the QoS policy will be set as default for
+        :param name_or_id: Name or ID of the QoS policy to update.
+        :param policy_name: The new name of the QoS policy.
+        :param description: The new description of the QoS policy.
+        :param shared: If True, the QoS policy will be set as shared.
+        :param default: If True, the QoS policy will be set as default for
             project.
 
         :returns: The updated network ``QosPolicyRule`` object.
@@ -1540,9 +1538,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> list[_qos_bandwidth_limit_rule.QoSBandwidthLimitRule]:
         """Search QoS bandwidth limit rules
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rules should be associated.
-        :param string rule_id: ID of searched rule.
+        :param rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'max_kbps': 1000}
 
@@ -1561,7 +1559,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> list[_qos_bandwidth_limit_rule.QoSBandwidthLimitRule]:
         """List all available QoS bandwidth limit rules.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy from
+        :param policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
         :param filters: (optional) A dict of filter conditions to push down
         :returns: A list of network ``QoSBandwidthLimitRule`` objects.
@@ -1596,7 +1594,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule:
         """Get a QoS bandwidth limit rule by name or ID.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param rule_id: ID of the rule.
         :returns: A network ``QoSBandwidthLimitRule`` object if found, else
@@ -1626,12 +1624,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule:
         """Create a QoS bandwidth limit rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
-        :param int max_kbps: Maximum bandwidth limit value
+        :param max_kbps: Maximum bandwidth limit value
             (in kilobits per second).
-        :param int max_burst_kbps: Maximum burst value (in kilobits).
-        :param string direction: Ingress or egress.
+        :param max_burst_kbps: Maximum burst value (in kilobits).
+        :param direction: Ingress or egress.
             The direction in which the traffic will be limited.
 
         :returns: The created network ``QoSBandwidthLimitRule`` object.
@@ -1669,13 +1667,13 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule | None:
         """Update a QoS bandwidth limit rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule is associated.
-        :param string rule_id: ID of rule to update.
-        :param int max_kbps: Maximum bandwidth limit value
+        :param rule_id: ID of rule to update.
+        :param max_kbps: Maximum bandwidth limit value
             (in kilobits per second).
-        :param int max_burst_kbps: Maximum burst value (in kilobits).
-        :param string direction: Ingress or egress.
+        :param max_burst_kbps: Maximum burst value (in kilobits).
+        :param direction: Ingress or egress.
             The direction in which the traffic will be limited.
 
         :returns: The updated network ``QoSBandwidthLimitRule`` object.
@@ -1725,9 +1723,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> bool:
         """Delete a QoS bandwidth limit rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule is associated.
-        :param string rule_id: ID of rule to update.
+        :param rule_id: ID of rule to update.
 
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
@@ -1769,11 +1767,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> list[_qos_dscp_marking_rule.QoSDSCPMarkingRule]:
         """Search QoS DSCP marking rules
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rules should be associated.
-        :param string rule_id: ID of searched rule.
+        :param rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
-            {'dscp_mark': 32}
+            ``{'dscp_mark': 32}``
 
         :returns: A list of network ``QoSDSCPMarkingRule`` objects matching the
             search criteria.
@@ -1790,7 +1788,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> list[_qos_dscp_marking_rule.QoSDSCPMarkingRule]:
         """List all available QoS DSCP marking rules.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy from
+        :param policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
         :param filters: (optional) A dict of filter conditions to push down
         :returns: A list of network ``QoSDSCPMarkingRule`` objects.
@@ -1821,7 +1819,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
         """Get a QoS DSCP marking rule by name or ID.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param rule_id: ID of the rule.
         :returns: A network ``QoSDSCPMarkingRule`` object if found, else None.
@@ -1848,9 +1846,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
         """Create a QoS DSCP marking rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
-        :param int dscp_mark: DSCP mark value
+        :param dscp_mark: DSCP mark value
 
         :returns: The created network ``QoSDSCPMarkingRule`` object.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -1879,10 +1877,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule | None:
         """Update a QoS DSCP marking rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule is associated.
-        :param string rule_id: ID of rule to update.
-        :param int dscp_mark: DSCP mark value
+        :param rule_id: ID of rule to update.
+        :param dscp_mark: DSCP mark value
 
         :returns: The updated network ``QoSDSCPMarkingRule`` object.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -1921,9 +1919,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> bool:
         """Delete a QoS DSCP marking rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule is associated.
-        :param string rule_id: ID of rule to update.
+        :param rule_id: ID of rule to update.
 
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
@@ -1964,9 +1962,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> list[_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule]:
         """Search QoS minimum bandwidth rules
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rules should be associated.
-        :param string rule_id: ID of searched rule.
+        :param rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'min_kbps': 1000}
 
@@ -1987,7 +1985,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> list[_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule]:
         """List all available QoS minimum bandwidth rules.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy from
+        :param policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
         :param filters: (optional) A dict of filter conditions to push down
         :returns: A list of network ``QoSMinimumBandwidthRule`` objects.
@@ -2020,7 +2018,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule:
         """Get a QoS minimum bandwidth rule by name or ID.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param rule_id: ID of the rule.
         :returns: A network ``QoSMinimumBandwidthRule`` object if found, else
@@ -2046,10 +2044,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule:
         """Create a QoS minimum bandwidth limit rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
-        :param int min_kbps: Minimum bandwidth value (in kilobits per second).
-        :param string direction: Ingress or egress.
+        :param min_kbps: Minimum bandwidth value (in kilobits per second).
+        :param direction: Ingress or egress.
             The direction in which the traffic will be available.
 
         :returns: The created network ``QoSMinimumBandwidthRule`` object.
@@ -2075,11 +2073,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule | None:
         """Update a QoS minimum bandwidth rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule is associated.
-        :param string rule_id: ID of rule to update.
-        :param int min_kbps: Minimum bandwidth value (in kilobits per second).
-        :param string direction: Ingress or egress.
+        :param rule_id: ID of rule to update.
+        :param min_kbps: Minimum bandwidth value (in kilobits per second).
+        :param direction: Ingress or egress.
             The direction in which the traffic will be available.
 
         :returns: The updated network ``QoSMinimumBandwidthRule`` object.
@@ -2117,9 +2115,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> bool:
         """Delete a QoS minimum bandwidth rule.
 
-        :param string policy_name_or_id: Name or ID of the QoS policy to which
+        :param policy_name_or_id: Name or ID of the QoS policy to which
             rule is associated.
-        :param string rule_id: ID of rule to delete.
+        :param rule_id: ID of rule to delete.
 
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
@@ -2159,9 +2157,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         Either a subnet ID or port ID must be specified for the internal
         interface. Supplying both will result in an error.
 
-        :param dict router: The dict object of the router being changed
-        :param string subnet_id: The ID of the subnet to use for the interface
-        :param string port_id: The ID of the port to use for the interface
+        :param router: The dict object of the router being changed
+        :param subnet_id: The ID of the subnet to use for the interface
+        :param port_id: The ID of the port to use for the interface
 
         :returns: The raw response body from the request.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -2185,9 +2183,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         correspond to the subnet ID of the first IP address on the port
         specified by the port ID. Otherwise an error occurs.
 
-        :param dict router: The dict object of the router being changed
-        :param string subnet_id: The ID of the subnet to use for the interface
-        :param string port_id: The ID of the port to use for the interface
+        :param router: The dict object of the router being changed
+        :param subnet_id: The ID of the subnet to use for the interface
+        :param port_id: The ID of the port to use for the interface
 
         :returns: None on success
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -2209,8 +2207,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> list[_port.Port]:
         """List all interfaces for a router.
 
-        :param dict router: A router dict object.
-        :param string interface_type: One of None, "internal", or "external".
+        :param router: A router dict object.
+        :param interface_type: One of None, "internal", or "external".
             Controls whether all, internal interfaces or external interfaces
             are returned.
         :returns: A list of network ``Port`` objects.
@@ -2259,10 +2257,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _router.Router:
         """Create a logical router.
 
-        :param string name: The router name.
-        :param bool admin_state_up: The administrative state of the router.
-        :param string ext_gateway_net_id: Network ID for the external gateway.
-        :param bool enable_snat: Enable Source NAT (SNAT) attribute.
+        :param name: The router name.
+        :param admin_state_up: The administrative state of the router.
+        :param ext_gateway_net_id: Network ID for the external gateway.
+        :param enable_snat: Enable Source NAT (SNAT) attribute.
         :param ext_fixed_ips:
             List of dictionaries of desired IP and/or subnet on the
             external network. Example::
@@ -2274,8 +2272,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                   }
               ]
 
-        :param string project_id: Project ID for the router.
-        :param types.ListType availability_zone_hints: A list of availability
+        :param project_id: Project ID for the router.
+        :param availability_zone_hints: A list of availability
             zone hints.
 
         :returns: The created network ``Router`` object.
@@ -2318,12 +2316,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _router.Router | None:
         """Update an existing logical router.
 
-        :param string name_or_id: The name or UUID of the router to update.
-        :param string name: The new router name.
-        :param bool admin_state_up: The administrative state of the router.
-        :param string ext_gateway_net_id:
+        :param name_or_id: The name or UUID of the router to update.
+        :param name: The new router name.
+        :param admin_state_up: The administrative state of the router.
+        :param ext_gateway_net_id:
             The network ID for the external gateway.
-        :param bool enable_snat: Enable Source NAT (SNAT) attribute.
+        :param enable_snat: Enable Source NAT (SNAT) attribute.
         :param ext_fixed_ips:
             List of dictionaries of desired IP and/or subnet on the
             external network. Example::
@@ -2335,7 +2333,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                   }
               ]
 
-        :param list routes:
+        :param routes:
             A list of dictionaries with destination and nexthop parameters. To
             clear all routes pass an empty list ([]).
 
@@ -2420,16 +2418,16 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _subnet.Subnet:
         """Create a subnet on a specified network.
 
-        :param string network_name_or_id: The unique name or ID of the attached
+        :param network_name_or_id: The unique name or ID of the attached
             network. If a non-unique name is supplied, an exception is raised.
-        :param string cidr: The CIDR.  Only one of ``cidr``,
+        :param cidr: The CIDR.  Only one of ``cidr``,
             ``use_default_subnetpool`` and ``subnetpool_name_or_id`` may be
             specified at the same time.
-        :param int ip_version: The IP version, which is 4 or 6.
-        :param bool enable_dhcp: Set to ``True`` if DHCP is enabled and
+        :param ip_version: The IP version, which is 4 or 6.
+        :param enable_dhcp: Set to ``True`` if DHCP is enabled and
             ``False`` if disabled. Default is ``False``.
-        :param string subnet_name: The name of the subnet.
-        :param string tenant_id: The ID of the tenant who owns the network.
+        :param subnet_name: The name of the subnet.
+        :param tenant_id: The ID of the tenant who owns the network.
             Only administrative users can specify a tenant ID other than their
             own.
         :param allocation_pools: A list of dictionaries of the start and end
@@ -2437,10 +2435,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
                 [{"start": "192.168.199.2", "end": "192.168.199.254"}]
 
-        :param string gateway_ip: The gateway IP address. When you specify both
+        :param gateway_ip: The gateway IP address. When you specify both
             allocation_pools and gateway_ip, you must ensure that the gateway
             IP does not overlap with the specified allocation pools.
-        :param bool disable_gateway_ip: Set to ``True`` if gateway IP address
+        :param disable_gateway_ip: Set to ``True`` if gateway IP address
             is disabled and ``False`` if enabled. It is not allowed with
             gateway_ip. Default is ``False``.
         :param dns_nameservers: A list of DNS name servers for the subnet. For
@@ -2456,17 +2454,17 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                   {"destination": "192.168.0.0/24", "nexthop": "192.168.0.1"},
               ]
 
-        :param string ipv6_ra_mode: IPv6 Router Advertisement mode. Valid
+        :param ipv6_ra_mode: IPv6 Router Advertisement mode. Valid
             values are: 'dhcpv6-stateful', 'dhcpv6-stateless', or 'slaac'.
-        :param string ipv6_address_mode: IPv6 address mode. Valid values are:
+        :param ipv6_address_mode: IPv6 address mode. Valid values are:
             'dhcpv6-stateful', 'dhcpv6-stateless', or 'slaac'.
-        :param string prefixlen: The prefix length to use for subnet allocation
+        :param prefixlen: The prefix length to use for subnet allocation
             from a subnetpool.
-        :param bool use_default_subnetpool: Use the default subnetpool for
+        :param use_default_subnetpool: Use the default subnetpool for
             ``ip_version`` to obtain a CIDR. Only one of ``cidr``,
             ``use_default_subnetpool`` and ``subnetpool_name_or_id`` may be
             specified at the same time.
-        :param string subnetpool_name_or_id: The unique name or id of the
+        :param subnetpool_name_or_id: The unique name or id of the
             subnetpool to obtain a CIDR from. Only one of ``cidr``,
             ``use_default_subnetpool`` and ``subnetpool_name_or_id`` may be
             specified at the same time.
@@ -2601,14 +2599,14 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     ) -> _subnet.Subnet | None:
         """Update an existing subnet.
 
-        :param string name_or_id: Name or ID of the subnet to update.
-        :param string subnet_name: The new name of the subnet.
-        :param bool enable_dhcp: Set to ``True`` if DHCP is enabled and
+        :param name_or_id: Name or ID of the subnet to update.
+        :param subnet_name: The new name of the subnet.
+        :param enable_dhcp: Set to ``True`` if DHCP is enabled and
             ``False`` if disabled.
-        :param string gateway_ip: The gateway IP address. When you specify both
+        :param gateway_ip: The gateway IP address. When you specify both
             allocation_pools and gateway_ip, you must ensure that the gateway
             IP does not overlap with the specified allocation pools.
-        :param bool disable_gateway_ip: Set to ``True`` if gateway IP address
+        :param disable_gateway_ip: Set to ``True`` if gateway IP address
             is disabled and ``False`` if enabled. It is not allowed with
             gateway_ip. Default is ``False``.
         :param allocation_pools: A list of dictionaries of the start and end
@@ -2734,7 +2732,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             For example, a DHCP agent.  (Optional)
         :param device_id: The ID of the device that uses this port.
             For example, a virtual server. (Optional)
-        :param binding vnic_type: The type of the created port. (Optional)
+        :param vnic_type: The type of the created port. (Optional)
         :param port_security_enabled: The security port state created on
             the network. (Optional)
         :param qos_policy_id: The ID of the QoS policy to apply for
@@ -2818,7 +2816,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param device_owner: The ID of the entity that uses this port.
             For example, a DHCP agent.  (Optional)
         :param device_id: The ID of the resource this port is attached to.
-        :param binding vnic_type: The type of the created port. (Optional)
+        :param vnic_type: The type of the created port. (Optional)
         :param port_security_enabled: The security port state created on
             the network. (Optional)
         :param qos_policy_id: The ID of the QoS policy to apply for port.
@@ -2862,8 +2860,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         Takes a list of port names or ids, retrieves ports and returns a list
         with port ids only.
 
-        :param list[str] name_or_id_list: list of port names or ids
-        :param dict filters: optional filters
+        :param name_or_id_list: list of port names or ids
+        :param filters: optional filters
         :raises: SDKException on multiple matches
         :raises: NotFoundException if a port is not found
         :return: list of port ids

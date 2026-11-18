@@ -175,15 +175,15 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> 'requests.Response':
         """Download an image by name or ID
 
-        :param str name_or_id: Name or ID of the image.
+        :param name_or_id: Name or ID of the image.
         :param output_path: the output path to write the image to. Either this
             or output_file must be specified
         :param output_file: a file object (or file-like object) to write the
             image data to. Only write() will be called on this object. Either
             this or output_path must be specified
-        :param int chunk_size: size in bytes to read from the wire and buffer
+        :param chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024 * 1024 = 1 MiB
-        :param: bool stream: whether to stream the output in chunk_size.
+        :param stream: whether to stream the output in chunk_size.
 
         :returns: When output_path and output_file are not given - the bytes
             comprising the given Image when stream is False, otherwise a
@@ -332,29 +332,29 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> ImageT | None:
         """Upload an image.
 
-        :param str name: Name of the image to create. If it is a pathname
+        :param name: Name of the image to create. If it is a pathname
             of an image, the name will be constructed from the
             extensionless basename of the path.
-        :param str filename: The path to the file to upload, if needed.
+        :param filename: The path to the file to upload, if needed.
             (optional, defaults to None)
-        :param str container: Name of the container in swift where images
+        :param container: Name of the container in swift where images
             should be uploaded for import if the cloud requires such a thing.
             (optiona, defaults to 'images')
-        :param str md5: md5 sum of the image file. If not given, an md5 will
+        :param md5: md5 sum of the image file. If not given, an md5 will
             be calculated.
-        :param str sha256: sha256 sum of the image file. If not given, an md5
+        :param sha256: sha256 sum of the image file. If not given, an md5
             will be calculated.
-        :param str disk_format: The disk format the image is in. (optional,
+        :param disk_format: The disk format the image is in. (optional,
             defaults to the os-client-config config value for this cloud)
-        :param str container_format: The container format the image is in.
+        :param container_format: The container format the image is in.
             (optional, defaults to the os-client-config config value for this
             cloud)
-        :param list tags: List of tags for this image. Each tag is a string
+        :param tags: List of tags for this image. Each tag is a string
             of at most 255 chars.
-        :param bool disable_vendor_agent: Whether or not to append metadata
+        :param disable_vendor_agent: Whether or not to append metadata
             flags to the image to inform the cloud in question to not expect a
             vendor agent to be runing. (optional, defaults to True)
-        :param bool wait: If true, waits for image to be created. Defaults to
+        :param wait: If true, waits for image to be created. Defaults to
             true - however, be aware that one of the upload methods is always
             synchronous.
         :param timeout: Seconds to wait for image creation. None is forever.
