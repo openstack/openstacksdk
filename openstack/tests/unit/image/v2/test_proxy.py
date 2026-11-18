@@ -296,6 +296,109 @@ class TestImage(TestImageProxy):
         self.assertEqual(fake_image, res)
         mock_upload.assert_not_called()
 
+    def test_upload_image_put_conflict_does_not_delete(self):
+        # a 409 means another request (e.g. a proxy replaying the PUT) is
+        # already writing the image, so it must not be deleted
+        image = _image.Image(id='fake', status='queued')
+
+        with (
+            mock.patch.object(self.proxy, '_create', return_value=image),
+            mock.patch.object(
+                _image.Image,
+                'upload',
+                side_effect=exceptions.ConflictException('conflict'),
+            ),
+            mock.patch.object(self.proxy, 'delete_image') as mock_delete,
+        ):
+            self.assertRaises(
+                exceptions.ConflictException,
+                self.proxy._upload_image_put,
+                'fake',
+                None,
+                data=io.BytesIO(b'data'),
+                meta=None,
+                validate_checksum=False,
+            )
+
+        mock_delete.assert_not_called()
+
+    def test_upload_image_put_stage_conflict_does_not_delete(self):
+        image = _image.Image(id='fake', status='queued')
+        image.image_import_methods = ['glance-direct']
+
+        with (
+            mock.patch.object(self.proxy, '_create', return_value=image),
+            mock.patch.object(
+                _image.Image,
+                'stage',
+                side_effect=exceptions.ConflictException('conflict'),
+            ),
+            mock.patch.object(self.proxy, 'delete_image') as mock_delete,
+        ):
+            self.assertRaises(
+                exceptions.ConflictException,
+                self.proxy._upload_image_put,
+                'fake',
+                None,
+                data=io.BytesIO(b'data'),
+                meta=None,
+                validate_checksum=False,
+                use_import=True,
+            )
+
+        mock_delete.assert_not_called()
+
+    def test_upload_image_put_import_conflict_does_not_delete(self):
+        image = _image.Image(id='fake', status='queued')
+        image.image_import_methods = ['glance-direct']
+
+        with (
+            mock.patch.object(self.proxy, '_create', return_value=image),
+            mock.patch.object(_image.Image, 'stage'),
+            mock.patch.object(
+                self.proxy,
+                'import_image',
+                side_effect=exceptions.ConflictException('conflict'),
+            ),
+            mock.patch.object(self.proxy, 'delete_image') as mock_delete,
+        ):
+            self.assertRaises(
+                exceptions.ConflictException,
+                self.proxy._upload_image_put,
+                'fake',
+                None,
+                data=io.BytesIO(b'data'),
+                meta=None,
+                validate_checksum=False,
+                use_import=True,
+            )
+
+        mock_delete.assert_not_called()
+
+    def test_upload_image_put_other_error_deletes(self):
+        image = _image.Image(id='fake', status='queued')
+
+        with (
+            mock.patch.object(self.proxy, '_create', return_value=image),
+            mock.patch.object(
+                _image.Image,
+                'upload',
+                side_effect=exceptions.HttpException('boom'),
+            ),
+            mock.patch.object(self.proxy, 'delete_image') as mock_delete,
+        ):
+            self.assertRaises(
+                exceptions.HttpException,
+                self.proxy._upload_image_put,
+                'fake',
+                None,
+                data=io.BytesIO(b'data'),
+                meta=None,
+                validate_checksum=False,
+            )
+
+        mock_delete.assert_called_once_with('fake')
+
     def test_image_create_checksum_mismatch(self):
         fake_image = _image.Image(
             id="fake",
