@@ -41,6 +41,12 @@ classifiers = [
 ]
 
 [dependency-groups]
+dev = [
+    {include-group = "ansible"},
+    {include-group = "doc"},
+    {include-group = "test"},
+    {include-group = "types"},
+]
 ansible = [
     "ansible", # GPL
 ]
