@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Project cleanup now deletes security groups after the ports, networks
+    and routers of the project. Previously security groups were deleted
+    first, which failed with a ``409 Conflict`` ("Security Group ... in
+    use") whenever a port that was about to be cleaned up still used them.
+    See `bug 2100958 <https://bugs.launchpad.net/openstacksdk/+bug/2100958>`_.
