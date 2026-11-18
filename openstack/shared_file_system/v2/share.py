@@ -42,8 +42,7 @@ class Share(resource.Resource, metadata.MetadataMixin):
         "export_location_path",
         "limit",
         "offset",
-        "sort_key",
-        "sort_dir",
+        include_sorting_defaults=True,
         all_projects="all_tenants",
     )
 

@@ -37,8 +37,7 @@ class UserMessage(resource.Resource):
         "request_id",
         "resource_id",
         "resource_type",
-        "sort_dir",
-        "sort_key",
+        include_sorting_defaults=True,
     )
 
     _min_microversion = '2.37'

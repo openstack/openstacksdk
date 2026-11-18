@@ -32,8 +32,7 @@ class MeteringLabel(resource.Resource):
         'fields',
         'name',
         'project_id',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
         is_shared='shared',
     )
 

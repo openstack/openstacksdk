@@ -38,9 +38,8 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
         "limit",
         "marker",
         "offset",
-        "sort_dir",
-        "sort_key",
         "sort",
+        include_sorting_defaults=True,
         all_projects="all_tenants",
     )
 

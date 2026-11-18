@@ -37,9 +37,8 @@ class Flavor(resource.Resource):
     allow_commit = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key",
-        "sort_dir",
         "is_public",
+        include_sorting_defaults=True,
         min_disk="minDisk",
         min_ram="minRam",
     )

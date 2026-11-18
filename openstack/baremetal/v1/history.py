@@ -22,7 +22,9 @@ class History(_common.Resource):
     allow_fetch = True
     allow_list = True
 
-    _query_mapping = resource.QueryParameters('detail', 'sort_key', 'sort_dir')
+    _query_mapping = resource.QueryParameters(
+        'detail', include_sorting_defaults=True
+    )
 
     # NOTE: 1.78 is the API version in which node history can be retrieved;
     # 1.113 added the project field and 1.115 added state,

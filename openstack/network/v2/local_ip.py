@@ -34,8 +34,6 @@ class LocalIP(resource.Resource):
     _allow_unknown_attrs_in_body = True
 
     _query_mapping = resource.QueryParameters(
-        'sort_key',
-        'sort_dir',
         'name',
         'description',
         'fields',
@@ -44,6 +42,7 @@ class LocalIP(resource.Resource):
         'local_port_id',
         'local_ip_address',
         'ip_mode',
+        include_sorting_defaults=True,
     )
 
     # Properties

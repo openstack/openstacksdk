@@ -54,8 +54,7 @@ class Host(resource.Resource):
     failover_segment_id = resource.Body("failover_segment_id")
 
     _query_mapping = resource.QueryParameters(
-        "sort_key",
-        "sort_dir",
+        include_sorting_defaults=True,
         failover_segment_id="failover_segment_id",
         type="type",
         on_maintenance="on_maintenance",

@@ -23,7 +23,9 @@ class Task(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'type', 'status', 'sort_dir', 'sort_key'
+        'type',
+        'status',
+        include_sorting_defaults=True,
     )
 
     #: The date and time when the task was created.

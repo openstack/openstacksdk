@@ -37,11 +37,10 @@ class AddressGroup(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'fields',
-        'sort_key',
-        'sort_dir',
         'name',
         'description',
         'project_id',
+        include_sorting_defaults=True,
     )
 
     # Properties

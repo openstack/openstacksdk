@@ -30,9 +30,8 @@ class QoSSpec(resource.Resource):
         "limit",
         "marker",
         "offset",
-        "sort_dir",
-        "sort_key",
         "sort",
+        include_sorting_defaults=True,
     )
 
     # capabilities

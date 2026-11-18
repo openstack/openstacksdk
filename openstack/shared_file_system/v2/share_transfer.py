@@ -41,8 +41,7 @@ class ShareTransfer(resource.Resource):
         "destination_project_id",
         "limit",
         "offset",
-        "sort_key",
-        "sort_dir",
+        include_sorting_defaults=True,
     )
     # Properties
     #: The transfer UUID.

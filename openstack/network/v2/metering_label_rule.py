@@ -35,8 +35,7 @@ class MeteringLabelRule(resource.Resource):
         'source_ip_prefix',
         'destination_ip_prefix',
         'project_id',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
     )
 
     # Properties

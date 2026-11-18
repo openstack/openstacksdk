@@ -40,8 +40,7 @@ class ShareGroupSnapshot(resource.Resource):
         'share_group_id',
         'limit',
         'offset',
-        'sort_key',
-        'sort_dir',
+        include_sorting_defaults=True,
     )
 
     _min_microversion = '2.31'

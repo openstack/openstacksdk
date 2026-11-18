@@ -30,8 +30,7 @@ class SecurityGroupsDefaultStatefulness(_base.NetworkResource):
         'id',
         'project_id',
         'stateful',
-        'sort_dir',
-        'sort_key',
+        include_sorting_defaults=True,
     )
 
     # Properties
