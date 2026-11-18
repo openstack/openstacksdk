@@ -332,7 +332,7 @@ class TestObject(BaseTestObject):
             self.cloud.get_container_access(self.container)
 
     def test_list_containers(self):
-        endpoint = f'{self.endpoint}/'
+        endpoint = f'{self.endpoint}/?format=json'
         containers = [{'count': 0, 'bytes': 0, 'name': self.container}]
 
         self.register_uris(
@@ -342,7 +342,13 @@ class TestObject(BaseTestObject):
                     uri=endpoint,
                     complete_qs=True,
                     json=containers,
-                )
+                ),
+                dict(
+                    method='GET',
+                    uri=endpoint + '&marker=' + self.container,
+                    complete_qs=True,
+                    json=[],
+                ),
             ]
         )
 
@@ -353,7 +359,7 @@ class TestObject(BaseTestObject):
             self._compare_containers(a, b)
 
     def test_list_containers_exception(self):
-        endpoint = f'{self.endpoint}/'
+        endpoint = f'{self.endpoint}/?format=json'
         self.register_uris(
             [
                 dict(
@@ -604,7 +610,17 @@ class TestObject(BaseTestObject):
         ]
 
         self.register_uris(
-            [dict(method='GET', uri=endpoint, complete_qs=True, json=objects)]
+            [
+                dict(
+                    method='GET', uri=endpoint, complete_qs=True, json=objects
+                ),
+                dict(
+                    method='GET',
+                    uri=endpoint + '&marker=' + self.object,
+                    complete_qs=True,
+                    json=[],
+                ),
+            ]
         )
 
         ret = self.cloud.list_objects(self.container)
@@ -627,7 +643,17 @@ class TestObject(BaseTestObject):
         ]
 
         self.register_uris(
-            [dict(method='GET', uri=endpoint, complete_qs=True, json=objects)]
+            [
+                dict(
+                    method='GET', uri=endpoint, complete_qs=True, json=objects
+                ),
+                dict(
+                    method='GET',
+                    uri=endpoint + '&marker=' + self.object,
+                    complete_qs=True,
+                    json=[],
+                ),
+            ]
         )
 
         ret = self.cloud.list_objects(self.container, prefix='test')
@@ -1411,6 +1437,17 @@ class TestObjectUploads(BaseTestObject):
             ]
         )
 
+        uris_to_mock.append(
+            dict(
+                method='GET',
+                uri=(
+                    f'{self.endpoint}/images?format=json&prefix={self.object}'
+                    f'&marker={self.object}'
+                ),
+                complete_qs=True,
+                json=[],
+            )
+        )
         self.register_uris(uris_to_mock)
 
         # image_api_use_tasks needs to be set to True in order for the API

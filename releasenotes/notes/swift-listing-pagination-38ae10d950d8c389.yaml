@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Object-store container and object listings accept ``paginated=False``
+    to retrieve only the first page. Object listings support delimiter and
+    end-marker filters, and expose common prefixes as objects with a name
+    and a ``subdir`` attribute.
+fixes:
+  - |
+    Object-store listings now continue until an empty page is returned.
+    This avoids truncated results when optional count headers are absent
+    and supports pagination of filtered and delimiter-based listings.

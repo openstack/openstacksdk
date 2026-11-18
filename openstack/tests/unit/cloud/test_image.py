@@ -1167,6 +1167,19 @@ class TestImage(BaseTestImage):
                         qs_elements=['multipart-manifest=delete'],
                     ),
                 ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        service_type='object-store',
+                        resource=self.container_name,
+                        qs_elements=[
+                            'format=json',
+                            'marker=' + self.image_name,
+                        ],
+                    ),
+                    complete_qs=True,
+                    json=[],
+                ),
             ]
         )
 

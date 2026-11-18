@@ -123,7 +123,9 @@ class TestContainer(base.TestCase):
             [dict(method='GET', uri=self.endpoint, json=containers)]
         )
 
-        response = container.Container.list(self.cloud.object_store)
+        response = container.Container.list(
+            self.cloud.object_store, paginated=False
+        )
 
         self.assertEqual(len(containers), len(list(response)))
         for index, item in enumerate(response):

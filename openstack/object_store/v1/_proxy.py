@@ -146,14 +146,17 @@ class Proxy(proxy.Proxy):
 
     def containers(
         self,
+        paginated: bool = True,
         **query: Any,
     ) -> Generator[_container.Container, None, None]:
         """Obtain Container objects for this account.
 
+        :param paginated: Whether to fetch all pages or only the first page.
         :param query: Optional query parameters to be sent to limit
             the resources being returned.
         """
-        return self._list(_container.Container, paginated=True, **query)
+        query.setdefault('format', 'json')
+        return self._list(_container.Container, paginated=paginated, **query)
 
     def create_container(
         self, name: str, **attrs: Any
@@ -253,12 +256,14 @@ class Proxy(proxy.Proxy):
     def objects(
         self,
         container: str | _container.Container,
+        paginated: bool = True,
         **query: Any,
     ) -> Generator[_obj.Object, None, None]:
         """Return a generator that yields the Container's objects.
 
         :param container: A container object or the name of a container
             that you want to retrieve objects from.
+        :param paginated: Whether to fetch all pages or only the first page.
         :param query: Optional query parameters to be sent to limit
             the resources being returned.
         """
@@ -267,7 +272,7 @@ class Proxy(proxy.Proxy):
         for obj in self._list(
             _obj.Object,
             container=container,
-            paginated=True,
+            paginated=paginated,
             format='json',
             **query,
         ):
