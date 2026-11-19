@@ -86,6 +86,9 @@ Repository = "https://opendev.org/openstack/openstacksdk/"
 # TODO(mordred) Move this to an OSC command at some point
 openstack-inventory = "openstack.cloud.cmd.inventory:main"
 
+[tool.setuptools.package-data]
+"openstack.config" = ["*.json", "vendors/*.json", "vendors/*.yaml"]
+
 [tool.setuptools.packages.find]
 include = ["openstack*"]
 
