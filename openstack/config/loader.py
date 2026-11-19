@@ -664,8 +664,9 @@ class OpenStackConfig:
         for path in filelist:
             if os.path.exists(path):
                 try:
+                    _, extension = os.path.splitext(path)
                     with open(path) as f:
-                        if path.endswith('json'):
+                        if extension == '.json':
                             return path, json.load(f)
                         else:
                             return path, yaml.safe_load(f)
