@@ -294,9 +294,20 @@ class Proxy(adapter.Adapter):
             self._report_stats(None, url, method, e)
             raise
 
+    # NOTE: this must remain a classmethod rather than an instance method.
+    # functools.lru_cache stores its cache on the class, which is a permanent
+    # GC root, so a cache on an instance method keyed every entry by the
+    # Proxy instance and pinned every Proxy that ever served a request (this
+    # is called per request via _report_stats and _get_cache_key_prefix),
+    # together with its Connection, keystoneauth Session and the requests
+    # Session's pooled sockets and TLS contexts, for as long as the entry
+    # lived. Keying the cache by the class retains nothing that is not
+    # permanent already, and keeps dispatch to subclass overrides of
+    # _extract_name_consume_url_parts (see the orchestration proxy) working.
+    @classmethod
     @functools.lru_cache(maxsize=256)
     def _extract_name(
-        self,
+        cls,
         url: str,
         service_type: str | None = None,
         project_id: str | None = None,
@@ -360,7 +371,7 @@ class Proxy(adapter.Adapter):
                 and url_parts[0][1].isdigit()
             ):
                 url_parts = url_parts[1:]
-            name_parts = self._extract_name_consume_url_parts(url_parts)
+            name_parts = cls._extract_name_consume_url_parts(url_parts)
 
         # Keystone Token fetching is a special case, so we name it "tokens"
         # NOTE(gtema): there is no metric triggered for regular authorization
@@ -376,8 +387,9 @@ class Proxy(adapter.Adapter):
         # Strip out anything that's empty or None
         return [part for part in name_parts if part]
 
+    @staticmethod
     def _extract_name_consume_url_parts(
-        self, url_parts: list[str]
+        url_parts: list[str],
     ) -> list[str]:
         """Pull out every other URL portion.
 

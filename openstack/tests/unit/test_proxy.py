@@ -11,9 +11,11 @@
 # under the License.
 
 import copy
+import gc
 import queue
 from typing import Any
 from unittest import mock
+import weakref
 
 from keystoneauth1 import session
 from requests import Response
@@ -674,6 +676,30 @@ class TestExtractName(base.TestCase):
     def test_extract_name(self):
         results = proxy.Proxy(mock.Mock())._extract_name(self.url)
         self.assertEqual(self.parts, results)
+
+    def test_extract_name_does_not_pin_proxy(self):
+        # _extract_name used to be an lru_cache'd instance method: the cache
+        # lives on the class (a permanent GC root) and keyed every entry by
+        # the Proxy instance, so any Proxy that ever made a request was
+        # retained together with its Connection and Session for as long as
+        # the cache entry lived. It is a classmethod now and the cache is
+        # keyed by the class, so it must not retain the instance that
+        # called it.
+        instance = proxy.Proxy(mock.Mock())
+        ref = weakref.ref(instance)
+        self.assertEqual(['servers'], instance._extract_name('servers'))
+        del instance
+        gc.collect()
+        self.assertIsNone(
+            ref(), 'Proxy instance was retained by _extract_name cache'
+        )
+
+    def test_extract_name_cache_shared_across_instances(self):
+        # The cache key contains the class but not the instance, so
+        # different proxies of the same class share cache entries.
+        first = proxy.Proxy(mock.Mock())._extract_name('servers')
+        second = proxy.Proxy(mock.Mock())._extract_name('servers')
+        self.assertEqual(first, second)
 
 
 class TestProxyCache(base.TestCase):

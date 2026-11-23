@@ -67,9 +67,13 @@ class Proxy(proxy.Proxy):
 
     log = _log.setup_logging('openstack')
 
+    # NOTE: classmethod for the same reason as Proxy._extract_name: an
+    # lru_cache'd instance method pins every proxy instance in the
+    # class-level cache.
+    @classmethod
     @functools.lru_cache(maxsize=256)
     def _extract_name(
-        self,
+        cls,
         url: str,
         service_type: str | None = None,
         project_id: str | None = None,
