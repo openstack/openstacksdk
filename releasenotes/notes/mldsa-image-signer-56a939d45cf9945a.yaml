@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added support for ML-DSA-44, ML-DSA-65, and ML-DSA-87 image signatures
+    in ``openstack.image.image_signer.ImageSigner``. The new
+    ``signature_algorithm`` argument selects the algorithm. The existing
+    ``padding_method`` argument is deprecated and will be removed in version
+    5.0. RSA-PSS remains the default for existing callers.
