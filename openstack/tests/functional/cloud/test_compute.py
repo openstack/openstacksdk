@@ -641,7 +641,6 @@ class TestFlavor(base.BaseFunctionalTest):
             disk=10,
             ephemeral=5,
             swap=100,
-            rxtx_factor=1.5,
             is_public=True,
         )
 
