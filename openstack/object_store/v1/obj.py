@@ -221,6 +221,29 @@ class Object(_base.BaseResource):
         super().__init__(**attrs)
         self.data = data
 
+    def _prepare_request(
+        self,
+        *,
+        requires_id: bool | None = None,
+        prepend_key: bool = True,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: dict[str, Any] | None = None,
+        resource_request_key: str | None = None,
+    ) -> resource._Request:
+        request = super()._prepare_request(
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            patch=patch,
+            base_path=base_path,
+            params=params,
+            resource_request_key=resource_request_key,
+        )
+        # Swift controls this response header and rejects it on writes. Keep
+        # the cached flag for SLO deletion decisions, but never send it.
+        request.headers.pop('x-static-large-object', None)
+        return request
+
     # The Object Store treats the metadata for its resources inconsistently so
     # Object.set_metadata must override the BaseResource.set_metadata to
     # account for it.

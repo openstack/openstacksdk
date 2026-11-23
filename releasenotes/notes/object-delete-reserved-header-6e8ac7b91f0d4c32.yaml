@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Object Store object requests no longer send the reserved
+    ``X-Static-Large-Object`` header when ``is_static_large_object`` is
+    explicitly set on an ``Object`` resource.
