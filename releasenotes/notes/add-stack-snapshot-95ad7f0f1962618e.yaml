@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support for creating, listing, fetching, deleting, and restoring
+    Heat stack snapshots through the orchestration proxy.

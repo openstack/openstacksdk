@@ -23,6 +23,7 @@ from openstack.orchestration.v1 import stack as _stack
 from openstack.orchestration.v1 import stack_environment as _stack_environment
 from openstack.orchestration.v1 import stack_event as _stack_event
 from openstack.orchestration.v1 import stack_files as _stack_files
+from openstack.orchestration.v1 import stack_snapshot as _stack_snapshot
 from openstack.orchestration.v1 import stack_template as _stack_template
 from openstack.orchestration.v1 import template as _template
 from openstack import proxy
@@ -42,6 +43,7 @@ class Proxy(proxy.Proxy):
         "stack": _stack.Stack,
         "stack_environment": _stack_environment.StackEnvironment,
         "stack_files": _stack_files.StackFiles,
+        "stack_snapshot": _stack_snapshot.StackSnapshot,
         "stack_template": _stack_template.StackTemplate,
     }
 
@@ -751,3 +753,137 @@ class Proxy(proxy.Proxy):
 
         for stack in stacks:
             self.wait_for_delete(stack)
+
+    # ====== Stack Snapshots ======
+
+    def get_stack_snapshot(
+        self,
+        stack: str | _stack.Stack,
+        snapshot: str | _stack_snapshot.StackSnapshot,
+    ) -> _stack_snapshot.StackSnapshot:
+        """Get details about a stack snapshot.
+
+        :param stack: The ID or name of a stack, or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`.
+        :param snapshot: The ID of a snapshot or an instance of
+            :class:`~openstack.orchestration.v1.stack_snapshot.StackSnapshot`.
+
+        :returns: The stack snapshot.
+        """
+        if isinstance(stack, _stack.Stack):
+            stack_obj = stack
+        else:
+            stack_obj = self._find(_stack.Stack, stack, ignore_missing=False)
+
+        return self._get(
+            _stack_snapshot.StackSnapshot,
+            snapshot,
+            stack_name=stack_obj.name,
+            stack_id=stack_obj.id,
+        )
+
+    def stack_snapshots(
+        self, stack: str | _stack.Stack
+    ) -> Generator[_stack_snapshot.StackSnapshot, None, None]:
+        """Return a generator of snapshots for a stack.
+
+        :param stack: The ID or name of a stack, or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`.
+
+        :returns: A generator of stack snapshot objects.
+        """
+        if isinstance(stack, _stack.Stack):
+            stack_obj = stack
+        else:
+            stack_obj = self._find(_stack.Stack, stack, ignore_missing=False)
+
+        return self._list(
+            _stack_snapshot.StackSnapshot,
+            stack_name=stack_obj.name,
+            stack_id=stack_obj.id,
+        )
+
+    def create_stack_snapshot(
+        self, stack: str | _stack.Stack, name: str | None = None
+    ) -> _stack_snapshot.StackSnapshot:
+        """Create a snapshot of a stack.
+
+        :param stack: The ID or name of a stack, or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`.
+        :param name: Optional name for the snapshot.
+
+        :returns: The newly created stack snapshot. Creation is asynchronous.
+        """
+        if isinstance(stack, _stack.Stack):
+            stack_obj = stack
+        else:
+            stack_obj = self._find(_stack.Stack, stack, ignore_missing=False)
+
+        return self._create(
+            _stack_snapshot.StackSnapshot,
+            stack_name=stack_obj.name,
+            stack_id=stack_obj.id,
+            name=name,
+        )
+
+    def restore_stack_from_snapshot(
+        self,
+        stack: str | _stack.Stack,
+        snapshot: str | _stack_snapshot.StackSnapshot,
+    ) -> None:
+        """Restore a stack from a snapshot.
+
+        :param stack: The ID or name of a stack, or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`.
+        :param snapshot: The ID of a snapshot or an instance of
+            :class:`~openstack.orchestration.v1.stack_snapshot.StackSnapshot`.
+
+        :returns: None. Restoration is asynchronous.
+        """
+        if isinstance(stack, _stack.Stack):
+            stack_obj = stack
+        else:
+            stack_obj = self._find(_stack.Stack, stack, ignore_missing=False)
+
+        snapshot = self._get_resource(
+            _stack_snapshot.StackSnapshot,
+            snapshot,
+            stack_name=stack_obj.name,
+            stack_id=stack_obj.id,
+        )
+        snapshot.restore(self)
+
+    def delete_stack_snapshot(
+        self,
+        stack: str | _stack.Stack,
+        snapshot: str | _stack_snapshot.StackSnapshot,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Delete a stack snapshot.
+
+        :param stack: The ID or name of a stack, or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`.
+        :param snapshot: The ID of a snapshot or an instance of
+            :class:`~openstack.orchestration.v1.stack_snapshot.StackSnapshot`.
+        :param ignore_missing: When True, ignore a missing stack or snapshot.
+            When False, raise :class:`~openstack.exceptions.NotFoundException`.
+
+        :returns: None. Deletion is asynchronous.
+        """
+        stack_obj: _stack.Stack | None
+        if isinstance(stack, _stack.Stack):
+            stack_obj = stack
+        else:
+            stack_obj = self._find(
+                _stack.Stack, stack, ignore_missing=ignore_missing
+            )
+            if stack_obj is None:
+                return
+
+        self._delete(
+            _stack_snapshot.StackSnapshot,
+            snapshot,
+            ignore_missing=ignore_missing,
+            stack_name=stack_obj.name,
+            stack_id=stack_obj.id,
+        )
