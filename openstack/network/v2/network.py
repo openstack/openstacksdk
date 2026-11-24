@@ -124,6 +124,9 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     is_vlan_qinq = resource.Body('vlan_qinq', type=bool)
     #: Indicates whether this network is an L2 network for all segments
     is_l2_adjacent = resource.Body('l2_adjacency', type=bool, default=False)
+    #: The EVPN VNI associated with the network, or None if EVPN is not
+    #: configured. *Type: int*
+    evpn_vni = resource.Body('evpn_vni', type=int)
 
 
 class DHCPAgentHostingNetwork(Network):
