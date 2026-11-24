@@ -395,7 +395,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> _user.User:
         """Get a user by ID.
 
-        :param string user_id: user ID
+        :param user_id: user ID
         :returns: an identity ``User`` object
         """
         identity = utils.ensure_service_version(self.identity, '3')
@@ -1296,9 +1296,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> _group.Group:
         """Create a group.
 
-        :param string name: Group name.
-        :param string description: Group description.
-        :param string domain: Domain name or ID for the group.
+        :param name: Group name.
+        :param description: Group description.
+        :param domain: Domain name or ID for the group.
 
         :returns: An identity ``Group`` object
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
@@ -1505,7 +1505,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> list[_role_assignment.RoleAssignment]:
         """List Keystone role assignments
 
-        :param dict filters: Dict of filter conditions. Acceptable keys are:
+        :param filters: Dict of filter conditions. Acceptable keys are:
 
             * 'user' (string) - User ID to be used as query filter.
             * 'group' (string) - Group ID to be used as query filter.
@@ -1577,7 +1577,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     def create_role(self, name: str, **kwargs: Any) -> _role.Role:
         """Create a Keystone role.
 
-        :param string name: The name of the role.
+        :param name: The name of the role.
         :param domain_id: domain id (v3)
         :returns: an identity ``Role`` object
         :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
@@ -1595,7 +1595,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         """Update a Keystone role.
 
         :param name_or_id: Name or unique ID of the role.
-        :param string name: The new role name
+        :param name: The new role name
         :param domain_id: domain id
         :returns: an identity ``Role`` object
         :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
@@ -1698,15 +1698,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> bool:
         """Grant a role to a user.
 
-        :param string name_or_id: Name or unique ID of the role.
-        :param string user: The name or id of the user.
-        :param string group: The name or id of the group. (v3)
-        :param string project: The name or id of the project.
-        :param string domain: The id of the domain. (v3)
-        :param bool system: The name of the system. (v3)
-        :param bool inherited: Whether the role assignment is inherited. (v3)
-        :param bool wait: Wait for role to be granted
-        :param int timeout: Timeout to wait for role to be granted
+        :param name_or_id: Name or unique ID of the role.
+        :param user: The name or id of the user.
+        :param group: The name or id of the group. (v3)
+        :param project: The name or id of the project.
+        :param domain: The id of the domain. (v3)
+        :param system: The name of the system. (v3)
+        :param inherited: Whether the role assignment is inherited. (v3)
+        :param wait: Wait for role to be granted
+        :param timeout: Timeout to wait for role to be granted
 
          NOTE: domain is a required argument when the grant is on a project,
          user or group specified by name. In that situation, they are all
@@ -1823,15 +1823,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> bool:
         """Revoke a role from a user.
 
-        :param string name_or_id: Name or unique ID of the role.
-        :param string user: The name or id of the user.
-        :param string group: The name or id of the group. (v3)
-        :param string project: The name or id of the project.
-        :param string domain: The id of the domain. (v3)
-        :param bool system: The name of the system. (v3)
-        :param bool inherited: Whether the role assignment is inherited.
-        :param bool wait: Wait for role to be revoked
-        :param int timeout: Timeout to wait for role to be revoked
+        :param name_or_id: Name or unique ID of the role.
+        :param user: The name or id of the user.
+        :param group: The name or id of the group. (v3)
+        :param project: The name or id of the project.
+        :param domain: The id of the domain. (v3)
+        :param system: The name of the system. (v3)
+        :param inherited: Whether the role assignment is inherited.
+        :param wait: Wait for role to be revoked
+        :param timeout: Timeout to wait for role to be revoked
 
             NOTE: for wait and timeout, sometimes revoking roles is not
             instantaneous.

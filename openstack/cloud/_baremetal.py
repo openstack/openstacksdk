@@ -305,8 +305,8 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :param nics: An array of strings that consist of MAC addresses
             to be removed.
-        :param string uuid: The UUID of the node to be deleted.
-        :param wait: DEPRECATED, do not use.
+        :param uuid: The UUID of the node to be deleted.
+        :param wait: **DEPRECATED**
         :param timeout: Integer value, representing seconds with a default
             value of 600, which controls the maximum amount of time to block
             until a lock is released on machine.
@@ -362,10 +362,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         This method allows for an interface to manipulate node entries
         within Ironic.
 
-        :param string name_or_id: A machine name or UUID to be updated.
-        :param patch:
-            The JSON Patch document is a list of dictionary objects that comply
-            with RFC 6902 which can be found at
+        :param name_or_id: A machine name or UUID to be updated.
+        :param patch: The JSON Patch document is a list of dictionary objects
+            that comply with RFC 6902 which can be found at
             https://tools.ietf.org/html/rfc6902.
 
             Example patch construction::
@@ -396,7 +395,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         A user-friendly method to perform updates of a machine, in whole or
         part.
 
-        :param string name_or_id: A machine name or UUID to be updated.
+        :param name_or_id: A machine name or UUID to be updated.
         :param attrs: Attributes to updated on the machine.
 
         :returns: A dictionary containing a machine sub-dictionary consisting
@@ -436,8 +435,8 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> None:
         """Attach a virtual port to the bare metal machine.
 
-        :param string name_or_id: A machine name or UUID.
-        :param string port_name_or_id: A port name or UUID.
+        :param name_or_id: A machine name or UUID.
+        :param port_name_or_id: A port name or UUID.
             Note that this is a Network service port, not a bare metal NIC.
         :return: Nothing.
         """
@@ -453,8 +452,8 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> None:
         """Detach a virtual port from the bare metal machine.
 
-        :param string name_or_id: A machine name or UUID.
-        :param string port_name_or_id: A port name or UUID.
+        :param name_or_id: A machine name or UUID.
+        :param port_name_or_id: A port name or UUID.
             Note that this is a Network service port, not a bare metal NIC.
         :return: Nothing.
         """
@@ -470,7 +469,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> list[_network_port.Port]:
         """List virtual ports attached to the bare metal machine.
 
-        :param string name_or_id: A machine name or UUID.
+        :param name_or_id: A machine name or UUID.
         :returns: List of ``openstack.Resource`` objects representing
             the ports.
         """
@@ -489,9 +488,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
     ) -> None:
         """Validate parameters of the machine.
 
-        :param string name_or_id: The Name or UUID value representing the
+        :param name_or_id: The Name or UUID value representing the
             baremetal node.
-        :param bool for_deploy: If ``True``, validate readiness for deployment,
+        :param for_deploy: If ``True``, validate readiness for deployment,
             otherwise validate only the power management properties.
         :raises: :exc:`~openstack.exceptions.ValidationException`
         """
@@ -521,18 +520,18 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         Enables a user to provision a Machine and optionally define a
         config drive to be utilized.
 
-        :param string name_or_id: The Name or UUID value representing the
+        :param name_or_id: The Name or UUID value representing the
             baremetal node.
-        :param string state: The desired provision state for the baremetal
+        :param state: The desired provision state for the baremetal
             node.
-        :param string configdrive: An optional URL or file or path
+        :param configdrive: An optional URL or file or path
             representing the configdrive. In the case of a directory, the
             client API will create a properly formatted configuration drive
             file and post the file contents to the API for deployment.
-        :param boolean wait: A boolean value, defaulted to false, to control
+        :param wait: A boolean value, defaulted to false, to control
             if the method will wait for the desire end state to be reached
             before returning.
-        :param integer timeout: Integer value, defaulting to 3600 seconds,
+        :param timeout: Integer value, defaulting to 3600 seconds,
             representing the amount of time to wait for the desire end state to
             be reached.
 
@@ -557,12 +556,12 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         Sets Baremetal maintenance state and maintenance reason.
 
-        :param string name_or_id: The Name or UUID value representing the
+        :param name_or_id: The Name or UUID value representing the
             baremetal node.
-        :param boolean state: The desired state of the node. True being in
+        :param state: The desired state of the node. True being in
             maintenance where as False means the machine is not in maintenance
             mode.  This value defaults to True if not explicitly set.
-        :param string reason: An optional freeform string that is supplied to
+        :param reason: An optional freeform string that is supplied to
             the baremetal API to allow for notation as to why the node is in
             maintenance state.
 
@@ -583,7 +582,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         simpily calls set_machine_maintenace_state for the name_or_id requested
         and sets the state to False.
 
-        :param string name_or_id: The Name or UUID value representing the
+        :param name_or_id: The Name or UUID value representing the
             baremetal node.
 
         :returns: None

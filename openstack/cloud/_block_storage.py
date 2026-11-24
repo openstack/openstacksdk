@@ -257,8 +257,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         """Set a volume's bootable flag.
 
         :param name_or_id: Name or unique ID of the volume.
-        :param bool bootable: Whether the volume should be bootable.
-            (Defaults to True)
+        :param bootable: Whether the volume should be bootable.
 
         :returns: None
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
