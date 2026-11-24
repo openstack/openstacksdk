@@ -39,7 +39,6 @@ class TestFlavors(base.TestCase):
                                 "vcpus": 24,
                                 "swap": 0,
                                 "os-flavor-access:is_public": True,
-                                "rxtx_factor": 1.0,
                                 "OS-FLV-EXT-DATA:ephemeral": 0,
                                 "disk": 1600,
                                 "id": None,

@@ -69,8 +69,10 @@ class Flavor(resource.Resource):
     #: Size of the ephemeral data disk attached to this server. *Type: int*
     ephemeral = resource.Body('OS-FLV-EXT-DATA:ephemeral', type=int, default=0)
     #: ``True`` if this flavor is disabled, ``False`` if not. *Type: bool*
+    #: Not returned with microversion 2.102 or later.
     is_disabled = resource.Body('OS-FLV-DISABLED:disabled', type=bool)
     #: The bandwidth scaling factor this flavor receives on the network.
+    #: Not returned with microversion 2.102 or later.
     rxtx_factor = resource.Body('rxtx_factor', type=float)
     # TODO(mordred) extra_specs can historically also come from
     #               OS-FLV-WITH-EXT-SPECS:extra_specs. Do we care?

@@ -1744,7 +1744,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         flavorid: str = "auto",
         ephemeral: int = 0,
         swap: int = 0,
-        rxtx_factor: float = 1.0,
+        rxtx_factor: float | None = None,
         is_public: bool = True,
     ) -> _flavor.Flavor:
         """Create a new flavor.
@@ -1771,11 +1771,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             'is_public': is_public,
             'name': name,
             'ram': ram,
-            'rxtx_factor': rxtx_factor,
             'swap': swap,
             'vcpus': vcpus,
             'description': description,
         }
+        if rxtx_factor is not None:
+            attrs['rxtx_factor'] = rxtx_factor
         if flavorid == 'auto':
             attrs['id'] = None
 
