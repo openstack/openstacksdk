@@ -180,7 +180,7 @@ class TestCase(base.TestCase):
         self.useFixture(fixtures.EnvironmentVariable('OS_CLOUD'))
         self.useFixture(fixtures.EnvironmentVariable('OS_CLIENT_CONFIG_FILE'))
         self.useFixture(fixtures.EnvironmentVariable('OS_CLIENT_SECURE_FILE'))
-        config = tempfile.NamedTemporaryFile(delete=False)
+        config = tempfile.NamedTemporaryFile(delete=False, suffix='.yaml')
         cloud_path = os.path.join(
             self.fixtures_directory,
             'clouds',
