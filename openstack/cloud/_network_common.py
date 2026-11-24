@@ -503,10 +503,15 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             or None if no matching floating IP is found.
 
         """
-        return cast(
-            '_floating_ip.FloatingIP | utils.Munch | None',
-            _utils._get_entity(self, 'floating_ip', id, filters),
-        )
+        if self.use_direct_get and id is not None and _utils._is_uuid_like(id):
+            return self.get_floating_ip_by_id(id)
+
+        entities = self.search_floating_ips(id, filters)
+        if not entities:
+            return None
+        if len(entities) > 1:
+            raise exceptions.SDKException(f"Multiple matches found for {id}")
+        return entities[0]
 
     def list_floating_ips(
         self, filters: dict[str, Any] | None = None
@@ -1898,10 +1903,17 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             or None if no matching security group is found.
 
         """
-        return cast(
-            '_security_group.SecurityGroup | utils.Munch | None',
-            _utils._get_entity(self, 'security_group', name_or_id, filters),
-        )
+        if self.use_direct_get and _utils._is_uuid_like(name_or_id):
+            return self.get_security_group_by_id(name_or_id)
+
+        entities = self.search_security_groups(name_or_id, filters)
+        if not entities:
+            return None
+        if len(entities) > 1:
+            raise exceptions.SDKException(
+                f"Multiple matches found for {name_or_id}"
+            )
+        return entities[0]
 
     def get_security_group_by_id(
         self, id: str
