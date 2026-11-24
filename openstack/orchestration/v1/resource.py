@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
+from openstack import exceptions
+from openstack.orchestration.v1 import stack as _stack
 from openstack import resource
 
 
@@ -52,3 +56,27 @@ class Resource(resource.Resource):
     status_reason = resource.Body('resource_status_reason')
     #: Timestamp of the last update made to the resource.
     updated_at = resource.Body('updated_time')
+
+    def signal(
+        self,
+        session: adapter.Adapter,
+        stack: _stack.Stack,
+        resource_name: str,
+        body: dict[str, object] | None,
+    ) -> None:
+        """Send a signal to a resource
+
+        :param session: The session to use for making this request
+        :param stack: The stack to send the signal to
+        :param resource_name: The name of a resource in the stack
+        :param body: A dictionary of JSON-serializable data for the request
+            body, or None to send no data.
+        :returns: None
+        :raises: :class:`~openstack.exceptions.HttpException` if response is
+            not success
+        """
+        url = (
+            f'/stacks/{stack.name}/{stack.id}/resources/{resource_name}/signal'
+        )
+        resp = session.post(url, json=body)
+        exceptions.raise_from_response(resp)

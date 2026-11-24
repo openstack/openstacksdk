@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``signal_resource`` method have been added to signal a specific
+    resource.
