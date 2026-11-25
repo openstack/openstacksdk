@@ -814,6 +814,13 @@ class Proxy(proxy.Proxy):
                     valid = checksum == md5 or checksum == sha256
                     if not valid:
                         raise Exception('Image checksum verification failed')
+        except exceptions.ConflictException:
+            # A 409 means the image is no longer in the state we expect, so
+            # another request is already working on it. Do not delete it.
+            self.log.debug(
+                "Not deleting image %s after a conflict on upload", name
+            )
+            raise
         except Exception:
             self.log.debug("Deleting failed upload of image %s", name)
             self.delete_image(image.id)

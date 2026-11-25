@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    ``create_image`` no longer deletes the image when uploading its data
+    fails with a ``409 Conflict``. A conflict means the image is no longer
+    in the ``queued`` state because another request, for example a replay
+    of the same upload by a proxy in front of the image service, is already
+    writing it. Deleting the image in that case destroyed the upload that
+    was still in progress. The ``ConflictException`` is still raised to the
+    caller. Other failures continue to remove the partially created image.
