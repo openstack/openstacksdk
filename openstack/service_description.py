@@ -61,7 +61,7 @@ class ServiceDescription(Generic[proxy_mod.ProxyT]):
         service_type: str,
         supported_versions: dict[str, type[proxy_mod.Proxy]] | None = None,
         aliases: list[str] | None = None,
-    ):
+    ) -> None:
         """Class describing how to interact with a REST service.
 
         Each service in an OpenStack cloud needs to be found by looking

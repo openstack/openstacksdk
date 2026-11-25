@@ -385,7 +385,7 @@ class Connection(
         strict_proxies: bool = False,
         pool_executor: concurrent.futures.Executor | None = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         """Create a connection to a cloud.
 
         A connection needs information about how to connect, how to

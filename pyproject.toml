@@ -143,8 +143,10 @@ quote-style = "preserve"
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E", "F", "G", "LOG", "RUF", "S", "UP", "W"]
+select = ["ANN", "E", "F", "G", "LOG", "RUF", "S", "UP", "W"]
 ignore = [
+    # this needs a lot more work before we can enable it
+    "ANN401",
     # there are a lot of these to fix
     "RUF012",
     # we only use asserts for type narrowing
@@ -153,6 +155,8 @@ ignore = [
 external = ["H", "O"]
 
 [tool.ruff.lint.per-file-ignores]
-"openstack/tests/*" = ["S"]
+"openstack/tests/*" = ["ANN", "S"]
 "openstack/_services_mixin.py" = ["E501"]
-"examples/*" = ["S"]
+"openstack/_hacking/*" = ["ANN"]
+"examples/*" = ["ANN", "S"]
+"tools/*" = ["ANN"]
