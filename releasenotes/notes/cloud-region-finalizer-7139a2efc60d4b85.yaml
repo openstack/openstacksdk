@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    CloudRegion now releases the pooled connections of sessions it creates
+    when the region is garbage collected, even if ``close()`` was not called.
+    Caller-supplied sessions are left untouched. Explicit cleanup remains
+    recommended for timely resource release.
