@@ -79,8 +79,7 @@ class TestInventory(base.BaseFunctionalTest):
         self.assertEqual(host['name'], self.server_name)
 
         self.assertEqual(host['image']['id'], self.image.id)
-        self.assertNotIn('links', host['image'])
-        self.assertNotIn('name', host['name'])
+        self.assertIsNone(host['image'].name)
         self.assertIn('ram', host['flavor'])
 
         host_found = False

@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Image properties stored on a server and returned by Compute API
+    microversion 2.98 or later are available through
+    ``server.image.properties``.
+fixes:
+  - |
+    The ``image`` attribute of ``openstack.compute.v2.server.Server`` now uses
+    ``openstack.compute.v2.server.ServerImage`` instead of the Image service's
+    ``openstack.image.v2.image.Image``. This reflects the image reference
+    returned by the Compute API, rather than a full Image service resource.

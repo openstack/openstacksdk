@@ -16,7 +16,6 @@ from unittest import mock
 
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import server
-from openstack.image.v2 import image
 from openstack.tests.unit import base
 from openstack.tests.unit import fakes
 
@@ -113,6 +112,39 @@ EXAMPLE: dict[str, Any] = {
 }
 
 
+class TestServerImage(base.TestCase):
+    def test_basic(self):
+        sot = server.ServerImage()
+
+        self.assertFalse(sot.allow_create)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
+        self.assertFalse(sot.allow_delete)
+        self.assertFalse(sot.allow_list)
+        self.assertFalse(sot._store_unknown_attrs_as_properties)
+        self.assertIsNone(sot.links)
+        self.assertIsNone(sot.properties)
+
+    def test_make_it(self):
+        attrs = {
+            'id': 'image-id',
+            'links': [{'href': '/images/image-id', 'rel': 'bookmark'}],
+            'properties': {'hw_disk_bus': 'scsi'},
+        }
+        sot = server.ServerImage(
+            id=attrs['id'],
+            links=attrs['links'],
+            properties=attrs['properties'],
+        )
+
+        self.assertEqual(attrs['id'], sot.id)
+        self.assertEqual(attrs['links'], sot.links)
+        self.assertEqual(attrs['properties'], sot.properties)
+        result = sot.to_dict()
+        for key, value in attrs.items():
+            self.assertEqual(value, result[key])
+
+
 class TestServer(base.TestCase):
     def setUp(self):
         super().setUp()
@@ -202,7 +234,10 @@ class TestServer(base.TestCase):
         self.assertEqual(EXAMPLE['host_status'], sot.host_status)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['imageRef'], sot.image_id)
-        self.assertEqual(image.Image(**EXAMPLE['image']), sot.image)
+        self.assertIsInstance(sot.image, server.ServerImage)
+        self.assertEqual(server.ServerImage(**EXAMPLE['image']), sot.image)
+        self.assertEqual(EXAMPLE['image']['links'], sot.image.links)
+        self.assertIsNone(sot.image.properties)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['networks'], sot.networks)
@@ -263,6 +298,29 @@ class TestServer(base.TestCase):
             EXAMPLE['trusted_image_certificates'],
             sot.trusted_image_certificates,
         )
+
+    def test_image_properties(self):
+        properties = {'hw_disk_bus': 'scsi', 'hw_machine_type': 'q35'}
+        links = [{'href': '/images/image-id', 'rel': 'bookmark'}]
+        sot = server.Server(
+            image={
+                'id': 'image-id',
+                'links': links,
+                'properties': properties.copy(),
+            }
+        )
+
+        self.assertIsInstance(sot.image, server.ServerImage)
+        self.assertEqual('image-id', sot.image.id)
+        self.assertEqual(links, sot.image.links)
+        self.assertEqual(properties, sot.image.properties)
+        self.assertEqual(properties, sot.to_dict()['image']['properties'])
+
+    def test_empty_image_properties(self):
+        sot = server.Server(image={'id': 'image-id', 'properties': {}})
+
+        self.assertEqual({}, sot.image.properties)
+        self.assertEqual({}, sot.to_dict()['image']['properties'])
 
     def test_to_dict_flavor(self):
         # Ensure to_dict properly resolves flavor and uses defaults for not
