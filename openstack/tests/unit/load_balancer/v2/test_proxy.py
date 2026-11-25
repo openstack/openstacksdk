@@ -411,6 +411,18 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             expected_args=[self.proxy],
         )
 
+    def test_amphora_statistics(self):
+        self.verify_list(
+            self.proxy.amphora_statistics,
+            amphora.AmphoraStats,
+            method_args=[self.AMPHORA_ID],
+            expected_args=[],
+            expected_kwargs={
+                'amphora_id': self.AMPHORA_ID,
+                'paginated': False,
+            },
+        )
+
     def test_availability_zone_profiles(self):
         self.verify_list(
             self.proxy.availability_zone_profiles,

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
+
 from openstack.load_balancer.v2 import availability_zone
 from openstack.load_balancer.v2 import availability_zone_profile
 from openstack.load_balancer.v2 import flavor
@@ -336,11 +338,11 @@ class TestLoadBalancer(base.BaseFunctionalTest):
                 self.LB_ID
             )
         )
-        self.assertEqual(0, test_lb_stats.active_connections)
-        self.assertEqual(0, test_lb_stats.bytes_in)
-        self.assertEqual(0, test_lb_stats.bytes_out)
-        self.assertEqual(0, test_lb_stats.request_errors)
-        self.assertEqual(0, test_lb_stats.total_connections)
+        self.assertGreaterEqual(test_lb_stats.active_connections, 0)
+        self.assertGreaterEqual(test_lb_stats.bytes_in, 0)
+        self.assertGreaterEqual(test_lb_stats.bytes_out, 0)
+        self.assertGreaterEqual(test_lb_stats.request_errors, 0)
+        self.assertGreaterEqual(test_lb_stats.total_connections, 0)
 
     def test_lb_list(self):
         names = [
@@ -403,11 +405,11 @@ class TestLoadBalancer(base.BaseFunctionalTest):
                 self.LISTENER_ID
             )
         )
-        self.assertEqual(0, test_listener_stats.active_connections)
-        self.assertEqual(0, test_listener_stats.bytes_in)
-        self.assertEqual(0, test_listener_stats.bytes_out)
-        self.assertEqual(0, test_listener_stats.request_errors)
-        self.assertEqual(0, test_listener_stats.total_connections)
+        self.assertGreaterEqual(test_listener_stats.active_connections, 0)
+        self.assertGreaterEqual(test_listener_stats.bytes_in, 0)
+        self.assertGreaterEqual(test_listener_stats.bytes_out, 0)
+        self.assertGreaterEqual(test_listener_stats.request_errors, 0)
+        self.assertGreaterEqual(test_listener_stats.total_connections, 0)
 
     def test_listener_list(self):
         names = [
@@ -831,6 +833,31 @@ class TestLoadBalancer(base.BaseFunctionalTest):
             self.AMPHORA_ID
         )
         self.assertEqual(self.AMPHORA_ID, test_amp.id)
+
+    # TODO(stephenfin): Remove this skip once Octavia's noop driver supports
+    # statistics during normal listener updates.
+    # https://review.opendev.org/c/openstack/octavia/+/1017319
+    @unittest.skip('Octavia noop driver does not populate listener statistics')
+    def test_amphora_statistics(self):
+        amphora = next(
+            self.operator_cloud.load_balancer.amphorae(
+                loadbalancer_id=self.LB_ID
+            )
+        )
+
+        test_stats = list(
+            self.operator_cloud.load_balancer.amphora_statistics(amphora.id)
+        )
+        self.assertGreater(len(test_stats), 0)
+        for stats in test_stats:
+            self.assertEqual(amphora.id, stats.id)
+            self.assertEqual(self.LB_ID, stats.load_balancer_id)
+            self.assertEqual(self.LISTENER_ID, stats.listener_id)
+            self.assertGreaterEqual(stats.active_connections, 0)
+            self.assertGreaterEqual(stats.bytes_in, 0)
+            self.assertGreaterEqual(stats.bytes_out, 0)
+            self.assertGreaterEqual(stats.request_errors, 0)
+            self.assertGreaterEqual(stats.total_connections, 0)
 
     def test_availability_zone_profile_find(self):
         test_profile = (

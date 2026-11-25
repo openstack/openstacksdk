@@ -102,7 +102,7 @@ Amphora Operations
 .. autoclass:: openstack.load_balancer.v2._proxy.Proxy
   :noindex:
   :members: amphorae, get_amphora, find_amphora, configure_amphora,
-            failover_amphora
+            failover_amphora, amphora_statistics
 
 Availability Zone Profile Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

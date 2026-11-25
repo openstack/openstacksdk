@@ -28,3 +28,13 @@ The ``AmphoraFailover`` class inherits from
 
 .. autoclass:: openstack.load_balancer.v2.amphora.AmphoraFailover
    :members:
+
+The AmphoraStats Class
+----------------------
+
+The ``AmphoraStats`` class inherits from
+:class:`~openstack.resource.Resource` and represents statistics for one
+listener on an amphora.
+
+.. autoclass:: openstack.load_balancer.v2.amphora.AmphoraStats
+   :members:

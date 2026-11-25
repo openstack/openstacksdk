@@ -202,3 +202,34 @@ class AmphoraFailover(resource.Resource):
         **kwargs: Any,
     ) -> Self:
         return super().commit(session, prepend_key, has_body, *args, **kwargs)
+
+
+class AmphoraStats(resource.Resource):
+    """Statistics for one listener on an amphora."""
+
+    resources_key = 'amphora_stats'
+    base_path = '/octavia/amphorae/%(amphora_id)s/stats'
+
+    allow_list = True
+    requires_id = False
+
+    _query_mapping = resource.QueryParameters(
+        include_pagination_defaults=False
+    )
+
+    #: The ID of the amphora.
+    amphora_id = resource.URI('amphora_id')
+    #: The ID of the listener.
+    listener_id = resource.Body('listener_id')
+    #: The ID of the load balancer.
+    load_balancer_id = resource.Body('loadbalancer_id')
+    #: The currently active connections.
+    active_connections = resource.Body('active_connections', type=int)
+    #: The total bytes received.
+    bytes_in = resource.Body('bytes_in', type=int)
+    #: The total bytes sent.
+    bytes_out = resource.Body('bytes_out', type=int)
+    #: The total requests that were unable to be fulfilled.
+    request_errors = resource.Body('request_errors', type=int)
+    #: The total connections handled.
+    total_connections = resource.Body('total_connections', type=int)
