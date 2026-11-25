@@ -56,7 +56,7 @@ def poll_for_events(
     cloud: Any,
     stack_name: str,
     action: str | None = None,
-    poll_period: int | float = 5,
+    poll_period: float = 5,
     marker: str | None = None,
 ) -> tuple[str, str]:
     """Continuously poll events and logs for performed action on stack."""

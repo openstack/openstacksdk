@@ -1255,7 +1255,7 @@ class Proxy(proxy.Proxy):
         name: str,
         metadata: dict[str, str] | None = None,
         wait: bool = False,
-        timeout: int | float = 120,
+        timeout: float = 120,
     ) -> _image_v2.Image:
         """Create an image from a server
 
@@ -3246,8 +3246,8 @@ class Proxy(proxy.Proxy):
         server: _server.Server,
         status: str = 'ACTIVE',
         failures: list[str] | None = None,
-        interval: int | float | None = 2,
-        wait: int | float | None = 120,
+        interval: float | None = 2,
+        wait: float | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> _server.Server:
         """Wait for a server to be in a particular status.
@@ -3292,8 +3292,8 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         status: str,
         failures: list[str] | None = None,
-        interval: int | float | None = 2,
-        wait: int | float | None = None,
+        interval: float | None = 2,
+        wait: float | None = None,
         attribute: str = 'status',
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
@@ -3329,8 +3329,8 @@ class Proxy(proxy.Proxy):
     def wait_for_delete(
         self,
         res: resource.ResourceT,
-        interval: int | float | None = 2,
-        wait: int | float | None = 120,
+        interval: float | None = 2,
+        wait: float | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.

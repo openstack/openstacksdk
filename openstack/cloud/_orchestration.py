@@ -44,7 +44,7 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         files: dict[str, Any] | None = None,
         rollback: bool = True,
         wait: bool = False,
-        timeout: int | float = 3600,
+        timeout: float = 3600,
         environment_files: list[str] | None = None,
         **parameters: Any,
     ) -> _stack.Stack | None:
@@ -101,7 +101,7 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         rollback: bool = True,
         tags: list[str] | None = None,
         wait: bool = False,
-        timeout: int | float = 3600,
+        timeout: float = 3600,
         environment_files: list[str] | None = None,
         **parameters: Any,
     ) -> _stack.Stack | None:

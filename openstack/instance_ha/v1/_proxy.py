@@ -337,7 +337,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         status: str,
         failures: list[str] | None = None,
-        interval: int | float | None = 2,
+        interval: float | None = 2,
         wait: int | None = None,
         attribute: str = 'status',
         callback: Callable[[int], None] | None = None,
@@ -374,7 +374,7 @@ class Proxy(proxy.Proxy):
     def wait_for_delete(
         self,
         res: resource.ResourceT,
-        interval: int | float | None = 2,
+        interval: float | None = 2,
         wait: int | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:

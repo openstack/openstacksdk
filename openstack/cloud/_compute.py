@@ -806,7 +806,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         name: str,
         server: str | _server.Server | dict[str, Any],
         wait: bool = False,
-        timeout: int | float = 3600,
+        timeout: float = 3600,
         **metadata: Any,
     ) -> _image.Image:
         """Create an image by snapshotting an existing server.
@@ -923,7 +923,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         root_volume: str | dict[str, Any] | None = None,
         terminate_volume: bool = False,
         wait: bool = False,
-        timeout: int | float = 180,
+        timeout: float = 180,
         reuse_ips: bool = True,
         network: (
             str | dict[str, Any] | list[str | dict[str, Any]] | None
@@ -1363,7 +1363,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         ips: list[str] | None = None,
         ip_pool: str | None = None,
         reuse: bool = True,
-        timeout: int | float = 180,
+        timeout: float = 180,
         nat_destination: str | None = None,
     ) -> _server.Server:
         """
@@ -1422,7 +1422,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         ip_pool: str | None = None,
         reuse: bool = True,
         wait: bool = False,
-        timeout: int | float = 180,
+        timeout: float = 180,
         nat_destination: str | None = None,
     ) -> _server.Server | None:
         if server['status'] == 'ERROR':
@@ -1487,7 +1487,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         detailed: bool = False,
         bare: bool = False,
         wait: bool = False,
-        timeout: int | float = 180,
+        timeout: float = 180,
     ) -> _server.Server | None:
         """Rebuild a server.
 
@@ -1563,7 +1563,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         self,
         name_or_id: str,
         wait: bool = False,
-        timeout: int | float = 180,
+        timeout: float = 180,
         delete_ips: bool = False,
         delete_ip_retry: int = 1,
     ) -> bool:
@@ -1635,7 +1635,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         self,
         server: _server.Server | dict[str, Any] | None,
         wait: bool = False,
-        timeout: int | float = 180,
+        timeout: float = 180,
         delete_ips: bool = False,
         delete_ip_retry: int = 1,
     ) -> bool:

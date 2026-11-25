@@ -106,7 +106,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
             return self.get_machine(nic['node_uuid'])
 
     def inspect_machine(
-        self, name_or_id: str, wait: bool = False, timeout: int | float = 3600
+        self, name_or_id: str, wait: bool = False, timeout: float = 3600
     ) -> _node.Node:
         """Inspect a Barmetal machine
 
@@ -187,8 +187,8 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         self,
         nics: list[str | dict[str, Any]],
         wait: bool = False,
-        timeout: int | float = 3600,
-        lock_timeout: int | float = 600,
+        timeout: float = 3600,
+        lock_timeout: float = 600,
         provision_state: str = 'available',
         **kwargs: Any,
     ) -> _node.Node:
@@ -296,7 +296,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         nics: list[str | dict[str, Any]],
         uuid: str,
         wait: bool | None = None,
-        timeout: int | float = 600,
+        timeout: float = 600,
     ) -> None:
         """Unregister Baremetal from Ironic
 
@@ -513,7 +513,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         state: str,
         configdrive: str | None = None,
         wait: bool = False,
-        timeout: int | float = 3600,
+        timeout: float = 3600,
     ) -> _node.Node:
         """Set Node Provision State
 
@@ -640,14 +640,14 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         uuid: str,
         configdrive: str | None = None,
         wait: bool = False,
-        timeout: int | float = 1200,
+        timeout: float = 1200,
     ) -> None:
         self.node_set_provision_state(
             uuid, 'active', configdrive, wait=wait, timeout=timeout
         )
 
     def deactivate_node(
-        self, uuid: str, wait: bool = False, timeout: int | float = 1200
+        self, uuid: str, wait: bool = False, timeout: float = 1200
     ) -> None:
         self.node_set_provision_state(
             uuid, 'deleted', wait=wait, timeout=timeout
@@ -674,7 +674,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
 
     def wait_for_baremetal_node_lock(
-        self, node: str | _node.Node, timeout: int | float = 30
+        self, node: str | _node.Node, timeout: float = 30
     ) -> None:
         """Wait for a baremetal node to have no lock.
 

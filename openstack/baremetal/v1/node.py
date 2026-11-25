@@ -10,10 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import collections
 from collections.abc import MutableMapping
 import enum
-from typing import Any, Self, cast
+from typing import Any, NamedTuple, Self, cast
 import warnings
 
 from keystoneauth1 import adapter
@@ -58,9 +57,7 @@ class PowerAction(enum.Enum):
     """Reboot the node using soft power off."""
 
 
-class WaitResult(
-    collections.namedtuple('WaitResult', ['success', 'failure', 'timeout'])
-):
+class WaitResult(NamedTuple):
     """A named tuple representing a result of waiting for several nodes.
 
     Each component is a list of :class:`~openstack.baremetal.v1.node.Node`
@@ -74,7 +71,9 @@ class WaitResult(
         objects that hit a failure.
     """
 
-    __slots__ = ()
+    success: list['Node']
+    failure: list['Node']
+    timeout: list['Node']
 
 
 class Node(_common.Resource):
@@ -440,7 +439,7 @@ class Node(_common.Resource):
         clean_steps: list[dict[str, object]] | None = None,
         rescue_password: str | None = None,
         wait: bool = False,
-        timeout: int | float | None = None,
+        timeout: float | None = None,
         deploy_steps: list[dict[str, object]] | None = None,
         service_steps: list[dict[str, object]] | None = None,
         runbook: str | None = None,
@@ -604,7 +603,7 @@ class Node(_common.Resource):
         self,
         session: adapter.Adapter,
         expected_state: str,
-        timeout: int | float | None = None,
+        timeout: float | None = None,
     ) -> Self:
         """Wait for the node to reach the expected power state.
 
@@ -641,7 +640,7 @@ class Node(_common.Resource):
         self,
         session: adapter.Adapter,
         expected_state: str,
-        timeout: int | float | None = None,
+        timeout: float | None = None,
         abort_on_failed_state: bool = True,
     ) -> Self:
         """Wait for the node to reach the expected state.
@@ -686,7 +685,7 @@ class Node(_common.Resource):
     def wait_for_reservation(
         self,
         session: adapter.Adapter,
-        timeout: int | float | None = None,
+        timeout: float | None = None,
     ) -> Self:
         """Wait for a lock on the node to be released.
 
@@ -808,7 +807,7 @@ class Node(_common.Resource):
         session: adapter.Adapter,
         target: str | PowerAction,
         wait: bool = False,
-        timeout: int | float | None = None,
+        timeout: float | None = None,
     ) -> None:
         """Run an action modifying this node's power state.
 

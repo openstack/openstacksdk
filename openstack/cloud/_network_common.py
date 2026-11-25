@@ -785,7 +785,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         nat_destination: str | None = None,
         port: str | None = None,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
     ) -> _floating_ip.FloatingIP | utils.Munch:
         """Allocate a new floating IP from a network or a pool.
 
@@ -860,7 +860,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         nat_destination: str | None = None,
         port: str | None = None,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
         network_id: str | None = None,
     ) -> _floating_ip.FloatingIP | utils.Munch:
         if not network_id:
@@ -1088,7 +1088,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         floating_ip: _floating_ip.FloatingIP | utils.Munch,
         fixed_address: str | None = None,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
         skip_attach: bool = False,
         nat_destination: str | None = None,
     ) -> _server.Server:
@@ -1293,7 +1293,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         fixed_address: str | None = None,
         reuse: bool = True,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
         nat_destination: str | None = None,
     ) -> _server.Server:
         """Add a floating IP to a server from a given pool
@@ -1350,7 +1350,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         server: _server.Server,
         ips: str | list[str],
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
         fixed_address: str | None = None,
         nat_destination: str | None = None,
     ) -> _server.Server:
@@ -1400,7 +1400,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self,
         server: _server.Server,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
         reuse: bool = True,
     ) -> str | None:
         """Add a floating IP to a server.
@@ -1432,7 +1432,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self,
         server: _server.Server,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
         reuse: bool = True,
     ) -> _server.Server:
         skip_attach = False
@@ -1498,7 +1498,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         ips: str | list[str] | None = None,
         ip_pool: str | None = None,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
         reuse: bool = True,
         fixed_address: str | None = None,
         nat_destination: str | None = None,

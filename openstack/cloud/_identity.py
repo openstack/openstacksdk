@@ -1694,7 +1694,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         system: str | None = None,
         inherited: bool = False,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
     ) -> bool:
         """Grant a role to a user.
 
@@ -1819,7 +1819,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         system: str | None = None,
         inherited: bool = False,
         wait: bool = False,
-        timeout: int | float = 60,
+        timeout: float = 60,
     ) -> bool:
         """Revoke a role from a user.
 

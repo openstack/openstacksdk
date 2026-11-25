@@ -769,7 +769,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     def project_cleanup(
         self,
         dry_run: bool = True,
-        wait_timeout: int | float = 120,
+        wait_timeout: float = 120,
         status_queue: queue.Queue[resource.Resource] | None = None,
         filters: dict[str, Any] | None = None,
         resource_evaluation_fn: Callable[

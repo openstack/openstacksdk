@@ -246,7 +246,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         return None
 
     def wait_for_image(
-        self, image: ImageT, timeout: int | float = 3600
+        self, image: ImageT, timeout: float = 3600
     ) -> ImageT | None:
         image_id = image['id']
         for count in utils.iterate_timeout(
@@ -267,7 +267,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         self,
         name_or_id: str,
         wait: bool = False,
-        timeout: int | float = 3600,
+        timeout: float = 3600,
         delete_objects: bool = True,
     ) -> bool:
         """Delete an existing image.
@@ -323,7 +323,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         container_format: str | None = None,
         disable_vendor_agent: bool = True,
         wait: bool = False,
-        timeout: int | float = 3600,
+        timeout: float = 3600,
         tags: list[str] | None = None,
         allow_duplicates: bool = False,
         meta: dict[str, Any] | None = None,

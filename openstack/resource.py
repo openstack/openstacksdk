@@ -2692,8 +2692,8 @@ def wait_for_status(
     resource: ResourceT,
     status: str | None,
     failures: list[str] | None = None,
-    interval: int | float | None = 2,
-    wait: int | float | None = None,
+    interval: float | None = 2,
+    wait: float | None = None,
     attribute: str = 'status',
     callback: Callable[[int], None] | None = None,
 ) -> ResourceT:
@@ -2769,8 +2769,8 @@ def wait_for_status(
 def wait_for_delete(
     session: adapter.Adapter,
     resource: ResourceT,
-    interval: int | float | None = 2,
-    wait: int | float | None = None,
+    interval: float | None = 2,
+    wait: float | None = None,
     callback: Callable[[int], None] | None = None,
 ) -> ResourceT:
     """Wait for a resource to be deleted.

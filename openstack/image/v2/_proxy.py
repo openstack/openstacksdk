@@ -191,7 +191,7 @@ class Proxy(proxy.Proxy):
         allow_duplicates: bool = False,
         meta: dict[str, Any] | None = None,
         wait: bool = False,
-        timeout: int | float = 3600,
+        timeout: float = 3600,
         validate_checksum: bool = False,
         use_import: bool = False,
         import_method: str | None = None,
@@ -647,7 +647,7 @@ class Proxy(proxy.Proxy):
         data: Any = None,
         meta: dict[str, Any] | None = None,
         wait: bool = False,
-        timeout: int | float | None = None,
+        timeout: float | None = None,
         validate_checksum: bool = True,
         use_import: bool = False,
         import_method: str | None = None,
@@ -827,7 +827,7 @@ class Proxy(proxy.Proxy):
         filename: str | None,
         data: Any,
         wait: bool,
-        timeout: int | float | None,
+        timeout: float | None,
         meta: dict[str, Any] | None,
         size: int | None = None,
         **image_kwargs: Any,
@@ -2200,8 +2200,8 @@ class Proxy(proxy.Proxy):
         task: _task.Task,
         status: str = 'success',
         failures: list[str] | None = None,
-        interval: int | float = 2,
-        wait: int | float | None = 120,
+        interval: float = 2,
+        wait: float | None = 120,
     ) -> _task.Task:
         """Wait for a task to be in a particular status.
 
@@ -2306,7 +2306,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         status: str,
         failures: list[str] | None = None,
-        interval: int | float | None = 2,
+        interval: float | None = 2,
         wait: int | None = None,
         attribute: str = 'status',
         callback: Callable[[int], None] | None = None,
@@ -2343,7 +2343,7 @@ class Proxy(proxy.Proxy):
     def wait_for_delete(
         self,
         res: resource.ResourceT,
-        interval: int | float | None = 2,
+        interval: float | None = 2,
         wait: int | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:

@@ -143,7 +143,7 @@ quote-style = "preserve"
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["ANN", "E", "F", "G", "ISC", "LOG", "RUF", "S", "UP", "W"]
+select = ["ANN", "E", "F", "G", "ISC", "LOG", "RUF", "S", "PYI", "UP", "W"]
 ignore = [
     # this needs a lot more work before we can enable it
     "ANN401",
@@ -155,7 +155,7 @@ ignore = [
 external = ["H", "O"]
 
 [tool.ruff.lint.per-file-ignores]
-"openstack/tests/*" = ["ANN", "S"]
+"openstack/tests/*" = ["ANN", "S", "PYI"]
 "openstack/_services_mixin.py" = ["E501"]
 "openstack/_hacking/*" = ["ANN"]
 "examples/*" = ["ANN", "S"]
