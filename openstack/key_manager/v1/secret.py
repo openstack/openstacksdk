@@ -16,7 +16,6 @@ from keystoneauth1 import adapter
 
 from openstack import exceptions
 from openstack.key_manager.v1 import _format
-from openstack.key_manager.v1 import _microversion
 from openstack import resource
 from openstack import utils
 
@@ -35,11 +34,6 @@ class Secret(resource.Resource):
     # secret_store_id / secret_store_ref on secret GET/list, and
     # PUT .../secrets/{id}/secret-store/{store_id}, were introduced in 1.3
     _max_microversion = '1.3'
-
-    @classmethod
-    def _get_microversion(cls, session: adapter.Adapter) -> str | None:
-        # Barbican's unversioned discovery has no min/max; use the probe.
-        return _microversion.get_microversion(session, cls._max_microversion)
 
     _query_mapping = resource.QueryParameters(
         "name",

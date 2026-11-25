@@ -23,6 +23,8 @@ class SecretConsumer(resource.Resource):
     resources_key = 'consumers'
     base_path = '/secrets/%(secret_id)s/consumers'
 
+    _min_microversion = '1.1'
+
     allow_create = True
     allow_delete = True
     allow_list = True

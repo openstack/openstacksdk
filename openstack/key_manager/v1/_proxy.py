@@ -17,7 +17,6 @@ from typing import Any, ClassVar, Literal, overload
 from openstack._utils import renamed_param
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
-from openstack.key_manager.v1 import _microversion
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import container_acl as _container_acl
 from openstack.key_manager.v1 import order as _order
@@ -29,6 +28,7 @@ from openstack.key_manager.v1 import secret_consumer as _secret_consumer
 from openstack.key_manager.v1 import secret_store as _secret_store
 from openstack import proxy
 from openstack import resource
+from openstack import utils
 
 
 def _normalize_secret_store_resource(
@@ -478,11 +478,7 @@ class Proxy(proxy.Proxy):
 
         :returns: None
         """
-        # NOTE: Can't use openstack.utils.supports_microversion() here --
-        # Barbican's unversioned discovery document never carries a
-        # microversion range, so adapter.get_endpoint_data() always reports
-        # min/max as None for key-manager. See _microversion.py.
-        if not _microversion.supports_microversion(self, '1.3'):
+        if not utils.supports_microversion(self, '1.3'):
             raise exceptions.SDKException(
                 "Migrate secret store requires at least microversion 1.3"
             )
