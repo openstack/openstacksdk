@@ -35,7 +35,6 @@ from keystoneauth1.loading import adapter as ks_load_adap
 from keystoneauth1 import plugin
 from keystoneauth1 import session as ks_session
 import os_service_types
-import requests.exceptions
 import urllib3.exceptions
 
 try:
@@ -70,18 +69,6 @@ if TYPE_CHECKING:
 _T = TypeVar('_T')
 
 _logger = _log.setup_logging('openstack')
-
-
-def _close_requests_session(session: ks_session.Session) -> None:
-    # A caller-supplied requests.Session remains the caller's responsibility.
-    requests_session = getattr(session, '_session', None)
-    if requests_session is None:
-        return
-
-    try:
-        requests_session.close()
-    except (OSError, requests.exceptions.RequestException):
-        pass
 
 
 SCOPE_KEYS = {
@@ -1079,7 +1066,7 @@ class CloudRegion:
         if session is None:
             return
 
-        _close_requests_session(session)
+        session.close()
 
     def get_session(self) -> ks_session.Session:
         """Return a keystoneauth session based on the auth credentials."""
@@ -1115,10 +1102,10 @@ class CloudRegion:
             collect_timing=bool(self.config.get('timing')),
             discovery_cache=self._discovery_cache,
         )
-        # Register only for sessions created here. The finalizer retains
-        # its arguments, so neither its callback nor its arguments may
-        # retain this region. The registry keeps the finalizer alive.
-        weakref.finalize(self, _close_requests_session, self._keystone_session)
+        # Register only for sessions created here. This bound method
+        # retains the session, not the region, so the region can still be
+        # collected. The registry keeps the finalizer alive.
+        weakref.finalize(self, self._keystone_session.close)
         self.insert_user_agent()
         # Using old keystoneauth with new os-client-config fails if
         # we pass in app_name and app_version. Those are not essential,

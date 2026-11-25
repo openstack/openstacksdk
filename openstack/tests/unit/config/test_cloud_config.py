@@ -19,7 +19,6 @@ import weakref
 
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
-import requests
 
 from openstack.config import cloud_region
 from openstack.config import defaults
@@ -52,9 +51,10 @@ fake_services_dict = {
 
 
 class TestCloudRegion(base.TestCase):
-    def test_finalizer_without_session(self):
+    def test_close_without_session(self):
         constructor = mock.Mock()
         region = cloud_region.CloudRegion(session_constructor=constructor)
+        region.close()
         region_ref = weakref.ref(region)
 
         del region
@@ -63,50 +63,47 @@ class TestCloudRegion(base.TestCase):
         self.assertIsNone(region_ref())
         constructor.assert_not_called()
 
-    def test_finalizer_releases_owned_session(self):
+    def test_close_delegates_to_session(self):
         session = ksa_session.Session()
         region = cloud_region.CloudRegion(
             auth_plugin=mock.Mock(),
             session_constructor=mock.Mock(return_value=session),
         )
-        self.assertIs(region.get_session(), session)
-        self.assertIs(region.get_session(), session)
+        region.get_session()
+
+        with mock.patch.object(session, 'close') as close:
+            region.close()
+
+        close.assert_called_once()
+
+    def test_finalizer_delegates_to_session(self):
+        session = ksa_session.Session()
+        region = cloud_region.CloudRegion(
+            auth_plugin=mock.Mock(),
+            session_constructor=mock.Mock(return_value=session),
+        )
         region_ref = weakref.ref(region)
 
         # Retain the session so its destructor cannot mask a missing region
         # finalizer or cause a second close during this assertion.
-        with mock.patch.object(session.session, 'close') as close:
+        with mock.patch.object(session, 'close') as close:
+            self.assertIs(region.get_session(), session)
+            self.assertIs(region.get_session(), session)
             del region
             gc.collect()
 
             self.assertIsNone(region_ref())
             close.assert_called_once()
 
-    def test_finalizer_keeps_supplied_session(self):
+    def test_close_keeps_supplied_session(self):
         session = ksa_session.Session()
         region = cloud_region.from_session(session)
         self.assertIs(region.get_session(), session)
         region_ref = weakref.ref(region)
 
-        with mock.patch.object(session.session, 'close') as close:
-            del region
-            gc.collect()
-
-            self.assertIsNone(region_ref())
+        with mock.patch.object(session, 'close') as close:
+            region.close()
             close.assert_not_called()
-
-    def test_finalizer_keeps_external_requests_session(self):
-        external = requests.Session()
-        self.addCleanup(external.close)
-        session = ksa_session.Session(session=external)
-        region = cloud_region.CloudRegion(
-            auth_plugin=mock.Mock(),
-            session_constructor=mock.Mock(return_value=session),
-        )
-        region.get_session()
-        region_ref = weakref.ref(region)
-
-        with mock.patch.object(external, 'close') as close:
             del region
             gc.collect()
 
@@ -119,10 +116,10 @@ class TestCloudRegion(base.TestCase):
             auth_plugin=mock.Mock(),
             session_constructor=mock.Mock(return_value=session),
         )
-        region.get_session()
         region_ref = weakref.ref(region)
 
-        with mock.patch.object(session.session, 'close') as close:
+        with mock.patch.object(session, 'close') as close:
+            region.get_session()
             region.close()
             close.assert_called_once()
             close.reset_mock()
@@ -140,7 +137,7 @@ class TestCloudRegion(base.TestCase):
             auth_plugin=mock.Mock(),
             session_constructor=mock.Mock(return_value=session),
         )
-        with mock.patch.object(session.session, 'close') as close:
+        with mock.patch.object(session, 'close') as close:
             with region:
                 region.get_session()
             close.assert_called_once()
@@ -150,29 +147,6 @@ class TestCloudRegion(base.TestCase):
             gc.collect()
 
             close.assert_called_once()
-
-    def test_finalizer_ignores_transport_errors(self):
-        for exc in (OSError, requests.exceptions.RequestException):
-            with self.subTest(exc=exc):
-                session = ksa_session.Session()
-                region = cloud_region.CloudRegion(
-                    auth_plugin=mock.Mock(),
-                    session_constructor=mock.Mock(return_value=session),
-                )
-                region.get_session()
-                region_ref = weakref.ref(region)
-                with (
-                    mock.patch.object(
-                        session.session, 'close', side_effect=exc
-                    ) as close,
-                    mock.patch('sys.unraisablehook') as unraisable,
-                ):
-                    del region
-                    gc.collect()
-
-                    self.assertIsNone(region_ref())
-                    close.assert_called_once()
-                    unraisable.assert_not_called()
 
     def test_arbitrary_attributes(self):
         cc = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
