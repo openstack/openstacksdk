@@ -190,9 +190,7 @@ class Proxy(adapter.Adapter):
             # narrow type
             raise RuntimeError('expected service_type to be set')
 
-        name_parts = self._extract_name(
-            url, self.service_type, self.session.get_project_id()
-        )
+        name_parts = self._extract_name(url, self.session.get_project_id())
 
         return '.'.join([self.service_type, *name_parts])
 
@@ -309,7 +307,6 @@ class Proxy(adapter.Adapter):
     def _extract_name(
         cls,
         url: str,
-        service_type: str | None = None,
         project_id: str | None = None,
     ) -> list[str]:
         """Produce a key name to use in logging/metrics from the URL path.
@@ -326,13 +323,6 @@ class Proxy(adapter.Adapter):
           /servers/{id}/os-security-groups -> ['server', 'os-security-groups']
           /v2.0/networks.json -> ['networks']
         """
-        if service_type is not None:
-            warnings.warn(
-                "The 'service_type' parameter is unnecesary and will be "
-                "removed in a future release.",
-                os_warnings.RemovedInSDK50Warning,
-            )
-
         url_path = urllib.parse.urlparse(url).path.strip()
         # Remove / from the beginning to keep the list indexes of interesting
         # things consistent
@@ -449,9 +439,7 @@ class Proxy(adapter.Adapter):
 
             name_parts = [
                 normalize_metric_name(f)
-                for f in self._extract_name(
-                    url, self.service_type, self.session.get_project_id()
-                )
+                for f in self._extract_name(url, self.session.get_project_id())
             ]
             key = '.'.join(
                 [
@@ -538,7 +526,7 @@ class Proxy(adapter.Adapter):
                 [
                     normalize_metric_name(f)
                     for f in self._extract_name(
-                        url, self.service_type, self.session.get_project_id()
+                        url, self.session.get_project_id()
                     )
                 ]
             ),
