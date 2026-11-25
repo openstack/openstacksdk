@@ -74,8 +74,8 @@ class TestMessage(base.TestCase):
         resp = mock.Mock()
         sess.post.return_value = resp
         resources = [
-            '/v2/queues/queue1/messages/578ee000508f153f256f717d'
-            '/v2/queues/queue1/messages/579edd6c368cb61de9a7e233'
+            '/v2/queues/queue1/messages/578ee000508f153f256f717d',
+            '/v2/queues/queue1/messages/579edd6c368cb61de9a7e233',
         ]
         resp.json.return_value = {'resources': resources}
         sess.get_project_id.return_value = 'NEW_PROJECT_ID'
@@ -105,8 +105,8 @@ class TestMessage(base.TestCase):
         resp = mock.Mock()
         sess.post.return_value = resp
         resources = [
-            '/v2/queues/queue1/messages/578ee000508f153f256f717d'
-            '/v2/queues/queue1/messages/579edd6c368cb61de9a7e233'
+            '/v2/queues/queue1/messages/578ee000508f153f256f717d',
+            '/v2/queues/queue1/messages/579edd6c368cb61de9a7e233',
         ]
         resp.json.return_value = {'resources': resources}
         messages = [
