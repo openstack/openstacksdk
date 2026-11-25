@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    ``CloudRegion`` now provides a ``close()`` method to release the pooled
+    connections of a keystoneauth session created by that region.
+  - |
+    CloudRegion can now be used as a context manager. Exiting the context
+    calls ``close()`` to release region-owned session pools, while leaving
+    caller-supplied sessions untouched. Entering does not create a session.
