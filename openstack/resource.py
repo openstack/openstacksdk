@@ -836,9 +836,9 @@ class Resource(dict[str, Any]):
     ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
         """Given attributes, return a dict per type of attribute
 
-        This method splits up **attrs into separate dictionaries
-        that correspond to the relevant body, header, and uri
-        attributes that exist on this class.
+        This method splits up ``attrs`` into separate dictionaries that
+        correspond to the relevant body, header, and uri attributes that exist
+        on this class.
         """
         body = self._consume_body_attrs(attrs)
         header = self._consume_header_attrs(attrs)
@@ -850,14 +850,13 @@ class Resource(dict[str, Any]):
             elif self._store_unknown_attrs_as_properties:
                 # Keep also remaining (unknown) attributes
                 body = self._pack_attrs_under_properties(body, attrs)
+            attrs = {}
 
         if any([body, header, uri]):
-            attrs = self._compute_attributes(body, header, uri)
-
             body.update(self._consume_attrs(self._body_mapping(), attrs))
-
             header.update(self._consume_attrs(self._header_mapping(), attrs))
             uri.update(self._consume_attrs(self._uri_mapping(), attrs))
+
         computed = self._consume_attrs(self._computed_mapping(), attrs)
         # TODO(mordred) We should make a Location Resource and add it here
         # instead of just the dict.
@@ -886,19 +885,6 @@ class Resource(dict[str, Any]):
             kwargs['zone'] = self.availability_zone
         if kwargs:
             self.location = self._connection._get_current_location(**kwargs)
-
-    def _compute_attributes(
-        self,
-        body: dict[str, Any],
-        header: dict[str, Any],
-        uri: dict[str, Any],
-    ) -> dict[str, Any]:
-        """Compute additional attributes from the remote resource."""
-        warnings.warn(
-            'The _compute_attributes method is deprecated for removal',
-            os_warnings.RemovedInSDK50Warning,
-        )
-        return {}
 
     def _consume_body_attrs(
         self, attrs: MutableMapping[str, Any]
