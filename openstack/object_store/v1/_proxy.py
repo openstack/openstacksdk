@@ -75,7 +75,6 @@ class Proxy(proxy.Proxy):
     def _extract_name(
         cls,
         url: str,
-        service_type: str | None = None,
         project_id: str | None = None,
     ) -> list[str]:
         url_path = parse.urlparse(url).path.strip()
