@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Flavors can now be filtered by name when listing. This requires Nova API
-    microversion v2.102 or greater.
