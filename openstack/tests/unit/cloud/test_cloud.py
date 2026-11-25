@@ -133,8 +133,11 @@ class TestCloud(base.TestCase):
         # pooled connections must not propagate to the caller.
         ks = self.cloud.session
         for exc in (OSError('boom'), requests.exceptions.RequestException):
-            with mock.patch.object(ks.session, 'close', side_effect=exc):
+            with mock.patch.object(
+                ks.session, 'close', side_effect=exc
+            ) as close_mock:
                 self.cloud.close()  # must not raise
+            close_mock.assert_called_once()
 
     @mock.patch('openstack.cloud.openstackcloud._run_close')
     def test_unclosed_connection_is_garbage_collected(self, mock_run_close):
@@ -147,9 +150,27 @@ class TestCloud(base.TestCase):
         self.assertIsNone(conn_ref())
         mock_run_close.assert_called_once()
 
+    def test_unclosed_connection_with_session_is_garbage_collected(self):
+        ks = ks_session.Session()
+        conn = connection.Connection(session=ks)
+        self.assertIs(ks, conn.session)
+        conn_ref = weakref.ref(conn)
+
+        # The session has a weak proxy back to the connection. Retaining
+        # the session for cleanup must not keep the connection alive.
+        with mock.patch.object(
+            ks.session, 'close', wraps=ks.session.close
+        ) as close_mock:
+            del conn
+            gc.collect()
+
+            self.assertIsNone(conn_ref())
+            close_mock.assert_called_once()
+
     def test_close_keeps_session_usable(self):
         # close() only releases pooled connections; the session must
-        # remain usable for subsequent requests.
+        # remain usable for subsequent requests, and another close()
+        # must release connections opened after reuse.
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),
@@ -169,9 +190,17 @@ class TestCloud(base.TestCase):
                 ),
             ]
         )
-        self.assertEqual(self.cloud.list_servers(), [])
-        self.cloud.close()
-        self.assertEqual(self.cloud.list_servers(), [])
+        ks = self.cloud.session
+        with mock.patch.object(
+            ks.session, 'close', wraps=ks.session.close
+        ) as close_mock:
+            self.assertEqual(self.cloud.list_servers(), [])
+            self.cloud.close()
+            close_mock.assert_called_once()
+
+            self.assertEqual(self.cloud.list_servers(), [])
+            self.cloud.close()
+            self.assertEqual(2, close_mock.call_count)
         self.assert_calls()
 
     def test_global_request_id(self):
