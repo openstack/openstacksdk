@@ -38,14 +38,13 @@ class Flavor(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         "is_public",
-        "name",
         include_sorting_defaults=True,
         min_disk="minDisk",
         min_ram="minRam",
     )
 
-    # name filter introduced in 2.102
-    _max_microversion = '2.102'
+    # extra_specs introduced in 2.61
+    _max_microversion = '2.61'
 
     # Properties
     #: The name of this flavor.

@@ -87,7 +87,7 @@ class TestFlavors(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?name=invalid&is_public=None',
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                     json={'flavors': fakes.FAKE_FLAVOR_LIST},
                 ),
             ]

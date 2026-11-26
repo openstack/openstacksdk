@@ -65,7 +65,6 @@ class TestFlavor(base.TestCase):
                 "sort_dir": "sort_dir",
                 "min_disk": "minDisk",
                 "min_ram": "minRam",
-                "name": "name",
                 "limit": "limit",
                 "marker": "marker",
                 "is_public": "is_public",
