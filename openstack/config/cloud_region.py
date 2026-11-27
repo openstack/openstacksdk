@@ -16,7 +16,8 @@ from collections.abc import Iterator
 import copy
 import importlib.metadata as importlib_metadata
 import os.path
-from typing import Any, Protocol, TYPE_CHECKING, TypeVar, cast, overload
+from types import TracebackType
+from typing import Any, Protocol, Self, TYPE_CHECKING, TypeVar, cast, overload
 from urllib import parse
 import warnings
 
@@ -33,6 +34,7 @@ from keystoneauth1.loading import adapter as ks_load_adap
 from keystoneauth1 import plugin
 from keystoneauth1 import session as ks_session
 import os_service_types
+import requests.exceptions
 import urllib3.exceptions
 
 try:
@@ -427,6 +429,7 @@ class CloudRegion:
         self.load_auth_from_cache()
         self._openstack_config = openstack_config
         self._keystone_session = session
+        self._owns_keystone_session = session is None
         self._session_constructor = session_constructor or ks_session.Session
         self._app_name = app_name
         self._app_version = app_version
@@ -1033,6 +1036,40 @@ class CloudRegion:
         self._keystone_session.additional_user_agent.append(
             ('openstacksdk', importlib_metadata.version('openstacksdk'))
         )
+
+    def __enter__(self) -> Self:
+        """Return this region without eagerly creating a session."""
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        self.close()
+
+    def close(self) -> None:
+        """Release the connection pool of a session created by this region.
+
+        We only close sessions we created ourselves. Sessions provided by a
+        caller are assumed to be borrowed and never closed.
+        """
+        if not self._owns_keystone_session:
+            return
+
+        session = self._keystone_session
+        if session is None:
+            return
+
+        requests_session = getattr(session, '_session', None)
+        if requests_session is None:
+            return
+
+        try:
+            requests_session.close()
+        except (OSError, requests.exceptions.RequestException):
+            pass
 
     def get_session(self) -> ks_session.Session:
         """Return a keystoneauth session based on the auth credentials."""
